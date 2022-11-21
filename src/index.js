@@ -1,33 +1,28 @@
 const http = require('http')
 
-// 引入配置
-const {PORT,HOSTNAME} = require('./config/config')
+// 解构引入配置
+const {PORT,HOSTNAME} = require('./config/globalConfig')
 
-// 引入路由
-const {handleBlogRouter }= require('./router/blogRouter')
-const {handleProductRouter }= require('./router/productRouter')
-const {handleUserRouter }= require('./router/userRouter')
+
 const {getCookieExpires }= require('./utils/tool')
 
-// 查询字符串
-const querystring = require('querystring')
 
 // 数据库连接
 require('./config/mongoConnect')()
 
-http.createServer( (req,res) => {
-  // 设置数据返回格式为json
-  // 解决跨域开发环境设置，生产环境谨慎使用
-  res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:3001"); // 设置可访问的源
-  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Control-Allow-Credentials"); 
-  res.setHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("content-type", "application/json")
+// 创建http实例
+const server = http.createServer( (req,res) => {
+  // 跨域
+  require('./utils/cross')(req,res)
+
+  // 查询字符串已经废弃
+  // const querystring = require('querystring')
   // 拆分前端路由和查询字符串
   const url = req.url
   req.path = url.split('?')[0]
   // 获取查询字符串并解析为对象格式
-  req.query = querystring.parse(url.split('?')[1])
+  // req.query = querystring.parse(url.split('?')[1])
+  req.query = new URLSearchParams(url.split('?')[1])
 
   // 获取和解析cookie，判断登陆状态。
   req.cookie = {} //设置cookie为对象模式
@@ -59,16 +54,34 @@ http.createServer( (req,res) => {
   // 没有userId说明需要设置session，并修改needSetCookie的状态，并设置userId
     needSetCookie=true
     //如果没有userId，则随机生成
-    userId =`${Date.now()}_${Math.random()}`
+    userId =`${Date.now()}_${Math.random()}_ok`
     SESSION_DATA[userId] = {}
   }
   req.session = SESSION_DATA[userId]//赋值挂载到req.session上
 
 
-  // 处理博客路由
+
+
+
+
+
+
+// 引入路由
+const {handleBlogRouter }= require('./routers/blogRouter')
+const {handleProductRouter }= require('./routers/productRouter')
+const {handleUserRouter }= require('./routers/userRouter')
+
+  // 处理博客路由需登陆
   const data = handleBlogRouter(req,res)
   if(data){
-    res.end(JSON.stringify(data))
+    data.then(data => {
+      // 判断是否需要设置cookie
+      if(needSetCookie){
+        // 操作cookie,httpOnly设置浏览器不能修改cookie
+        res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${getCookieExpires()};Secure`)
+      }
+      res.end(JSON.stringify(data))
+    })
     return
   }
 
@@ -79,21 +92,21 @@ http.createServer( (req,res) => {
        // 判断是否需要设置cookie
        if(needSetCookie){
         // 操作cookie,httpOnly设置浏览器不能修改cookie
-        res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${getCookieExpires()}`)
+        res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${getCookieExpires()};Secure`)
       }
       res.end(JSON.stringify(data))
     })
     return
   }
 
-  // 用户登陆路由
+  // 用户登陆路由需登陆
   const checkMsg = handleUserRouter(req,res)
   if(checkMsg){
     checkMsg.then(data => {
       // 判断是否需要设置cookie
       if(needSetCookie){
         // 操作cookie,httpOnly设置浏览器不能修改cookie
-        res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${getCookieExpires()}`)
+        res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${getCookieExpires()};Secure`)
       }
       res.end(JSON.stringify(data))
     })
@@ -106,9 +119,13 @@ http.createServer( (req,res) => {
   res.write("404 not found")
   res.end()
 
-}).listen(PORT,HOSTNAME,err => {
+})
+
+
+// 监听端口启动服务
+server.listen(PORT,HOSTNAME,err => {
   if(err){console.log(`服务器出错，请联系系统管理员${err}`)}
-  console.log(`Server running at http://${HOSTNAME}:${PORT}/`);
+  console.log(`Server running at http://${HOSTNAME}:${PORT}/`)
 })
 
 

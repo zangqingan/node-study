@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登陆</title>
+    <link rel="stylesheet" href="./css/iconfont.css">
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="shortcut icon" href="#"/>
+</head>
+<body>
+    <div class="login-box">
+        <h1>登陆</h1>
+        <div class="input-box">
+            <div class="input-text">
+                <span class='iconfont icon-mine'></span>
+                <input type="text" placeholder="用户名" id="textUsername">
+            </div>
+            <div class="input-text">
+                <span class='iconfont icon-lock'></span>
+                <input type="password" placeholder="密码" id="textPassword">
+            </div>
+            <div class="input-btn" id="btnLogin">
+                登陆
+            </div>
+            <div class="sign-up">
+                还没账户？<a href="#">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script>
+        // 获取按钮并绑定点击事件
+        $('#btnLogin').click(() => {
+            // 获取input输入框的值，
+            const username = $('#textUsername').val()
+            const password = $('#textPassword').val()
+            // 数据会转成json字符串的格式
+            const data = {
+                username,
+                password
+            }
+            // 发送Ajax请求
+            $.ajax({
+                type: 'post',
+                url: '/api/user/login',
+                data: JSON.stringify(data),
+                headers: {
+                    'Content-type': "application/json"
+                },
+                dataType: "json",
+                success: function (res) {
+                    // 判断是否登陆成功
+                    if(res.code === 200){
+                        location.href = './index.html'
+                        // 把当前用户名信息存入localstorage/sessionStorage中
+                        window.localStorage.setItem("username", res.data.username);
+                        // window.sessionStorage.setItem("username", res.data.username);
+                    }else{
+                        alert(res.msg)
+                        return
+                    }
+
+                },
+                error: function (err) {
+                    console.error('err',err)
+                }
+            })
+        })
+    </script>
+
+
+
+</body>
+</html>

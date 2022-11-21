@@ -1,66 +1,209 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<!-- Designined by CodingLab | www.youtube.com/codinglabyt -->
+<html lang="en" dir="ltr">
+  <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登陆</title>
-    <link rel="stylesheet" href="./css/iconfont.css">
-    <link rel="stylesheet" href="./css/index.css">
-</head>
+    <title> 首页 </title>
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- Boxiocns CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="shortcut icon" href="#"/>
+   </head>
 <body>
-    <div class="login-box">
-        <h1>登陆</h1>
-        <div class="input-box">
-            <div class="input-text">
-                <span class='iconfont icon-mine'></span>
-                <input type="text" placeholder="用户名" id="textUsername">
-            </div>
-            <div class="input-text">
-                <span class='iconfont icon-lock'></span>
-                <input type="password" placeholder="密码" id="textPassword">
-            </div>
-            <div class="input-btn" id="btnLogin">
-                登陆
-            </div>
-            <div class="sign-up">
-                还没账户？<a href="#">立即注册</a>
-            </div>
-        </div>
+  <!-- 侧边导航栏 -->
+  <div class="sidebar">
+    <div class="logo-details">
+      <i class='bx bxl-c-plus-plus'></i>
+      <span class="logo_name">青安后台管理系统</span>
     </div>
+    <ul class="nav-links">
+      <li>
+        <a href="#">
+          <i class='bx bx-grid-alt' ></i>
+          <span class="link_name">首页</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="#">首页</a></li>
+        </ul>
+      </li>
+      <li>
+        <div class="iocn-link">
+          <a href="#">
+            <i class='bx bx-collection' ></i>
+            <span class="link_name">分类</span>
+          </a>
+          <i class='bx bxs-chevron-down arrow' ></i>
+        </div>
+        <ul class="sub-menu">
+          <li><a class="link_name" href="#">分类</a></li>
+          <li><a href="#">HTML & CSS</a></li>
+          <li><a href="#">JavaScript</a></li>
+          <li><a href="#">PHP & MySQL</a></li>
+        </ul>
+      </li>
+      <li>
+        <div class="iocn-link">
+          <a href="#">
+            <i class='bx bx-book-alt' ></i>
+            <span class="link_name">Posts</span>
+          </a>
+          <i class='bx bxs-chevron-down arrow' ></i>
+        </div>
+        <ul class="sub-menu">
+          <li><a class="link_name" href="#">Posts</a></li>
+          <li><a href="#">Web Design</a></li>
+          <li><a href="#">Login Form</a></li>
+          <li><a href="#">Card Design</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">
+          <i class='bx bx-pie-chart-alt-2' ></i>
+          <span class="link_name">分析</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="#">分析</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">
+          <i class='bx bx-line-chart' ></i>
+          <span class="link_name">图表</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="#">图表</a></li>
+        </ul>
+      </li>
+      <li>
+        <div class="iocn-link">
+          <a href="#">
+            <i class='bx bx-plug' ></i>
+            <span class="link_name">拓展</span>
+          </a>
+          <i class='bx bxs-chevron-down arrow' ></i>
+        </div>
+        <ul class="sub-menu">
+          <li><a class="link_name" href="#">拓展</a></li>
+          <li><a href="#">UI Face</a></li>
+          <li><a href="#">Pigments</a></li>
+          <li><a href="#">Box Icons</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">
+          <i class='bx bx-compass' ></i>
+          <span class="link_name">搜索</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="#">搜索</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">
+          <i class='bx bx-history'></i>
+          <span class="link_name">历史</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="#">历史</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#">
+          <i class='bx bx-cog' ></i>
+          <span class="link_name">设置</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="#">设置</a></li>
+        </ul>
+      </li>
+      <li>
+        <!-- 用户登陆信息移动到右侧 -->
+    <!-- <div class="profile-details">
+      <div class="profile-content">
+        <img src="image/profile.jpg" alt="profile">
+      </div>
+      <div class="name-job">
+        <div class="profile_name">Prem Shahi</div>
+        <div class="job">Web Desginer</div>
+      </div>
+      <i class='bx bx-log-out' ></i>
+    </div> -->
+  </li>
+</ul>
+  </div>
+  <!-- 右侧内容 -->
+  <section class="home-section">
+    <!-- 面包屑 -->
+    <div class="home-content">
+      <i class='bx bx-menu' ></i>
+    </div>
+    <!-- 内容展示区 -->
+    <div class="home-show" style="background-color: #fff;width:95%;height: 85%;margin-left: 20px;">
+      hello
+    </div>
+    <!-- 版权信息 -->
+    <div class="home-footer" style="margin: 0 auto; display: flex;justify-content: center;">
+     <span>©2021 zangqingan</span> 
+    </div>
+  </section>
 
 
-    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
-    <script>
-        // 获取按钮并绑定点击事件
-        $('#btnLogin').click(() => {
-            // 获取input输入框的值，
-            const username = $('#textUsername').val()
-            const password = $('#textPassword').val()
-            // 数据会转成json字符串的格式
-            const data = {
-                username,
-                password
-            }
-            // 发送Ajax请求
-            $.ajax({
-                type: 'post',
-                url: 'http://127.0.0.1:3000/api/user/login',
-                data: JSON.stringify(data),
-                headers: {
-                'Content-type': "application/json"
-                },
-                success: function (res) {
-                    console.log('success')
-                },
-                error(err) {
-                    console.error(err)
-                }
-            })
-        })
-    </script>
 
 
+
+
+
+
+
+
+
+
+
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+  <script>
+    // 子分类箭头缩放
+    let arrow = document.querySelectorAll(".arrow");
+    for (var i = 0; i < arrow.length; i++) {
+      arrow[i].addEventListener("click", (e)=>{
+    let arrowParent = e.target.parentElement.parentElement;
+    arrowParent.classList.toggle("showMenu");
+      });
+    }
+    // 左侧导航栏
+    let sidebar = document.querySelector(".sidebar");
+    let sidebarBtn = document.querySelector(".bx-menu");
+    sidebarBtn.addEventListener("click", ()=>{
+      sidebar.classList.toggle("close");
+    });
+
+    // 从本地存储中取
+    let username = window.localStorage.getItem('username')
+    // let username = window.sessionStorage.getItem('username')
+    // 没登陆禁止访问
+    if(!username){
+      window.location.href = './login.html'
+    }
+    // 获取首页产品数据 /api/product/list
+    // 发送Ajax请求
+    $.ajax({
+        type: 'get',
+        url: '/api/product/list',
+        headers: {
+            'Content-type': "application/json"
+        },
+        dataType: "json",
+        success: function (res) {
+           console.log(res)
+
+
+        },
+        error: function (err) {
+            console.error('err',err)
+        }
+    })
+
+  </script>
 
 </body>
 </html>

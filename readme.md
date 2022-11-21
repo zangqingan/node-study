@@ -1,5 +1,5 @@
-# 一、nodejs学习开始前
-## 1.1 cmd常用命令的学习：
+# 一、nodejs 学习开始前
+## 1.1 cmd常用命令的学习
 window+r ：快速打开命令运行窗口。
 常用命令：
 cmd：命令行窗口。
@@ -8,74 +8,77 @@ calc；计算器。
 mspaint：画图工具。
 write：写字板。
 sysdm.cpl；打开环境变量的设置窗口。
-
 切换盘符：盘符号: 点击回车即可。
 md 要创建的目录名。
 cd 要进入的目录名。
 cls == clear 清屏
-## 1.2 linux常用命令
- touch 新建一个文件
- cd 进入目录
- ls 列举当前目录下所有资源等等。
 
-# 二、nodejs主要知识点
-nodejs的学习可以说是很简单的，因为它的真正用途或者说一般实际用途是：运行在服务器作为web server存在。也就是说对于我们前端工程师而言就是用来提供api接口的，它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的。我们主要学习的就是这些思路和套路，学习的主要内容如下：
+## 1.2 linux系统常用命令
+touch 新建一个文件
+cd 进入目录
+ls 列举当前目录下所有资源等等。
+
+# 二、nodejs 主要知识点
+nodejs的学习可以说是很简单的，因为它的真正用途或者说一般实际用途是：运行在服务端作为web server存在。也就是说对于我们前端工程师而言就是用来提供api接口的，它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的，同时原生node是比较繁杂的。我们主要学习的就是这些思路和套路，学习的主要内容如下：
 
 2.1 nodejs和JavaScript的区别
 2.2 server端和前端的概念和区别
 2.3 nodejs基本介绍和使用
 2.4 nodejs模块系统与NPM
 2.5 nodejs常用模块的学习
-2.6 nodejs操作数据库模块
-2.7 nodejs安全和日志模块
-2.8 nodejs登陆功能的实现
+2.6 nodejs登陆功能的实现
 
 ## 2.1 nodejs和JavaScript的区别
-ecmascript定义了语法，无论是写JavaScript还是nodejs都必须遵守的，但是不能操作DON，不能监听事件，不能发送Ajax，不能处理http请求。
-JavaScript使用了ecmascript语法规范还外加浏览器提供的web api，web api主要包括用来操作DOM，BOM，监听事件，发送Ajax请求等一系列的api。
-nodejs也使用了ecmascript语法规范还外加node api，node api用来处理http请求，处理文件等。
+ecmascript定义了语法，无论是写JavaScript还是nodejs都必须遵守的，但是nodejs不能操作DON，不能监听页面事件，不能发送Ajax，不能处理http请求。
+JavaScript使用了ecmascript语法规范还外加浏览器提供的web api (web api主要包括用来操作DOM，BOM，监听事件，发送Ajax请求等一系列的api。)
+nodejs也使用了ecmascript语法规范还外加node api (node api用来处理http请求，处理文件等。)
 
-前端模块化使用es6的import/export规范：一个js文件就是一个模块，export导出，直接使用import导入。
-后端模块化使用conmonjs规范：一个js文件也是一个模块，使用 module.exports = {} 或者exports = xxx 导出,使用require('路径')函数引入。
+前端模块化使用es6的import/export规范：一个js文件就是一个模块，export default或者export导出，直接使用import导入。
+后端模块化使用commonjs规范：一个js文件也是一个模块，使用 module.exports = {} 或者exports = xxx 导出,使用require('路径')函数引入。
+注意：本人用的还是node还是 v14.18.2 版本的，v16版本之后node也支持了es6的模块化语法。
 
-## 2.2 server端和前端的概念和区别(重点在于切换思路)
+## 2.2 server端和前端的概念和区别
+记住重点在于切换思路
 前端：主要和用户肉眼所看到的页面打交道，主要工作就是写页面（HTML），美化页面（css），调用后端提供的 api接口去请求或提交数据等。
 
 server端也就是服务器端，主要进行业务逻辑的操作如：数据的增删改查，数据库的操作，对外暴露api接口等。后端开发思维是和前端不一样的，在开发过程中要考虑以下多个方面的问题：
 服务的稳定性：server端可能会遭受各种恶意攻击，但是服务不能挂掉。--》通过PM2进行进程守候在服务挂掉后能自动重启。
-要考虑服务器的内存和cpu：在客户端只有一个浏览器内存不是问题，而对于服务端来说cpu和内存都是稀缺资源。--》通过stream写日志，使用redis存session 优化内存和cpu。
+要考虑服务器性能如内存和cpu：在客户端只有一个浏览器内存不是问题，而对于服务端来说cpu和内存都是稀缺资源。--》通过stream写日志，使用redis存session 优化内存和cpu。
 日志管理：前端也参与日志但是只是发送不关心后续，server端则要纪录，存储，以及分析日志。
 安全问题：server会时刻遭受各种网络恶意攻击，而前端较少。--》通过登陆验证，预防常见的xss攻击和sql注入。
 集群和服务拆分：当产品发展速度快，流量可能会迅速增加，项目变得很大时，就需要考虑集群和拆分服务了。
 
 ## 2.3 nodejs基本介绍和使用
-### 2.3.1 nodejs介绍
-Node.js 是一个基于GoogleV8引擎的JavaScript 运行时，不是一门新的语言或者框架。
-简单的说 Node.js 就是运行在服务端的 JavaScript，也可以说是一个解析器或者软件。
+### 2.3.1 nodejs基本介绍
+Node.js 是一个基于Google V8引擎的JavaScript 运行时环境(runtime)，不是一门新的语言或者框架。简单的说Node.js 就是运行在服务端的JavaScript，也可以说是一个解析器或者软件。
 一般有两种用处：
     一种是运行在服务器端做web server服务(做BFF层：向前端提供HTTP服务，跟后端进行RPC通信)主要学习。
     另一种是运行在本地做打包构建工具使用。
+官方网站主要用来查询相关api：https://nodejs.org
+社区的主要用来学习基础：https://blog.poetries.top/node-learning-notes/
+
+Node.js 是一个基于 Chrome V8 引擎 的 JavaScript 运行时环境。
+Node.js 是一个服务器端 JavaScript 解释器
+Node.js 使用了一个事件驱动、非阻塞式 I/O 的模型，使其轻量又高效
+Node.js 的包管理器 npm，是全球最大的开源库生态系统
+Node.js 是一门动态语言，运行在服务端的 Javascript
+
+下载安装之后在命令窗口中输入 node -v 可以查看版本,现在用的基本上是 8.x 以上的版本了因为它们都支持 ES6 特性。个人在用v14.18.2版本，社区最新版已经到v17了，LTS版也已经更新到v16.14.0这是一个大版本更新，已经支持es6的模块语法不过对一些npm包有版本兼容问题。
+
 ### 2.3.2 nodejs组成和使用
-Node.js主要是由ecmascript语法规范 + nodeAPI 两部分组成的，es定义了语法，js和node都必须遵循，而nodeAPI是node官方提供的一系列操作文件系统等内容的接口，底层是用c++编写的。
-使用：要想使用要先安装node运行所需要的环境，去官网 https://nodejs.org 下载然后傻瓜安装即可使用。
+Node.js主要是由ecmascript语法规范 + nodeAPI 两部分组成的，ecmascript定义了语法，js和node都必须遵循，而nodeAPI是node官方提供的一系列操作文件系统、http服务、加密等内容的接口，底层是用c++编写的。
+安装使用：要想使用要先安装node运行所需要的环境，去官网 https://nodejs.org 下载然后傻瓜安装即可使用。它会把npm也安装上。
 安装好之后可以使用node -v === node --version 来查看当前安装的  node 版本信息。
 然后使用命令：node 文件名.js ，就可以在服务器端运行一个指定的js文件，当然实际开发中一般会在包管理文件：package.json中的 "scripts" 选项配置成其它命令启动。
-也可以安装node版本管理工具nvm(nodejs version manager)来同时管理多个版本的nodejs。
-nvm -v 查看相关信息。
-nvm list 查看安装了多少个nodejs版本
-nvm install 版本号[架构]/latest(最新版本) 使用nvm安装指定版本的node。
-nvm use v版本号 使用指定版本的node
-还可以使用 n 这个包来升级node的版本，注意是在服务器端(不支持windows的)
-安装：npm install -g n
-n + 版本号
-n latest 最新版
-n rm 0.10.1 删除指定版本
-n use 0.10.1 使用指定版本
+常见开发环境的nodemon，生产环境的pm2，它们都监视源文件中任何的更改并自动重启服务器。
+安装：npm install nodemon -g 
+安装：npm install pm2 -g 
+
 
 ### 2.3.3 nodejs项目一般目录结构
-对于原生nodejs不使用脚手架等工具时可根据个人爱好生成指定的项目目录结构，个人的如下：
+对于原生nodejs没有脚手架等工具时可根据个人编程爱好生成一般如下：
 项目名称
-    -node_modules  项目安装依赖存放目录初始化node项目时生成
+    -node_modules  项目安装依赖存放目录初始化node项目时自动生成
     -public 存放静态文件，图片，音频，视频等资源目录
         -img 图片
         -logs 日志
@@ -85,86 +88,20 @@ n use 0.10.1 使用指定版本
         -config 项目全局相关的配置
         -doc 存放项目说明文档，接口文档等
         -controllers 控制器
-        -models mongodb数据库表定义文件
+        -models 数据库表定义文件目录
         -middleware  自定义模块第三方中间件 
         -routers 项目路由
+        -utils 自定义工具类
         -index.js 项目入口文件
 
 ## 2.4 nodejs模块系统与NPM
-### 2.4.1 nodejs包管理工具npm
-在安装node的同时也会自动把npm也安装上，npm(node package manager)node包管理工具的简称，它是一个命令行工具，用于下载和管理node开发中需要到的各种模块/包/插件。可以在官网 https://www.npmjs.com/ 上搜索你想要安装的模块。常用命令如下：
-npm -v === npm --version 查看当前安装的 npm 版本信息
-npm install 模块名   安装指定模块
-npm uninstall 模块名   删除或者说卸载指定模块
-npm list 查看当前目录安装了哪些模块。
-npm config list 查看当前电脑主机安装了哪些全局模块。
-npm show 模块名 ，显示指定模块的详情
-npm update  升级当前目录下的项目的所有模块，也可在后面指定模块名升级。
-
-node项目从零开发一般流程如下: 
-<strong> 1.先初始化为node项目</strong>
-方法：使用 npm init / npm init -y 初始化为node项目(-y 表示快速初始化node项目包管理文件 
---》package.json)。将来要安装的模块/包的信息都会纪录在这个package.json文件中且包含有描述当前node项目的其它各种信息。
-注意：package.json 是一个json格式的文件，常见属性如下:
-{
-&emsp;&emsp;"name" : "包名/当前项目名称",
-&emsp;&emsp;"version" : "包的版本号/项目的版本号",
-&emsp;&emsp;"description" : "包的描述信息/项目的描述信息",
-&emsp;&emsp;"keywords" : "描述当前项目的关键字",
-&emsp;&emsp;"main" :"index.js", main 字段指定了node项目程序的主入口文件，即使用node命令启动项目时的入口文件，使用require('moduleName') 就会加载这个文件，这个字段的默认值是模块根目录下面的 index.js，也可以自定义指定位置的文件作为入口文件。主要负责调度组成整个程序的其它模块完成工作
-&emsp;&emsp;"scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "cross-env NODE_ENV=dev nodemon 入口文件位置",
-    "prd": "cross-env NODE_ENV=production pm2 start 入口文件位置"
-  },这个选项指定了node项目运行脚本命令的npm命令行缩写，即启动node项目的自定义命令，用来代替 node 运行文件名 这样启动js文件的方式。
-语法：npm run 自定义的命令。(自定义的命令是scripts中的键，如果定义为start时则run可以省略)。
-上面开发环境就是：npm run serve，生产环境就是：npm run prd
-&emsp;&emsp;"author" : "包的作者/项目的作者",
-&emsp;&emsp;"license": "ISC",项目使用的开源协议
-&emsp;&emsp;"contributors" : "包/项目的其他贡献者",
-&emsp;&emsp;"repository": {
-    "type": "git",
-    "url": "git+https://github.com/zangqingan/nodeStudy.git"
-},包/项目代码的远程仓库信息，包括type和URL，type可以是git或svn，URL则是远程的仓库地址。
-&emsp;&emsp;"homepage": "https://github.com/zangqingan/nodeStudy#readme",当前项目远程仓库的readme.md 文件地址。
-&emsp;&emsp;"dependencies": {
-    "mongoose": "^5.8.3"
-}，生产环境依赖，指定了项目运行时（即生产环境所依赖的模块列表）所依赖的模块。
-它们将会被安装在当前目录的 node_modules 目录下。
-&emsp;&emsp; "devDependencies": {
-    "cross-env": "^7.0.3"
-}，开发环境依赖 指定了项目开发时所依赖的模块，发布时用不到它。
-
-}
-
-<strong>2，安装开发中实际用到的各种模块</strong>
-安装/卸载语法：npm install/uninstall 包名/模块名@version   --sava / --save-dev / -g。
-后面没有参数时默认会把模块直接安装到当前目录的node_modules目录中，同时模块相关的版本信息会放到包管理文件 package.json 的 dependencies 生产依赖选项中。
-&emsp;&emsp; @version 指定模块的版本。
-&emsp;&emsp;--save = -S 模块安装到生产依赖dependencies中，即：模块信息自动写入package.json中的 "dependencies" 节点选项中。项目发布上线之后还会依赖用到的模块，没有这些模块，项目不能运行。
-&emsp;&emsp;--save-dev = -D 模块安装到开发依赖中，即：模块信息自动写入package.json中的 "devDependencies" 节点选项。项目上线之后不会用到的模块，例如'babel-loader'等。
-&emsp;&emsp;-g,表示全局安装，就可以在任何项目的目录下使用。一般如 nodemon pm2等
-
-注意：模块信息由模块名，模块版本信息组成。而版本号的格式如下：
-如 "模块名": "可升级版本符号主版本号.次版本号.修改版本号" --》 "cross-env": "^7.0.3"
-版本格式：主版本号.次版本号.修改版本号。
-主版本号：功能模块有大的变动，比如增加多个模块或者整体架构发生变化。
-次版本：模块局部的变动。
-修改版本：bug修复或者增加一些小功能。
-可升级版本符号主版本号有如下三种：
-~，用户使用当前版本后，最多升级到修改版的最新版本
-^,用户使用当前版本后，最多升级到次版本的最新版本
-*,用户使用当前版本后，可以升级到最新版本即最新主版本
-
-<strong>3.正式使用各种模块</strong>
-根据项目的实际需求在 .js 文件中编写具体的代码即可，具体使用查看文档提供的api接口。
-
-### 2.4.2 nodejs的模块系统
-&emsp;&emsp;在编写稍大一点的程序时一般都会将代码按照功能拆分成不同的文件也就是所谓的模块化，好处是1 避免变量污染，命名冲突
+### 2.4.1 nodejs的模块系统
+&emsp;&emsp;在编写稍大一点的程序时一般都会将代码按照功能拆分成不同的文件也就是所谓的模块化，好处是:
+1 避免变量污染，命名冲突
 2 提高代码复用率
 3 提高维护性
 4 依赖关系的管理。
-使用模块化开发比较符合设计原则中的单一置换原则，开放封闭原则。
+使用模块化开发也比较符合设计原则中的单一置换原则，开放封闭原则。
 在node.js中是以模块为基本单位来划分功能的，一个模块本质上就是一个 .js 文件。
 而为了让node模块之间可以相互调用，Node.js提供了一个完整的模块加载系统--》即CommonJS规范。
 注：这里 .js文件 和模块是一一对应的，即：一个 Node.js 文件就是一个模块，这个文件可能是JavaScript 代码、JSON 或者编译过的C/C++ 扩展。所以创建一个模块是很简单的就是新建一个.js文件。
@@ -203,9 +140,10 @@ nodejs对所有模块的加载方法都是通过调用 require() 函数来加载
 注意：module.exports和exports的区别：
 module.exports才是node模块真正的导出接口，即在使用require()方法引入时得到的返回值就是这个
 module.exports，一个模块文件中可以有多个exports输出，但只能有一个module.exports输出。
+所有exports对象最终都是通过module.exports导出的。
 建议都使用module.exports就行避免矛盾。
 
-<strong>3.模块的加载机制</strong>
+<strong>3.node模块的加载机制</strong>
 在Nodejs中模块加载一般会经历：路径分析、文件定位、编译执行这3个步骤。
 按照模块的分类，在Nodejs中模块加载会按照以下顺序进行优先加载：
 
@@ -223,12 +161,81 @@ module.exports，一个模块文件中可以有多个exports输出，但只能�
     6：最终如果查找的模块还是没有找到，则 require() 会抛出一个 code 属性为 'MODULE_NOT_FOUND' 的 Error 即找不到要加载的模块。
 
 注意:在15.x版本之后已经可以支持es6的import/export语法。
+### 2.4.2 nodejs包管理工具npm
+在安装node的同时也会自动把npm也安装上，npm(node package manager)node包管理工具的简称，它是一个命令行工具，用于下载和管理node开发中需要到的各种模块/包/插件。可以在官网 https://www.npmjs.com/ 上搜索你想要安装的模块。
+常用命令如下：
+npm -v === npm --version 查看当前安装的 npm 版本信息
+npm install 模块名   在本目录下增加一个node_modules并在这个目录里安装指定模块
+npm uninstall 模块名   删除或者说卸载指定模块
+npm list 查看当前目录安装了哪些模块。
+npm config list 查看当前电脑主机安装了哪些全局模块。
+npm show 模块名 ，显示指定模块的详情
+npm update  升级当前目录下的项目的所有模块，也可在后面指定模块名升级。
+
+node项目从零开发一般流程如下: 
+<strong> 1.先初始化为node项目</strong>
+方法：使用 npm init / npm init -y 初始化为node项目(-y 表示快速初始化node项目包管理文件package.json)。
+将来要安装的模块/包的信息都会纪录在这个package.json文件中且包含有描述当前node项目的其它各种信息。
+注意：package.json 是一个 .json文件，常见属性如下:
+{
+&emsp;&emsp;"name" : "包名/当前项目名称",
+&emsp;&emsp;"version" : "包的版本号/项目的版本号",
+&emsp;&emsp;"description" : "包的描述信息/项目的描述信息",
+&emsp;&emsp;"keywords" : "描述当前项目的关键字",
+&emsp;&emsp;"main" :"index.js", main 字段指定了node项目程序的主入口文件，即使用node命令启动项目时的入口文件，使用require('moduleName') 就会加载这个文件，这个字段的默认值是模块根目录下面的 index.js，也可以自定义指定位置的文件作为入口文件。主要负责调度组成整个程序的其它模块完成工作
+&emsp;&emsp;"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "cross-env NODE_ENV=dev nodemon 入口文件位置",
+    "prd": "cross-env NODE_ENV=production pm2 start 入口文件位置"
+  },这个选项叫npm脚本指定了node项目运行脚本命令的npm命令行缩写，即启动node项目的自定义命令，用来代替 node 运行文件名 这样启动js文件的方式。
+语法：npm run 自定义的命令。(自定义的命令是scripts中的键，如果定义为start时则run可以省略)。
+上面开发环境就是：npm run serve，生产环境就是：npm run prd
+&emsp;&emsp;"author" : "包的作者/项目的作者",
+&emsp;&emsp;"license": "ISC",项目使用的开源协议
+&emsp;&emsp;"contributors" : "包/项目的其他贡献者",
+&emsp;&emsp;"repository": {
+    "type": "git",
+    "url": "git+https://github.com/zangqingan/nodeStudy.git"
+},包/项目代码的远程仓库信息，包括type和URL，type可以是git或svn，URL则是远程的仓库地址。
+&emsp;&emsp;"homepage": "https://github.com/zangqingan/nodeStudy#readme",当前项目远程仓库的readme.md 文件地址。
+&emsp;&emsp;"dependencies": {
+    "mongoose": "^5.8.3"
+}，生产环境依赖，指定了项目运行时（即生产环境所依赖的模块列表）所依赖的模块。
+它们将会被安装在当前目录的 node_modules 目录下。
+&emsp;&emsp; "devDependencies": {
+    "cross-env": "^7.0.3"
+}，开发环境依赖 指定了项目开发时所依赖的模块，发布时用不到它。
+
+}
+
+<strong>2，安装开发中实际用到的各种模块</strong>
+安装/卸载语法：npm install/uninstall 包名/模块名@version   --sava / --save-dev / -g。
+后面没有参数时默认会把模块直接安装到当前目录的node_modules目录中，同时模块相关的版本信息会放到包管理文件 package.json 的 dependencies 生产依赖选项中。
+&emsp;&emsp; @version 指定模块的版本可选。
+&emsp;&emsp;--save === -S 模块安装到生产依赖dependencies中，即：模块信息自动写入package.json中的 "dependencies" 节点选项中。项目发布上线之后还会依赖用到的模块，没有这些模块，项目不能运行。
+&emsp;&emsp;--save-dev === -D 模块安装到开发依赖中，即：模块信息自动写入package.json中的 "devDependencies" 节点选项。项目上线之后不会用到的模块，例如'babel-loader'等。
+&emsp;&emsp;-g,表示全局安装，就可以在任何项目的目录下使用。一般如 nodemon pm2等
+
+注意：模块信息由模块名，模块版本信息组成。而版本号的格式如下：
+如 "模块名": "可升级版本符号主版本号.次版本号.修改版本号" --》 "cross-env": "^7.0.3"
+版本格式：主版本号.次版本号.修改版本号。
+主版本号：功能模块有大的变动，比如增加多个模块或者整体架构发生变化。
+次版本：模块局部的变动。
+修改版本：bug修复或者增加一些小功能。
+可升级版本符号主版本号有如下三种：
+~，用户使用当前版本后，最多升级到修改版的最新版本
+^,用户使用当前版本后，最多升级到次版本的最新版本
+*,用户使用当前版本后，可以升级到最新版本即最新主版本
+
+<strong>3.正式使用各种模块</strong>
+根据项目的实际需求在 .js 文件中编写具体的代码即可，具体使用查看文档提供的api接口。
 
 ## 2.5 nodejs常用模块的学习
 ### 2.5.1 nodejs代码的执行过程
 Node.js是一个由事件驱动，异步非阻塞I/O组成的轻量级高效的服务端JavaScript环境。
 
-事件驱动：通过监听事件是否发生触发对应的异步回调函数。
+事件驱动(event loop)：通过监听事件是否发生触发对应的异步回调函数。
+所有JavaScript代码都运行在主线程中，而任何的异步函数异步操作都会被放到event loop里
 
 异步：事件触发时回调函数执行，nodejs中回调函数格式：第一个参数是error错误对象，第二个参数开始才是返回结果对象，使用异步编程会造成回调地狱的问题。解决方法如下：
 异步编程解决方案1：promise承诺
@@ -274,7 +281,7 @@ HTTP状态码：即服务器端返回给客户端用来描述http请求状态的
 500 internal server error 服务器发生了不可预测的错误
 503 server unavailable 服务器当前不能处理客户端的请求，过会儿可能恢复。
 
-HTTP请求的方法类型：
+HTTP常见的请求方法类型：
 get 
 post 
 put 
@@ -316,6 +323,7 @@ res.statusMessage = 'Not Found' 设置响应信息
 res.setHeader('Content-Type','text/html;charset=utf-8') 设置响应头的数据编码格式
 res.write(写数据) 设置响应返回的数据，直接写到HTML页面上
 res.end(JSON.stringify(data)) 结束响应并将json格式的字符串数据返回
+
 #### 2. fs模块
 fs(文件系统)模块提供了用于以模仿标准 POSIX 函数的方式与文件系统进行交互的API。
 提供的API基本上可以分为以下三类：
@@ -485,24 +493,24 @@ Day.js 是一个轻量的处理时间和日期的 JavaScript 库，和 Moment.js
 
 
 
-## 2.6 nodejs登陆功能
+## 2.6 nodejs登陆功能的实现
 登陆功能业界已有成熟的解决方案，学习即可。
 核心是登陆信息怎么校验以及登陆信息怎么存储。
 ### 2.6.1 cookie
 1.  cookie
-在开始之前要回到之前学习的http协议是无状态的，也就是说这次发起了http请求在连接关闭后，服务端不会记录用户的信息，下次你再发起http请求时，服务器还是无法判断你是谁，这也就是无状态的含义。这时就需要一种技术让服务器能记住我是谁，解决 "如何记录客户端的用户信息"的问题。
-Cookie 就是用于存储 web 页面的用户信息的一小段的文本信息，本质是以名/值对形式（key-value格式）存储在浏览器端(客户端)的一段字符串(最大5kb)。
+在开始之前要回到之前学习的http协议是无状态的，也就是说这次发起了http请求在连接关闭后，服务端不会记录用户的信息，下次你再发起http请求时，服务器还是无法判断你是谁，这也就是无状态的含义。这时就需要一种技术让服务器能记住我是谁，即解决 "如何记录客户端的用户信息"的问题。
+Cookie 就是用于存储 web 页面当前用户信息的一小段的文本信息，本质是以名/值对形式（key-value格式）存储在浏览器端(客户端)的一段字符串(最大5kb)。
 
 cookie的机制：
 客户端第一次发送一个请求到服务器 --》 这时由于是第一次肯定是没有cookie的
-服务器在接收到前端发送的请求时，会生成一个唯一的信息(如id)其实也就是cookie，并通过http响应头的Set-Cookie字段把cookie返回给客户端， --》
-客户端在接收到响应头后取出cookie并保存起来，之后再向服务器发送http请求时，都将这个Cookie放在http请求头中一起发送给服务器端 --》
+服务器在接收到前端发送的请求时，会生成一个唯一的信息(如用户id)其实也就是cookie，并通过http响应头的Set-Cookie字段把cookie返回给客户端， --》
+客户端在接收到响应头后取出cookie并保存在浏览器中，之后再向服务器发送http请求时，都将这个Cookie放在http请求头中一起发送给服务器端 --》
 服务器再次接收到请求时，检查请求头中是否存在cookie，存在则返回响应数据给前端即可。如此整个流程也就走完了一次。
 
 cookie的属性项
 属性项 	属性项介绍
 形式：NAME=VALUE 键值对，可以设置要保存的 Key/Value，注意这里的 NAME 不能和其他属性项的名字一样
-Expires 	过期时间，在设置的某个时间点后该 Cookie 就会失效
+Expires 	过期时间，在设置的某个时间点后该 Cookie 就会失效,不设置则关闭浏览器窗口时消失。
 Domain 	生成该 Cookie 的域名，如 domain="www.baidu.com"
 Path 	该 Cookie 是在当前的哪个路径下生成的，如 path=/wp-admin/
 Secure 	如果设置了这个属性，那么只会在 SSL 连接时才会回传该 Cookie
@@ -522,7 +530,7 @@ Secure 	如果设置了这个属性，那么只会在 SSL 连接时才会回传�
 
 前端在接收到服务器端返回的cookie信息时一般是存储在浏览器localStorage和sessionStorage中，这就又是另外的知识了。
 
-2. localStorage
+2. localStorage本地存储
 一种持久化的存储方式，也就是说如果不手动清除，数据就永远不会过期。
 它是采用键值对的方式存储数据，按域名将数据分别保存到对应数据库文件里。
 相比 Cookie 来说，它能保存更大的数据。
@@ -542,7 +550,7 @@ localStorage 的特点：
     // 移除所有数据项
     localStorage.clear();
 
-3. sessionStorage
+3. sessionStorage会话存储
 与服务端的 session 类似，sessionStorage 是一种会话级别的缓存，关闭浏览器时数据会被清除。
 需要注意的是 sessionStorage 的作用域是窗口级别的，也就是说不同窗口之间保存的 sessionStorage 数据是不能共享的。
 
@@ -564,7 +572,7 @@ sessionStorage 的特点：
 node后端操作cookie，进而实现登陆验证。
 通过 req.headers.cookie 可以获取前端请求头中携带的cookie数据。
 
-通过 res.setHeader('Set-Cookie',`username=${data.username};path=/;httpOnly;expires=${getCookieExpires()}`)，服务器端可以设置响应头信息返回cookie。
+通过 res.setHeader('Set-Cookie',`username=${data.username};path=/;httpOnly;expires=${getCookieExpires()};Secure`)，服务器端可以设置响应头信息返回cookie。
 
 ### 2.6.2 session
 事实上使用上面的cookie已经可以实现用户的登陆验证了，不过使用cookie存储会暴露username(用户名，手机号，邮箱名等)等个人重要信息所以是很危险的。
@@ -587,5 +595,5 @@ session写入redis
 
 
 # 三、其它后端知识
-3.1 nginx的一般使用
-3.2 线上环境部署
+## 3.1 nginx的使用
+## 3.2 线上环境部署
