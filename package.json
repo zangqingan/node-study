@@ -2,11 +2,11 @@
   "name": "node-study",
   "version": "1.0.0",
   "description": "个人对nodejs的学习记录",
-  "main": "./src/index.js",
+  "main": "./src/test.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "cross-env NODE_ENV=dev nodemon ./src/index.js",
-    "prd": "cross-env NODE_ENV=production pm2 start ./src/index.js"
+    "serve": "cross-env NODE_ENV=dev nodemon ./src/test.js",
+    "prd": "cross-env NODE_ENV=production pm2 start ./src/test.js"
   },
   "author": "zangqingan",
   "license": "ISC",

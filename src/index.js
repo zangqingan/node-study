@@ -1,22 +1,19 @@
+// 1. 引入http模块
 const http = require('http')
 
-// 解构引入配置
-const {PORT,HOSTNAME} = require('./config/globalConfig')
-
-
-const {getCookieExpires }= require('./utils/tool')
-
-
+/*  引入相关的配置或者工具-start */
+const { PORT,HOSTNAME } = require('./config/globalConfig')
+const { getCookieExpires }= require('./utils/tool')
 // 数据库连接
 require('./config/mongoConnect')()
 
-// 创建http实例
+/*  引入相关的配置或者工具-end  */
+
+// 2.创建http实例
 const server = http.createServer( (req,res) => {
   // 跨域
   require('./utils/cross')(req,res)
 
-  // 查询字符串已经废弃
-  // const querystring = require('querystring')
   // 拆分前端路由和查询字符串
   const url = req.url
   req.path = url.split('?')[0]
@@ -67,9 +64,9 @@ const server = http.createServer( (req,res) => {
 
 
 // 引入路由
-const {handleBlogRouter }= require('./routers/blogRouter')
-const {handleProductRouter }= require('./routers/productRouter')
-const {handleUserRouter }= require('./routers/userRouter')
+const { handleBlogRouter }= require('./routers/blogRouter')
+const { handleProductRouter }= require('./routers/productRouter')
+const { handleUserRouter }= require('./routers/userRouter')
 
   // 处理博客路由需登陆
   const data = handleBlogRouter(req,res)
@@ -122,17 +119,8 @@ const {handleUserRouter }= require('./routers/userRouter')
 })
 
 
-// 监听端口启动服务
+// 3.监听端口启动服务
 server.listen(PORT,HOSTNAME,err => {
   if(err){console.log(`服务器出错，请联系系统管理员${err}`)}
   console.log(`Server running at http://${HOSTNAME}:${PORT}/`)
 })
-
-
-
-
-
-
-
-
-
