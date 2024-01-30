@@ -724,6 +724,58 @@ console.log('__dirname',__dirname)// E:\Full-stack-Engineer\studyNotes\node-stud
 console.log('__filename',__filename) // E:\Full-stack-Engineer\studyNotes\node-study\src\studyModel\path-study.js
 ```
 
+## 4.4 events 事件处理模块
+node中的模块很多都继承了events模块(使用对象冒充的方式)，比如http、fs等使用的on()方法就是继承的api。
+它是通过其中的EventEmitter类来定义和触发事件、本质是观察者模式的实现、类似发布/订阅模式。
+一定是先注册后触发、同一事件多个事件触发器按顺序执行。
+
+```javaScript
+
+/**
+ * node原生事件模块events
+ * 通过events的EventEmitter类实现对事件的绑定监听和触发
+ */
+const events = require('node:events')
+
+// 创建eventEmitter实例对象
+const myEventEmitter = new events.EventEmitter()
+
+
+// 定义事件名并绑定对应的回调函数
+myEventEmitter.on('eventname',(msg) => {
+    console.log(`事件触发时传入的信息: ${msg}`)
+})
+
+// 在想触发事件的地方写上就会触发定义的事件
+myEventEmitter.emit('eventname','事件触发了')
+
+/**
+ * 如果想要自定义的话，es5之前时通过原型链的继承实现
+ * 而es6之后可以直接通过类实现
+ */
+// es5
+function SelfEmitter() {
+    events.EventEmitter.call(this)
+}
+const self = new SelfEmitter()
+Object.setPrototypeOf(SelfEmitter.prototype, events.EventEmitter.prototype);
+Object.setPrototypeOf(SelfEmitter, events.EventEmitter)
+self.on('self',(msg) => {
+    console.log('自定义es5类继承',msg)
+})
+self.emit('self','11')
+
+// es6
+class MyEmitter extends events.EventEmitter {}
+const man = new MyEmitter()
+function wakeup(){
+    console.log('man has woken up')
+}
+man.on('wakeup', wakeup)
+man.emit('wakeup')
+man.removeListener('wakeup', wakeup);
+
+```
 
 
 # 五、常用第三方包
