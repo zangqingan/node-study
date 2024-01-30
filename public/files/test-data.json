@@ -1,0 +1,11 @@
+{
+    "name":"zhangsan",
+    "age":"27",
+    "gender":"male",
+    "hobbies":[
+        {"category":"体育","name":"篮球"},
+        {"category":"体育","name":"足球"},
+        {"category":"电竞","name":"LOL"},
+        {"category":"休闲","name":"钓鱼"}
+    ]
+}

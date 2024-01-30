@@ -449,9 +449,9 @@ HTTP响应信息:  response即服务器端返回给客户端的信息。
    空行:
 ```
 
-在node作为web server时、每次客户端发送请求时就会触发http.createServer函数的参数回调函数中的两个对象request、response。
+在node作为web server时、每次客户端发送请求时就会触发http.createServer函数的参数回调函数中的两个对象request、response。本质上是每当服务器被请求时就会触发request事件函数。
 
-### 4.1.2 request对象
+### 4.1.3 request对象
 request一般也缩写成req: 表示请求对象用来获取一些客户端请求发送给服务器的信息、即客户端传过来的东西。它是http.IncomingMessage类的实例、比较常用的实例属性和方法如下:
 
 ```javaScript 
@@ -501,7 +501,7 @@ HTTP请求常见的请求方法类型及对应的 req.method 值:
 ```
 
 
-### 4.1.3 response对象
+### 4.1.4 response对象
 response一般也缩写成res: 表示响应对象是服务器端响应给浏览器数据或其它信息时使用的对象。需要程序猿编写指明返回的是什么。即: 我们设置返回给浏览器的信息。
 一般来说返回的内容包括：状态代码/状态描述信息、响应头部、响应主体
 
@@ -542,10 +542,156 @@ HTTP状态码: 即服务器端返回给客户端用来描述http请求状态的�
 ```
 
 
+## 4.2 fs 文件系统操作模块
+文件是否存在判断、新建、写入、读取等是比较常用的功能。然后api一般都有同步、回调函数(异步)、基于promise(从fs/promises导出)三种。同步的不用、基于promise的没用过、所以之后都是用回调函数的也就是异步的api。常见是读取文件、写入日志等。**注意路径问题!**
+
+### 4.2.1 文件夹(目录)相关操作
+常见读取某一个文件夹内所有文件的文件名进而批量注册路由或者中间件是比较常用的、或者创建删除一个新的目录。
+目录已存在新建会报错、删除不存在的目录也会报错。
+
+```javaScript
+const fs = require('fs')
+const fs = require('node:fs')//现在最新已经是这样引入了
+const asyncFs = require('fs/promises')
+// 目录创建
+// 同步
+try{
+  fs.mkdirSync('./hello')
+  console.log('创建目录成功');
+}catch(err){
+  console.log(err,'新建目录失败')
+  throw err;
+}
+// 异步
+fs.mkdir('./async',(err) => {
+  if(err) {
+    console.log(err,'新建目录失败')
+    throw err;
+  }
+})
+// 基于promise
+asyncFs.mkdir('/promise').then(res => {
+  console.log('res',res)
+})
+// 删除
+// 同步
+try {
+  fs.rmdirSync('./hello')
+} catch (err) {
+  console.log(err,'删除目录失败')
+  throw err;
+}
+// 异步
+fs.rmdir('./async',(err) => {
+  if(err) {
+    console.log(err,'删除目录失败')
+    throw err;
+  }
+})
+// 基于promise
+asyncFs.rmdir('./async').then(res => {
+  console.log(res,'删除目录成功')
+}).catch(err => {
+  console.log(err,'删除目录失败')
+  throw err;
+})
+
+// 读取文件夹内的所有文件
+fs.readdir('./',(err,data) =>{
+    //判断是否读取成功,成功返回结果在回调函数的第二个参数里
+    if(err == null && err ==undefined){
+        console.log(err,'读取成功', data)
+    }else{
+        console.log('read fail!')
+        throw err;
+    }
+})
+
+```
+
+### 4.2.2 文件相关操作
+文件主要是读取或写入文件内容、一般会和path、流等知识点一起使用。
+
+```javaScript
+// 读取文件内容
+const fullFileName1 = path.resolve(__dirname,'../','../','public','files','a.json')
+const fullFileName2 = path.join(__dirname,'../','../','public','files','a.json')
+console.log(fullFileName1)
+console.log(fullFileName2)
+fs.readFile(fullFileName1,{encoding:'utf-8'},(err,data) => {
+    if(err){
+        console.error(err)
+        return
+    }
+    console.log(data.toString())
+})
+// 写入方法有两个
+const fullFileName = path.join(__dirname,'../','../','public','readfiletest.txt')
+fs.writeFile(
+  fullFileName,
+  '我是用异步方法新写入的内容它会追加到之前文件内容的后面',
+  {encoding:'utf-8',flag:'a'},
+  (err,data)=>{
+    if(err)throw err
+    console.log('异步方法data写入成功：',data)//undefined
+})
+const data = '/n 我是用appendFile方法新写入的内容它不会覆盖之前文件所有的内容'
+fs.appendFile(
+  fullFileName,
+  data,
+  {encoding:'utf-8'},
+  (err,data) => {
+    if (err) throw err;
+    console.log('数据已追加到文件',data);
+})
+
+// 流操作
+const fullFileName = path.join(__dirname,'../','../','public','readfiletest.txt')
+const readStream =  fs.createReadStream(fullFileName,{encoding:'utf-8'})
+let data = ''
+readStream.on('data',chunk => {
+  data += chunk
+})
+readStream.on('end', () => {
+  console.log('data读取结束')
+  // 直接写入流
+  writeLog(accessLog,data)
+})
+readStream.on('error', err => {
+  console.log(err)
+})
+// 定义一个写入流函数
+function createWriteStream(filename){
+  const fullFileName = path.join(__dirname,'../','../','public/logs',filename)
+  // 写入流
+  const writeStream = fs.createWriteStream(fullFileName,{flags:'a',encoding:'utf-8'})
+  return writeStream
+}
+// 访问日志
+const accessLog = createWriteStream('access.log')
+// 错误日志
+const errorLog = createWriteStream('error.log')
+
+// 定义一个写入函数
+function writeLog(writeLogStream,log){
+  writeLogStream.write(`${log}\n`)
+}
+// 管道写入流
+readStream.pipe(errorLog)
+
+
+```
+
+
+## 4.3 path 路径处理模块
+在nodejs中这个模块使用频率也是比较高的、主要是路径的拼接、解析、以及获取
+
+```javaScript
 
 
 
 
+```
 
 # 五、常用第三方包
 
@@ -873,16 +1019,3 @@ node后端操作cookie、进而实现登陆验证。
 
 
 session写入redis
-
-
-
-
-
-
-
-
-
-
-# 四、其它后端知识 
-## 3.1 nginx的使用
-## 3.2 线上环境部署
