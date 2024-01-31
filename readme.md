@@ -1032,7 +1032,60 @@ Node.js 以 8KB 为界限来区分是小对象还是大对象
 1. I/O 操作: 类似文件读取写入流操作、在 Stream 中我们是不需要手动去创建自己的缓冲区，在 Node.js 的流中将会自动创建。
 2. 资源压缩: zlib模块就是利用了缓冲区（Buffer）的功能来操作二进制数据流，提供了压缩或解压功能。
 
-## 4.9 
+## 4.9 zlib 资源解压缩模块
+这个模块是用来对资源进行压缩的、提供了使用Gzip、Deflate/ inflation和Brotli实现的压缩功能。
+浏览器通过HTTP请求头部里加上Accept-Encoding，告诉服务器使用何种方法压缩资源。
+
+`Accept-Encoding:gzip, deflate`
+
+```javaScript
+// 本地gzip压缩
+const fs = require('fs');
+const zlib = require('zlib');
+
+const gzip = zlib.createGzip();
+
+const inFile = fs.createReadStream('./extra/fileForCompress.txt');
+const out = fs.createWriteStream('./extra/fileForCompress.txt.gz');
+
+inFile.pipe(gzip).pipe(out);
+
+// 服务端开启gzip压缩
+// 首先判断 是否包含 accept-encoding 首部，且值为gzip。
+// 否：返回未压缩的文件。
+// 是：返回gzip压缩后的文件。
+
+const http = require('http');
+const zlib = require('zlib');
+const fs = require('fs');
+const filepath = './extra/fileForGzip.html';
+
+const server = http.createServer(function(req, res){
+    const acceptEncoding = req.headers['accept-encoding'];
+    let gzip;
+    
+    if(acceptEncoding.indexOf('gzip')!=-1){ // 判断是否需要gzip压缩
+        
+        gzip = zlib.createGzip();
+        
+        // 记得响应 Content-Encoding，告诉浏览器：文件被 gzip 压缩过
+        res.writeHead(200, {
+            'Content-Encoding': 'gzip'
+        });
+        fs.createReadStream(filepath).pipe(gzip).pipe(res);
+    
+    }else{
+
+        fs.createReadStream(filepath).pipe(res);
+    }
+
+});
+
+server.listen('3000');
+
+
+
+```
 
 
 
