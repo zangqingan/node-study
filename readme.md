@@ -800,7 +800,6 @@ man.removeListener('wakeup', wakeup);
 2. 自动完成：比如输入npm，自动提示"help init install"。
 3. 命令行工具：比如npm init这种问答式的脚手架工具。
 
-
 ```javaScript
 // 主要用到一个api用来创建一个新的readline实例
 const rl = readline.createInterface({
@@ -925,9 +924,48 @@ runQuestionLoop();
 
 ```
 
+## 4.7 process 进程模块
+进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位，是操作系统结构的基础，进程是线程的容器。
+
+线程是操作系统能够进行运算调度的最小单位，首先我们要清楚线程是隶属于进程的，被包含于进程之中。一个线程只能隶属于一个进程，但是一个进程是可以拥有多个线程的。
+
+process 模块是node的全局模块、不需要引入可以直接使用。
+通过它来获得node进程相关的信息，比如运行node程序时的命令行参数。或者设置进程相关信息，比如设置环境变量。
+
+```javaScript
+// 常见属性和方法
+    process.env：环境变量，例如通过 process.env.NODE_ENV 获取不同环境项目配置信息
+    process.pid：获取当前进程id
+    process.ppid：当前进程对应的父进程
+    process.platform：获取当前进程运行的操作系统平台
+    process.cwd()：获取当前进程工作目录
+    process.uptime()：当前进程已运行时间，例如：pm2 守护进程的 uptime 值
+    进程事件：
+      process.on('uncaughtException', cb) 捕获异常信息、
+      process.on('exit', cb）进程退出监听
+    三个标准流：
+      process.stdout 标准输出、
+      process.stdin 标准输入、
+      process.stderr 标准错误输出
+
+```
+
+**常见用法**
+```javaScript
+// 获取环境变量、根据不同的变量值使用不同的配置
+if(process.env.NODE_ENV === 'production'){
+    console.log('生产环境');
+}else{
+    console.log('非生产环境');
+}
 
 
-## 4.7
+
+
+```
+
+
+
 ## 4.8
 ## 4.9
 ## 4.10
