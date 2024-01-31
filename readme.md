@@ -777,6 +777,29 @@ man.removeListener('wakeup', wakeup);
 
 ```
 
+## 4.5 stream 流模块
+流是Node.js中处理流数据的抽象接口、stream模块提供了实现流接口的API。
+平常一般不会直接用到stream模块这是因为很多其它模块都实现了这个接口、例如: 对http 服务器发起请求的request，response 对象就都是一个 Stream实例，还有stdout（标准输出）。同时所有的 Stream 对象又都是 EventEmitter 的实例、所以也继承了事件相关的属性和方法。
+常用的事件有：
+1. end - 没有更多的数据可读时触发。
+2. error - 在接收和写入过程中发生错误时触发。
+3. data - 当有数据可读时持续触发。
+4. finish - 所有数据已被写入到底层系统时触发。
+
+
+**Nodejs有四种流类型：**
+1. Writable - 可以写入数据的流、比如fs.createWriteStream()、http.IncomingRequest、process.stdin。
+2. Readable - 可以从中读取数据的流、比如fs.createReadStream()。
+3. Duplex - 可读和可写的流、比如 net.Socket()。
+4. Transform - 可以在写入和读取数据时修改或转换数据的双工流、比如 zlib.createDeflate()（数据压缩/解压）。。
+
+## 4.6
+## 4.7
+## 4.8
+## 4.9
+## 4.10
+
+
 
 # 五、常用第三方包
 
