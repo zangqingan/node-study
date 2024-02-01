@@ -54,7 +54,7 @@ window+r:  快速打开命令运行窗口。
 
 
 
-# 三、Node.js基础
+# 三、Node.js 入门基础
 nodejs基础的学习可以说是很简单的、因为它的真正用途或者说一般实际用途是: 运行在服务端作为web server存在。也就是说对于我们前端工程师而言就是用来提供api接口的、它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的、同时原生node是比较繁杂的。我们主要要学习的就是这些思路和套路。
 [官方网站](https://nodejs.org) 主要用来查询相关api
 [Nodejs学习指南](https://blog.poetries.top/node-learning-notes)社区学习网址
@@ -367,7 +367,7 @@ npm run 运行node项目。
 
 
 
-# 四、nodejs 常见系统模块
+# 四、Node.js 内置核心模块
 node系统模块也是比较多的、对应的api也很多不过主要学一些常见的模块及对应的api即可。
 Node.js最常见的例子是作为web服务器、这也是我们只要基础时主要学习的东西。
 就是写一个后端服务给自己提供接口。所以第一个模块我们学习 http 网络服务模块。
@@ -1203,8 +1203,7 @@ node实例是单线程作业的。在服务端编程中，通常会创建多个n
 
 
 
-
-# 五、常用第三方包
+# 五、Node.js 常用第三方模块
 
 ## 5.1 cross-env 
 因为Windows平台无法直接设置环境变量、所以使用这个包。
@@ -1267,75 +1266,55 @@ $ pm2 monit 查看监控信息
 $ pm2 startup 设置开机自启动
 ```
 
-### 2.5.2 nodejs原生核心模块学习
+## 5.4 inflection模块
+安装:  npm install inflection
+转化英文单复数、转化为驼峰格式的类名等可以考虑使用inflection库
 
 
-#### 2. fs模块
-fs(文件系统)模块提供了用于以模仿标准 POSIX 函数的方式与文件系统进行交互的API。
-提供的API基本上可以分为以下三类:  
-    1、文件属性的读写:  其中常用的有fs.stat、fs.chmod、fs.chown等等。
-    2、文件内容的读写:  其中常用的有fs.readdir、fs.readFile、fs.writeFile、fs.createWriteStream、fs.mkdir等等。
-    3、底层文件操作:  其中常用的有fs.open、fs.read、fs.write、fs.close等等。
-所有文件系统中的操作都具有以下三种形式:  
-    1、同步方法、区别在于同步方法名是在异步回调函数方法名后面多加了Sync --> fs.异步回调函数名Sync
-    2、异步回调函数方法、异步的形式将完成回调作为其最后一个参数,且该回调函数的第一个参数始终预留用于有错误或异常发生时的error对象、第二个参数则始终用于返回API方法的执行结果。
-    3、基于promise的方法,基于promise在异步回调函数名前加promises --> fs.promises.回调异步函数名
-注意:  1.在15.x版本之后语法有所改变 2.原则上都不使用同步的方法。
-#### 3. path模块
-path(路径)模块提供用于处理文件和目录路径的实用api、这个模块一般是要和url、fs等模块一起使用的。
-#### 4. url模块
-url 模块用于处理与解析URL、跟原生js的url接口组成基本一样。常与querystring,path等模块一起使用实现nodejs原生的路由。
-注意:  在v11.0版本之后url.parse方法已经被移除、使用其它的方法解析url了。现在使用的是和Web 浏览器使用的相同的 WHATWG URL 标准的更新的 API。也就是直接使用URL类即可而不用再使用url模块了,本质上可以看作是url模块的一个属性 URL === require('url').URL --> true
-#### 5. querystring模块
-querystring 模块提供用于解析和格式化 URL查询字符串的实用api,常与url,path等模块一起使用。
-所谓查询字符串、就是url网址 ?后面的内容。
-#### 6. stream模块
-#### 7. events模块
-node事件模块events、node是事件驱动的模型(事件轮询机制)本质都是设计模式中的观察者模式实现的。
-即nodejs会将每一个异步事件生成一个事件观察者、并统一存放到事件队列里、当有事件触发了就会执行对应的回调函数、不断轮流询问事件队列直到没有了事件才停止这就是事件轮询机制。
-通过events的EventEmitter类实现对事件的绑定监听和触发
-// 创建eventEmitter对象
-const eventEmitter = new events.EventEmitter()
+## 5.5 lodash模块
+Lodash 是一个一致性、模块化、高性能的 JavaScript 实用工具库。
+用来处理字符串、遍历数组(里面是对象的)、对象时都可以考虑使用
+安装:  npm install lodash
+引入:  const _ = reuqire('lodash')
 
-// 绑定事件和对应的回调函数
-eventEmitter.on('eventname',eventHandler)
 
-// 触发定义的事件
-eventEmitter.emit('eventname')
-http模块的req参数实现了这个接口、通过req.on('eventname',eventHandler)可以监听node定义的事件。
-#### 8. os模块
-os（操作系统）模块提供了一些操作电脑系统的相关api、了解就行。
-
-### 2.5.3 nodejs常用第三方模块学习
-
-#### 1. nodejs操作数据库模块
-主要学习操作MySQL、mongodb、redis这三种数据库即可。在学习node-blog那里有笔记和实例。
-##### 1.1 node操作MySQL数据库
+## 5.6 nodejs操作数据库
+主要学习操作MySQL、mongodb、redis这三种数据库即可。
+### 5.6.1 node操作MySQL数据库
 通过第三方模块 mysql模块操作MySQL数据库实现数据的增删改查(CRUD)。
 实际上学习的主要是sql语句、因为node连接MySQL数据是很简单的。
-##### 1.2 node操作Mongodb数据库
+
+### 5.6.2 node操作Mongodb数据库
 使用 mongoose模块、它是一个MongoDB对象建模工具、设计用于异步环境支持promise和回调函数两个形式。
 好处是不用在一数据库是否连接上就可以设计模型或者进行数据的curd操作。
-安装:  npm install mongoose。
+
+安装:  `$ npm install mongoose`
+
 使用步骤:  
-1. 引入 mongoose 模块:  const mongoose = require('mongoose')
-2. 创建连接对象、mongoose.connect()方法只创建一个数据库连接,mongoose.createConnection()方法可以创建多个数据库连接。这两个方法接收的形参是一样的、一般我们使用一个数据库所以使用mongoose.connect()。
-如:  连接本地的express-test 数据库写法如下、注意如果localhost不起作用使用127.0.0.1代替。线上远程服务器地址就写远程的、本质是一样的。
-await mongoose.connect('mongodb://localhost:27017/express-test',
-{
+```JavaScript
+// 1. 引入 mongoose 模块
+const mongoose = require('mongoose')
+// 2. 创建一个数据库连接对象
+// 如:  连接本地的express-test 数据库写法如下、注意如果localhost不起作用使用127.0.0.1代替。
+// 线上远程服务器地址就写远程的、本质是一样的。
+await mongoose.connect(
+  'mongodb://localhost:27017/express-test', 
+  {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
     useCreateIndex: true
-},err => {
+  },
+  err => {
     if(err){
-        console.log("数据库连接失败",err)
-        return
+      console.log("数据库连接失败",err)
+      return
     }
     console.log("数据库连接成功!")
-})
-3. 定义模型、对数据库中的数据进行curd操作。
-如此这样只要在入口文件中引入这个文件就连接上数据库并能操作数据了、但是定义模型这一步一般抽离到另外的js文件中书写。所以我们一般是会封装一个只负责连接数据库的异步函数导出、然后在入口文件中引入执行这个异步函数即可、具体如下。
+  }
+)
+
+// 封装
 module.exports = async app => {
   // 1. 引入 mongoose 模块
   const mongoose = require('mongoose')
@@ -1355,7 +1334,18 @@ module.exports = async app => {
     }
   )
 }
-4. 在models文件夹中定义模型字段,类似mysql中定义表及表的字段和字段约束。
+
+// 在models文件夹定义各模型文件对数据库中的数据进行curd操作。
+// 如此这样只要在入口文件中引入这个文件就连接上数据库并能操作数据了、但是定义模型这一步一般抽离到另外的js文件中书写。
+// 所以我们一般是会封装一个只负责连接数据库的异步函数导出、然后在入口文件中引入执行这个异步函数即可、
+
+
+```
+ 
+
+1. 定义模型、
+
+2. 在中定义模型字段,类似mysql中定义表及表的字段和字段约束。
 通过mongoose模块的 Schema接口定义文档结构包含的字段名、字段约束以及存储数据的类型、通过model方法创建模型。
 //引入mongoose模块
 const mongoose = require('mongoose')
@@ -1381,68 +1371,19 @@ const Ad = mongoose.model('Ad', Adschema)
 module.exports = Ad
 // 明显的这种写法过于麻烦作用记住前面那种即可。
 
-5. 在controller中引入模型实现对数据库的curd操作
+1. 在controller中引入模型实现对数据库的curd操作
 // 引入数据库集合
 const Product = require('../models/productModel')
 //使用 集合名.各种方法名 集合实现对mongodb数据库的各种操作。
 Product.find()
 
 
+### 5.6.3 node操作redis数据库
 
-##### 1.3 node操作Redis数据库
-redis模块
-
-
-#### 2. lodash模块
-Lodash 是一个一致性、模块化、高性能的 JavaScript 实用工具库。
-用来处理字符串、遍历数组(里面是对象的)、对象时都可以考虑使用
-安装:  npm install lodash
-引入:  const _ = reuqire('lodash')
-
-#### 3. inflection模块
-安装:  npm install inflection
-转化英文单复数、转化为驼峰格式的类名等可以考虑使用inflection库
-
-#### 4. dayjs模块
-Day.js 是一个轻量的处理时间和日期的 JavaScript 库、和 Moment.js 的 API 设计保持完全一样。
-特点:  有很多 API 来解析、处理、校验、增减、展示时间和日期。
-    和 Moment.js 相同的 API 和用法
-    不可变数据 (Immutable)
-    支持链式操作 (Chainable)
-    国际化 I18n
-    仅 2kb 大小的微型库
-    全浏览器兼容
-
-安装:  npm install dayjs --save
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 2.6 nodejs登陆功能的实现
+## 5.7 登陆功能的实现
 登陆功能业界已有成熟的解决方案、学习即可。
 核心是登陆信息怎么校验以及登陆信息怎么存储。
-### 2.6.1 cookie
+### 5.7.1 cookie
 1.  cookie
 在开始之前要回到之前学习的http协议是无状态的、也就是说这次发起了http请求在连接关闭后、服务端不会记录用户的信息、下次你再发起http请求时、服务器还是无法判断你是谁、这也就是无状态的含义。这时就需要一种技术让服务器能记住我是谁、即解决 "如何记录客户端的用户信息"的问题。
 Cookie 就是用于存储 web 页面当前用户信息的一小段的文本信息、本质是以名/值对形式（key-value格式）存储在浏览器端(客户端)的一段字符串(最大5kb)。
@@ -1520,7 +1461,7 @@ node后端操作cookie、进而实现登陆验证。
 
 通过 res.setHeader('Set-Cookie',`username=${data.username};path=/;httpOnly;expires=${getCookieExpires()};Secure`)、服务器端可以设置响应头信息返回cookie。
 
-### 2.6.2 session
+### 5.7.2 session
 事实上使用上面的cookie已经可以实现用户的登陆验证了、不过使用cookie存储会暴露username(用户名、手机号、邮箱名等)等个人重要信息所以是很危险的。
 解决方法:  cookie中存储userId,后端保存对应的敏感信息如username。
 这样只要后端的username与userId唯一对应就好。
@@ -1529,4 +1470,35 @@ node后端操作cookie、进而实现登陆验证。
 
 
 
-session写入redis
+###  5.7.3 
+
+
+## 5.8 日志功能实现
+
+
+# 六、Node.js 进阶
+深入原理底层知识
+## 6.1 EventLoop 事件轮询
+## 6.2 I/O 模型
+## 6.3 Memory 内存管理
+## 6.4 Threads&Process 线程和进程
+## 6.5 Schedule 定时任务
+## 6.6 Template 模板引擎
+## 6.7 Cache 缓存
+## 6.8 V8 虚拟机
+## 6.9 Testing 单元测试
+## 6.10 性能优化
+## 6.11 微服务
+## 6.12 线上部署
+
+
+# 七、其它知识
+后续  to do list
+## 7.1 Http深入
+## 7.2 DevOps
+PM2生产环境部署,Docker,Jenkins持续集成
+## 7.3 数据结构
+队列queue,Set,Map,List,Heap堆,Stack栈,Graph图,二叉树,红黑树,十大排序方法.
+## 7.4 设计模式
+SOLID五大设计原则,单例模式,工厂模式,装饰器模式,代理模式,适配器模式,观察者模式
+## 7.5 等
