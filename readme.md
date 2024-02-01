@@ -1054,45 +1054,143 @@ inFile.pipe(gzip).pipe(out);
 // 首先判断 是否包含 accept-encoding 首部，且值为gzip。
 // 否：返回未压缩的文件。
 // 是：返回gzip压缩后的文件。
-
 const http = require('http');
 const zlib = require('zlib');
 const fs = require('fs');
 const filepath = './extra/fileForGzip.html';
-
 const server = http.createServer(function(req, res){
     const acceptEncoding = req.headers['accept-encoding'];
     let gzip;
-    
     if(acceptEncoding.indexOf('gzip')!=-1){ // 判断是否需要gzip压缩
-        
-        gzip = zlib.createGzip();
-        
+        gzip = zlib.createGzip();       
         // 记得响应 Content-Encoding，告诉浏览器：文件被 gzip 压缩过
         res.writeHead(200, {
             'Content-Encoding': 'gzip'
         });
         fs.createReadStream(filepath).pipe(gzip).pipe(res);
-    
     }else{
-
         fs.createReadStream(filepath).pipe(res);
     }
-
-});
-
+})
 server.listen('3000');
+
+```
+
+## 4.10 crypto 加解密模块
+Crypto 加密模块是 C／C++ 实现这些算法后，暴露为 javascript 接口的模块，包含对 OpenSSL 的哈希、HMAC、加密、解密、签名、以及验证功能的一整套封装。
+密码学的知识是非常丰富的: 有对称加密算法、非对称加密算法、散列(哈希)算法(信息摘要算法)
+1. 对称式加密就是加密和解密使用同一个密钥
+2. 非对称式加密就是加密和解密所使用的不是同一个密钥，通常有两个密钥，称为“公钥”和“私钥”，它们两个必需配对使用，否则不能打开加密文件。这里的“公钥”是指可以对外公布的，“私钥”则不能，只能由持有人一个人知道。
+3. 散列算法是指把任意长度的输入消息数据转化为固定长度的输出数据的一种密码算法。
+
+
+**Cipher类** 用于加密数据，属于对称密钥加密，假设通信双方 A、B 通讯方 A 使用 key 对明文进行加密传输，通讯方 B 接收到密文后，使用同样的 key 进行解密得到明文。
+在v10版本之后不在使用 crypto.createCipher 而是使用 crypto.createCipheriv()方法创建。
+crypto.createCipheriv(algorithm, pwd, iv) 指定算法、密码、向量创建 cipher 加密对象
+
+数据解密: 使用crypto.createDecipheriv() 方法
+crypto.createDecipheriv(algorithm, pwd, iv) 指定算法、密码、向量创建 decipher 解密对象
+
+```javaScript
+
 
 
 
 ```
 
+**非对称加密** 是指加密秘钥和解密秘钥不同的密码算法，又称为 公开密码算法 或 公钥算法，该算法使用一个秘钥进行加密，用另外一个秘钥进行解密。加密秘钥可以公开，又称为 公钥。解密秘钥必须保密，又称为 私钥
+常见非对称算法包括 RSA、SM2（国密）、DH、DSA、ECDSA、ECC 等。
+
+
+**散列算法(信息摘要算法)**: 散列加密、是让大容量信息在数字签名软件签署私人秘钥前被 “压缩” 成一种保密格式，也就是把一个任意长度的字节串变换成一定长度的十六进制数字串（32个字符） 一致性验证。
+特点
+1. 不可逆
+2. 输入两个不同的明文不会得到相同的输出值
+3. 根据输出值，不能得到原始的明文，即过程不可逆
+
+散列算法主要分为三大类
+1. MD（Message Digest，消息摘要算法）、MD 系列 主要包括 MD2、MD4、MD5。
+2. SHA（Secure Hash Algorithm，安全散列算法）、SHA 系列 主要包括 SHA-1、SHA-2 系列（SHA-1 的衍生算法，包含 SHA-224、SHA-256、SHA-384、SHA-512）。
+3. MAC（Message Authentication Code，消息认证码算法）、MAC 系列 主要包括 HmacMD5、HmacSHA1、HmacSHA256、HmacSHA384 和 HmacSHA512 算法。
+
+**哈希散列-Hash**
+1. 先使用 crypto.createHash(algorithm) 方法创建一个hash对象。参数 algorithm 可选择系统上安装的 OpenSSL 版本所支持的算法: 常见sha1、md5、sha256、sha512等。
+2. 使用 hash对象的实例方法 hash.update() 给给定的数据更新哈希内容。在流式传输新数据时，可以多次调用该方法。
+3. 使用 hash对象的实例方法 hash.digest(encoding)计算所有传入数据的 hash 摘要。参数 encoding（编码方式）可以为 hex、binary、base64。声明了编码方式则返回字符串,否则返回Buffer实例。调用这个方法之后hash对象就报废了不能再次调用了。
+
+```JavaScript
+// 实现方法
+const hash = crypto.createHash('sha256')
+const msg = 'hello'
+// 更新内容
+hash.update(msg)
+// 计算摘要
+const result =  hash.digest('hex')
+console.log(result) // 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+
+// 链式调用
+const msg = 'hello'
+const result = crypto.createHash('sha256').update(msg).digest('hex')
+console.log(result) // 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824 
+
+// 封装成一个函数
+function hashSha256(data) {
+    return crypto.createHash('sha256').update(data).digest('hex')
+}
+const otherResult = hashSha256(msg)
+console.log(otherResult) // 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+
+```
+
+**哈希加盐-HMAC**
+HMAC的全称是Hash-based Message Authentication Code，也即在hash的加盐运算。
+算是对哈希散列的一个加强,增加了加盐操作更加难破解。使用方法和步骤类似,多了一个指定“盐值”的操作。
+1. 使用crypto.createHmac(algorithm, secret)方法创建并返回一个使用给定算法和密钥的Hmac对象。
+2. 使用 hmac.update()方法
+3. 使用 hmac.digest()方法
+
+```javaScript
+const msg = 'hello'
+function createSaltSha256(data,key='1qaz') {
+    return crypto.createHmac('sha256',key).update(data).digest('hex')
+}
+const result = createSaltSha256(msg)
+console.log(result)// c930f048e252abf8cda7fe936da95fa73f01b742fd5f3b618cf9f29fda229f22
+const result2 = createSaltSha256(msg,'123')
+console.log(result2) // 0ce62924a2ed57b5af99840366b2db54b5057a3d12e943bfcae51a6d04bac6f5
+
+```
+**MD5**: Message-Digest Algorithm 5，信息-摘要算法。和hash是一样的,算法参数传入'md5'即可。
+常见的应用场景有
+1. 密码保护: 将md5后的密码保存到数据库，而不是保存明文密码，避免拖库等事件发生后，明文密码外泄。
+2. 下载文件校验: 比如从网上下载一个软件，一般网站都会将软件的md5值附在网页上，用户下载完软件后，可对下载到本地的软件进行md5运算，然后跟网站上的md5值进行对比，确保下载的软件是完整的
+3. 防篡改：比如数字证书的防篡改，就用到了摘要算法。（当然还要结合数字签名等手段）
+
+密码保护好处: 
+1. 防内部攻击：网站主人也不知道用户的明文密码，避免网站主人拿着用户明文密码干坏事。
+2. 防外部攻击：如网站被黑客入侵，黑客也只能拿到md5后的密码，而不是用户的明文密码。
+
+md5也是hash的一种,通过之前的我们知道对相同内容加密后密文是一样的,这是存在安全隐患的。
+所以一般在使用md5时也会增加加盐操作,而且盐值也是要随机产生的。
+所谓加盐就是在密码特定位置插入特定字符串后，再对修改后的字符串进行md5运算。
+
+```javaScript
+//md5 加盐后加密,盐值要存起来
+function md5salt(data){
+    let saltdata = `${data}:${Math.random().toString().slice(2, 5)}`
+    return crypto.createHash('md5').update(saltdata).digest('hex')
+}
+//md5 加盐后解密,
+function enmd5salt(data,salt){
+
+}
 
 
 
-## 4.10
 
+```
 
+## 4.11
 
 # 五、常用第三方包
 
