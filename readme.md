@@ -1285,10 +1285,11 @@ Lodash 是一个一致性、模块化、高性能的 JavaScript 实用工具库�
 实际上学习的主要是sql语句、因为node连接MySQL数据是很简单的。
 
 ### 5.6.2 node操作Mongodb数据库
+#### 1.概述
 使用 mongoose模块、它是一个MongoDB对象建模工具、设计用于异步环境支持promise和回调函数两个形式。
 好处是不用在一数据库是否连接上就可以设计模型或者进行数据的curd操作。
 
-安装:  `$ npm install mongoose`
+安装:  `$ npm install mongoose --save`
 
 使用步骤:  
 ```JavaScript
@@ -1297,7 +1298,8 @@ const mongoose = require('mongoose')
 // 2. 创建一个数据库连接对象
 // 如:  连接本地的express-test 数据库写法如下、注意如果localhost不起作用使用127.0.0.1代替。
 // 线上远程服务器地址就写远程的、本质是一样的。
-await mongoose.connect(
+// 回调形式-低版本的。v8以上版本是不用了的
+mongoose.connect(
   'mongodb://localhost:27017/express-test', 
   {
     useNewUrlParser: true,
@@ -1313,69 +1315,132 @@ await mongoose.connect(
     console.log("数据库连接成功!")
   }
 )
-
-// 封装
-module.exports = async app => {
-  // 1. 引入 mongoose 模块
-  const mongoose = require('mongoose')
-  // 2. 创建一个连接
-  await mongoose.connect('mongodb://localhost:27017/express-test', 
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-      useCreateIndex: true
-    },err => {
-      if(err){
-        console.log("数据库连接失败",err)
-        return
-      }
-      console.log("数据库连接成功!")
-    }
-  )
+// 一般是定义一个函数连接
+async function createConnection() {
+  try {
+    await mongoose.connect('mongodb://127.0.0.1:27017/express-test')
+  } catch (error) {
+    // 连接失败
+    console.log(error)
+  }
 }
+createConnection()
 
-// 在models文件夹定义各模型文件对数据库中的数据进行curd操作。
-// 如此这样只要在入口文件中引入这个文件就连接上数据库并能操作数据了、但是定义模型这一步一般抽离到另外的js文件中书写。
-// 所以我们一般是会封装一个只负责连接数据库的异步函数导出、然后在入口文件中引入执行这个异步函数即可、
+// 3.定义 Schema 即可对数据进行curd操作。当然实际开发时是抽离在models文件夹定义各模型文件对数据库中的数据。Schema-模型约束(模式)类似mysql中定义表及表的字段和字段约束。
+// 通过mongoose模块的 Schema接口定义文档结构包含的字段名、字段约束以及存储数据的类型、通过model方法创建模型。
+// 之后就可以通过返回的模型名操作对应的集合、完成curd操作。
+// 定义一个约束条件schema(集合里字段(field)的数据类型,默认值等)
+// 一个广告集合(表)例子
+const adSchema = new mongoose.Schema({
+    name:{
+      type:String,
+      default:''
+    },
+    items:[{
+      image:{type:String},
+      url:{type:String},
+    }]    
+})
+// 直接定义一个变量接受直接使用
+const Ad = mongoose.model('Ad', adSchema)
+// 创建一个模型(集合对象模型)并导出
+module.exports = mongoose.model('Ad',adSchema)
+```
+
+#### 2. CRUD操作
+在完成mongodb数据库的连接和模型约束的定义和集合的生产之后、对集合的CRUD操作是非常方便的。
+集合名.各种方法名、就可以实现对mongodb数据库集合的各种操作。
+一个模型就是一个类、所以是schema里定义的可以算是属性对象。
+如果要定义方法可以加到schema对象的methods属性上、而且要定义在model方法前。
+
+```javaScript
+adSchema.methods.sayHi = function() {
+   const greeting = this.name
+   console.log(greeting)
+}
+const ad = new Ad({name:'测试广告名'})
+ad.sayHi()
+```
+
+1. 新增操作: model本质是一个类、所以可以使用类的方式新增一条数据、也可以使用api
+```javaScript
+// 以一个用户集合为例
+const schema = new mongoose.Schema({
+    username:{
+      type:String
+    },
+    password:{
+      type:String,
+    }
+  
+})
+const User = mongoose.model('User',schema)
+// 创建一个新对象(插入一条数据)、创建的实例也叫文档。
+const newUser = new User({username:'zhangsan',password:'123456'})
+newUser.save()
+// 另一种新增方法
+await User.create({ username: 'small' })
+// 一次创建很多
+await User.insertMany([
+    {username:'很多1',password:'fdsgsa112'},
+    {username:'很多2',password:'12wsxqaz'},
+])
 
 
 ```
- 
 
-1. 定义模型、
+2. 查找操作
+查找可以使用多种方法和多种限制条件。
+Model.find()、它是Model类的方法、可以传入一个查询对象、也就是schema种定义的字段。不穿时查所有。
+Model.find()、可以对查询结果进行美化处理。
+Model.findById()、根据ObjectId查找。
+Model.findByOne()、也是传入一个查询参数对象。
+它们后面都可以链式调用其它方法、如:exec()、美化输出、等
+```javaScript
+// 查找所有的
+const result = await User.find()
+// 传入查询参数
+const zhangsan = await User.find({username:'zhangsan'})
+// 根据id
+const zhangsan = await User.findById(id)
+// 只查找一个
+const firstOne= await User.findByOne({})
+```
 
-2. 在中定义模型字段,类似mysql中定义表及表的字段和字段约束。
-通过mongoose模块的 Schema接口定义文档结构包含的字段名、字段约束以及存储数据的类型、通过model方法创建模型。
-//引入mongoose模块
-const mongoose = require('mongoose')
-// 定义一个约束条件schema(集合里字段(field)的数据类型,默认值等)
-const schema = new mongoose.Schema({
-    name:{type:String,default:''},
-    items:[{image:{type:String},url:{type:String},}]    
-})
-// 创建一个模型(集合对象模型)并导出
-module.exports = mongoose.model('Ad',schema)
-//上面实际上是下面的简写
-// 注:  在定义schema那里其实可以分成两步写的
-//1先获取schema对象
-const Schema = moogoose.Schema
-//2 new出规范实例
-const Adschema = new Schema({
-    name:{type:String},
-    items:[{image:{type:String},url:{type:String},}]    
-})
-//3使用model方法创建数据模型
-const Ad = mongoose.model('Ad', Adschema)
-//4导出Ad、这样就可以通过Ad这个变量对象来操作“广告”这个集合(表)了
-module.exports = Ad
-// 明显的这种写法过于麻烦作用记住前面那种即可。
+3. 更新操作
+每个模型都有自己的更新方法，用于修改数据库中的文档
+Model.updateOne(conditions,update)、更新第一个符合条件的文档，接受两个参数、第一个时查询条件、第二个是要更新的内容。没有返回值
+Model.updateMany(conditions,update)、更新多个传入一个数组对象、没有返回值
+如果需要有返回值使用以下方法、他会返回找到的那条数据。
+Model.findByIdAndUpdate(id,update)、根据id找并更新。
+Model.findOneAndUpdate(conditions, update, options)、找到第一个、一般也是只传递前两个参数。
+```javaScript
+// 一个-没有返回值
+await User.updateOne({username:'zhangsan'},{username:'张三'})
+// 同时修改多个-没有返回值
+await User.updateMany({username:'修改'},{username:'多个'})
+// 通过id查找修改更新
+await User.findByIdAndUpdate('65bdde1e2ca35331532577d7',{username:'通过id查找修改'})
+// 找第一个
+ await User.findOneAndUpdate({username:'很多1'},{username:'我是第一个找到的'})
 
-1. 在controller中引入模型实现对数据库的curd操作
-// 引入数据库集合
-const Product = require('../models/productModel')
-//使用 集合名.各种方法名 集合实现对mongodb数据库的各种操作。
-Product.find()
+```
+
+4. 删除操作
+和更新操作类似、
+Model.deleteOne() 
+Model.deleteMany()
+同样也有先查找的api、
+Model.findByIdAndDelete()
+Model.findOneAndDelete()
+```javaScript
+await User.deleteOne({username:'我是第一个找到的'})
+
+```
+
+
+#### 3. CRUD深入操作
+
 
 
 ### 5.6.3 node操作redis数据库
