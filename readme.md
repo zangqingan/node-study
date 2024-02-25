@@ -1270,15 +1270,18 @@ $ pm2 startup 设置开机自启动
 安装:  npm install inflection
 转化英文单复数、转化为驼峰格式的类名等可以考虑使用inflection库
 
+## 5.5 bcrypt模块
+安装:  npm install bcrypt
+给密码hash化的模块
 
-## 5.5 lodash模块
+## 5.6 lodash模块
 Lodash 是一个一致性、模块化、高性能的 JavaScript 实用工具库。
 用来处理字符串、遍历数组(里面是对象的)、对象时都可以考虑使用
 安装:  npm install lodash
 引入:  const _ = reuqire('lodash')
 
 
-## 5.6 nodejs操作数据库
+## 5.7 nodejs操作数据库
 主要学习操作MySQL、mongodb、redis这三种数据库即可。
 ### 5.6.1 node操作MySQL数据库
 通过第三方模块 mysql模块操作MySQL数据库实现数据的增删改查(CRUD)。
@@ -1445,7 +1448,7 @@ await User.deleteOne({username:'我是第一个找到的'})
 
 ### 5.6.3 node操作redis数据库
 
-## 5.7 登陆功能的实现
+## 5.8 登陆功能的实现
 登陆功能业界已有成熟的解决方案、学习即可。
 核心是登陆信息怎么校验以及登陆信息怎么存储。
 ### 5.7.1 cookie
@@ -1538,7 +1541,7 @@ node后端操作cookie、进而实现登陆验证。
 ###  5.7.3 
 
 
-## 5.8 日志功能实现
+## 5.9 日志功能实现
 
 
 # 六、Node.js 进阶
