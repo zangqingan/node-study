@@ -22,7 +22,7 @@ if(env === 'dev'){
     // MONGODB
     MONGO_CONF = {
         // 域，线上环境就是线上的数据库地址，本地是localhost
-        host:'localhost',
+        host:'127.0.0.1',
         port:'27017',
         database:'express-test'//指定连接的数据库
     }
