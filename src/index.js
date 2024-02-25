@@ -64,9 +64,9 @@ const server = http.createServer( (req,res) => {
 
 
 // 引入路由
-const { handleBlogRouter }= require('./routers/blogRouter')
-const { handleProductRouter }= require('./routers/productRouter')
-const { handleUserRouter }= require('./routers/userRouter')
+const { handleBlogRouter }= require('./routes/blogRouter')
+const { handleProductRouter }= require('./routes/productRouter')
+const { handleUserRouter }= require('./routes/userRouter')
 
   // 处理博客路由需登陆
   const data = handleBlogRouter(req,res)
