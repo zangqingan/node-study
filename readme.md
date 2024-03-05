@@ -1448,9 +1448,32 @@ await User.deleteOne({username:'我是第一个找到的'})
 
 ### 5.6.3 node操作redis数据库
 
-## 5.8 登陆功能的实现
-登陆功能业界已有成熟的解决方案、学习即可。
-核心是登陆信息怎么校验以及登陆信息怎么存储。
+## 5.8 node认证与授权
+
+**用户的认证和授权问题是指**
+1. 认证就是让服务器知道你是谁，
+2. 授权就是服务器知道你是谁后确认你能干什么，不能干什么。
+
+这一切的源头是因为：HTTP协议是非连接性的，使用浏览器访问页面的内容会在关闭浏览器后丢失，HTTP链接也会断开，没有任何机制去记录访问的页面信息也就是会话信息。所以必须要有一种机制让浏览器页面知道原来页面的会话内容，这也是会话session的原理。
+1. 认证：在服务器端对客户端传回来的token信息进行验证并获取用户信息。
+2. 授权：根据获取到的用户信息使用中间件保护接口，即不同的用户只能访问不同的接口。
+
+目前由3中方法实现上述功能: 
+1. cookie
+2. session
+3. jwt
+
+    
+   
+
+    方法二：使用koa-jwt中间件这个中间件还可以和其它组合使用，具体看文档。
+    这个中间件只是用来认证的，生成token用的还是jsonwebtoken这个中间件。
+    由于 koa-jwt 从 koa-v2 分支开始不再导出 jsonwebtoken 的 sign 、 verify 和 decode 方法，若要单独生成 token 、验证 token 等，需另从 jsonwebtoken 中将其引入：
+    安装：npm i koa-jwt
+    const jwt = require("koa-jwt")
+    const auth = jwt({secret}) 这样就生成了一个认证中间件了
+    验证后的信息也是挂载到ctx.state.user上的。
+
 ### 5.7.1 cookie
 1.  cookie
 在开始之前要回到之前学习的http协议是无状态的、也就是说这次发起了http请求在连接关闭后、服务端不会记录用户的信息、下次你再发起http请求时、服务器还是无法判断你是谁、这也就是无状态的含义。这时就需要一种技术让服务器能记住我是谁、即解决 "如何记录客户端的用户信息"的问题。
@@ -1530,15 +1553,71 @@ node后端操作cookie、进而实现登陆验证。
 通过 res.setHeader('Set-Cookie',`username=${data.username};path=/;httpOnly;expires=${getCookieExpires()};Secure`)、服务器端可以设置响应头信息返回cookie。
 
 ### 5.7.2 session
-事实上使用上面的cookie已经可以实现用户的登陆验证了、不过使用cookie存储会暴露username(用户名、手机号、邮箱名等)等个人重要信息所以是很危险的。
-解决方法:  cookie中存储userId,后端保存对应的敏感信息如username。
-这样只要后端的username与userId唯一对应就好。
-本质上session是服务器端内存中的一个内存区域也就是一个对象、它存储了userId与真正用户名对应的信息。
-它是一种解决cookie存储缺点的方法
+事实上使用上面的cookie已经可以实现用户的认证和授权了、不过使用cookie存储会暴露username(用户名、手机号、邮箱名等)等个人重要信息所以是很危险的。
+解决方法:  使用session会话控制、cookie中存储userId,后端保存对应的敏感信息如username。
 
+session在计算机中，尤其是在网络应用中，称为“会话控制”。意思是当用户使用浏览器访问网页向服务器通信的时候，服务器会在内存里(或者redis中)开辟一块内存区域用来存储了当前用户会话相关的属性及配置信息，这块内存区域就叫做 session，它本质是一个对象。它存储了userId与真正用户名对应的信息。在通信时只要后端的username与userId唯一对应就能知道当前用户的其它信息了、它是一种解决cookie存储缺点的方法。
 
+具体实现是:服务器会将session的引用地址通过响应头的set-cookie字段返回给客户端，客户端一般将这个值命名为sessionid并存储在cookie中(这是一种方法)，而cookie是浏览器中一个可以保存数据的内存区域。
 
-###  5.7.3 
+此后用户再向服务器端请求时都会在请求头的cookie字段携带这个sessionid发给服务器，服务器根据sessionid在自己内存里找到唯一对应的内存区域即session对象并解析，解析后就知道当前用户的权限能干什么不能干什么最后将信息再次返回给前端。
+  
+客户端要退出当前会话只需要把cookie清空即可，或者在服务器主动清除session。
+优点：
+1. 相比于jwt，session可以被服务器主动清除。
+2. session保存在服务器端，相对更加安全。
+3. 和浏览器的cookie结合使用，比较灵活，兼容比较好。
+缺点：
+1. cookie+session在跨域场景中不好，因为cookie不可跨域。
+2. 如果是分布式部署，需要做多机session共享机制
+3. 基于cookie的机制很容易被CSRF攻击
+
+### 5.7.3 JWT
+
+JWT是json web token的缩写，它是RFC(网络请求意见稿)的一个开放标准RFC7519。
+它定义了一种紧凑且独立的方式，用来将各方之间的信息作为JSON对象进行安全传输。
+该信息是可以被验证和信任的，因为这个信息是经过数字签名的。
+它也是为了实现客户端和服务器端之间认证的和鉴权的一种方法，它本质是一串字符串。
+
+JWT构成：头部(header)+有效载荷(payload)+签名(signature)，它们之间使用 . 分隔。
+
+1. 头部(header)：本质是一个json有两个字段，在生成token时使用 base64 进行了编码。
+ - typ(type):token(令牌)的类型，这里固定是JWT
+ - alg(algorithm):使用何种hash算法加密，如RSA，SHA256等
+类似：{"typ":"JWT","alg":"HS256"} base64 编码后就变成了一堆字符串如下：'eyjhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+
+2. 有效载荷(payload)：本质也是一个json，字段是真实存储需要传递的信息，如用户id，用户名等。
+还有一个元数据信息，如过期时间，发布人等等。与header不同，除了base64编码外有效载荷还可以再次进行加密。
+类似：{"user_id":"zhangsan"} base64url 编码后如下： 'eyJ1c2VyX2lkIjoiemhhbmdzYM4ifQ'
+
+3. 签名(signature)：对头部和有效载荷这两部分进行签名(即使用密钥再加密一次)，目的是保证token在传输的过程中没有被篡改或者损坏。
+而且在签名之后还要再进行一次base64编码。
+完整的签名算法是：signature = HMACSHA256(base64UrlEncode(header) + '.' + base64UrlEncode(payload),secret密钥)
+
+JWT工作流程：
+1. 首先客户端向服务器发送请求时会携带有效载荷，服务器端接收到后进行验证，验证成功就将需要返回的信息加入到有效载荷中，再对有效载荷和jwt头部一起进行base64编码。
+2. 然后使用密钥对编码之后的有效载荷和jwt头部进行签名，签名完成之后再进行一次base64编码就形成一个token(令牌本质就是一串字符串)返回给客户端。返回格式是自己设定的如: {token:'xxxx'}
+3. 最后客户端将token保存在localStorage或者sessionStorage中，在下次请求时在请求头中的 authorization 字段带上这个 token 就可以验证用户信息了。
+4. 而退出只需要将token删除即可，也就是将localStorage或者sessionStorage中的token删除、而前端对localStorage或者sessionStorage的操作都是有浏览器提供的api接口的。
+
+JWT和session比较: 
+1. 可扩展性，jwt更好不需要在服务器端存储token。
+2. 安全性，都有可能会遭受攻击，要自己注意防范，不要把重要信息放在token里。
+3. 性能，jwt存储大量信息时开销比较大，而session多时后端也需要根据id查找。
+4. 时效性，jwt差一点，因为session可以在服务器端主动删除。
+
+### 5.7.4 实现逻辑
+解决方案都是现成的记住就好。
+登录认证流程：
+1. 首先前端登录时需要把用户名、用户密码等标识信息传递给后端
+2. 然后后端先判断数据库是否存在该用户、存在用户后端对不敏感的信息添加到有效载荷中签名生成token，最后返回token给前端。
+3. 之后前端对其它接口的请求都带上这个token。
+
+实际操作：在middleware文件夹新建一个auth.js，此时前端已经登录获取了token。
+1. 认证步骤1：获取前端请求头对象的 authorization，前端不设置时默认为空
+2. 认证步骤2：对authorization的值进行拆分，获取其中的token
+3. 认证步骤3：验证token 如果token被修改过或者为空，都是401错误，即没有认证。
+   
 
 
 ## 5.9 日志功能实现
