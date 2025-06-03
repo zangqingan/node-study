@@ -1,64 +1,49 @@
 # 一、概述
 2024.1.26 重新梳理node知识体系、开始深入学习。
-目前node稳定版本已经是 20.11.0 比我刚开始学时可以说是变化非常大的。 
+目前node稳定版本已经是 v20.11.0 比我刚开始学时可以说是变化非常大的。 
 同时node本身知识点又是比较松散、所以这次重新梳理旨在构建一个自己掌握知识的知识体系。
+
+2024.5.24 nodejs官网更新版本已经更新到 v20.13.1、要尝试写文章输出了。 last dance。
 
 # 二、准备工作
 
-## 2.1 windows系统常用命令
-window+r:  快速打开命令运行窗口。
-常用命令:  
-| 名称      | 含义 |
-| --------- | -----------    |
-| cmd       | 打开命令行窗口  |
-| notepad   | 打开记事本      | 
-| calc      | 计算器         | 
-| mspaint   | 打开画图工具。  | 
-| write     | 写字板         | 
-| notepad   | 打开记事本      | 
+## 2.1 node环境安装
+在[node官网](https://nodejs.org)下载稳定版本双击运行安装即可、安装成功之后在命令窗口中输入以下命令可以查看安装的node版本。在安装之后 node 和 包管理工具 npm 都已经安装完成。
 
-切换盘符:  盘符号: 点击回车即可。
+**查看node和npm的版本信息**
+```bash
+$ node -v
+$ npm -v
+```
+但是需要多版本时只能重新安装node、为此一般会使用版本管理工具。这样可以管理多个node版本。
 
+1. 在windows系统里一般是使用 [nvm](https://github.com/coreybutler/nvm-windows)全称是 Node Version Manager(node版本管理工具)来管理多个node版本。好处是node版本切换方便、
+   
+**nvm常用命令如下:**
+| 命令名               | 含义                                            |
+| -------------------- | ----------------------------------------------- |
+| nvm -v               | 查看nvm是否已正确安装及其版本。                 |
+| nvm list             | 列举所有已安装的node版本(带*的表示当前用的版本) |
+| nvm list available   | 查看所有node可安装版本                          |
+| nvm current          | 显示node当前使用版本                            |
+| nvm use 版本号       | 使用指定版本的node                              |
+| nvm install 版本号   | 安装指定版本的node                              |
+| nvm uninstall 版本号 | 卸载指定版本的node                              |
+| nvm -h               | 查看帮助                                        |
 
-## 2.2 linux系统常用命令
-常用命令:  
-| 名称      | 含义 |
-| --------- | -----------               |
-| touch     | 新建一个文件               |
-| ls        | 列举当前目录下所有资源等等。 |
-| mkdir     | 要创建的目录名。            |
-| cd        | 切换目录。                  |
-| cls/clear | 清屏                       |
+现在用的基本上最低都是 v8.x 以上的版本了因为它们都支持 ES6 特性、v12版本之后node开始支持ESM的模块化语法。个人在用v14、v16、v18这3个偶数主版本、社区最新版已经到v21了、LTS版也已经更新到v20.11.0。
 
-## 2.3 node环境安装
-在[node官网](https://nodejs.org)下载稳定版本双击运行安装即可、安装成功之后在命令窗口中输入以下命令可以查看安装的node版本。
-
-`
-  $ node -v
-`
-
-但是在windows系统里一般是使用 [nvm](https://github.com/coreybutler/nvm-windows)全称是 Node Version Manager(node版本管理工具)来管理多个node版本。好处是node版本切换方便、nvm常用命令如下:
-| 命令名      | 含义 |
-| ----------- | ----------- |
-| nvm -v      | 查看nvm的版本       |
-| nvm list   | 列举所有已安装的node版本(带*的表示当前用的版本)        | 
-| nvm list available   | 查看所有node可安装版本        | 
-| nvm current   | 显示node当前使用版本        | 
-| nvm use 版本号   | 使用指定版本的node        | 
-| nvm install 版本号  | 安装指定版本的node        | 
-| nvm uninstall 版本号  | 卸载指定版本的node        | 
-| nvm -h   | 查看帮助        | 
-
-现在用的基本上最低都是 8.x 以上的版本了因为它们都支持 ES6 特性、v12版本之后node开始支持es6的模块化语法。个人在用v14、v16、v18这3个偶数主版本、社区最新版已经到v21了、LTS版也已经更新到v20.11.0。
-
+2. 在linux系统里同样可以使用nvm来管理多个node版本。[nvm](https://github.com/nvm-sh/nvm)、跟着步骤安装即可。使用命令上时共同的。
 
 
 
 # 三、Node.js 入门基础
-nodejs基础的学习可以说是很简单的、因为它的真正用途或者说一般实际用途是: 运行在服务端作为web server存在。也就是说对于我们前端工程师而言就是用来提供api接口的、它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的、同时原生node是比较繁杂的。我们主要要学习的就是这些思路和套路。
+
+Node.js 是一个免费、开源、跨平台的JavaScript运行时环境，允许开发人员创建服务器、web应用程序、命令行工具和脚本。Node.js 基础的学习可以说是很简单的、因为它的真正用途或者说一般实际用途是: 运行在服务端作为web server(服务器)存在。也就是说对于我们前端工程师而言就是用来提供api接口的、它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的、同时原生node是比较繁杂的。我们主要要学习的就是这些思路和套路。
+
 [官方网站](https://nodejs.org) 主要用来查询相关api
 [Nodejs学习指南](https://blog.poetries.top/node-learning-notes)社区学习网址
-[Nodejs技术栈](https://www.nodejs.red)
+
 ## 3.1 服务端和前端的概念和区别
 
 前端:  主要和用户肉眼所看到的页面打交道、主要工作就是写页面（HTML）、美化页面（css）、调用后端提供的 api接口去请求或提交数据等。
@@ -75,8 +60,10 @@ server端也就是服务器端、主要进行业务逻辑的操作如:  数据�
 记住重点在于切换思路、记住对应的解决方案就行。
 
 ## 3.2 nodejs基础介绍
-nodejs是一个开源的、跨平台的JavaScript运行时环境(更进一步的说是在服务端的运行环境),并不是一门新的编程语言。它的作者是 Ryan Dahl、底层是使用c++编写的。
+Node.js 是一个免费、开源、跨平台的JavaScript运行时环境(更进一步的说是在服务端的运行环境),并不是一门新的编程语言。它的作者是 Ryan Dahl、底层是使用c++编写的。
+
 它是运行谷歌v8引擎上的、单线程的、基于事件驱动的、异步的、非阻塞式 I/O 的JavaScript运行时。
+
 1. **单线程:** Node.js 使用单线程来运行、而不是向 Apache HTTP 之类的其它服务器、每个请求将生产一个线程、这种方法避免了 CPU 上下文切换和内存中的大量执行堆栈
 2. **事件驱动:**
 3. **异步的:**
@@ -109,15 +96,14 @@ nodejs是一个开源的、跨平台的JavaScript运行时环境(更进一步的
 使用以下命令就可以运行这个web服务器:
 
 `$ node myHttp.js `
-
 **myHttp.js**
 ```javascript
-const http = require('node:http')
+const { createServer } = require('node:http')
 
 const hostname = '127.0.0.1'
 const port = 3000
 
-const server = http.createServer((req, res) => {
+const server = createServer((req, res) => {
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/plain')
   res.end('Hello World\n')
@@ -141,7 +127,7 @@ server.listen(port, hostname, () => {
 使用模块化开发也比较符合设计原则中的单一置换原则、开放封闭原则。
 
 而在node.js中就是以模块为基本单位来划分功能的、一个模块本质上就是一个 .js 文件。
-为了让node模块之间可以相互调用、Node.js提供了一个完整的模块加载系统-->即CommonJS规范。在v12版本之前、nodejs只使用Commonjs 规范。在v12之后也支持了ESM、这样就和前端一样了、但是这里还是介绍一下Commonjs 规范。
+为了让node模块之间可以相互调用、Node.js提供了一个完整的模块加载系统-->即CommonJS规范。在v12版本之前、nodejs只使用Commonjs 规范。在 v12 版本之后也支持了ESM、这样就和前端一样了、但是这里还是介绍一下Commonjs 规范。
 
 **注意:**  这里 .js文件 和模块是一一对应的、即:  一个 Node.js 文件就是一个模块、这个文件可能是JavaScript 代码、JSON 或者编译过的C/C++ 扩展。所以创建一个模块是很简单的就是新建一个.js文件。
 
@@ -153,9 +139,9 @@ server.listen(port, hostname, () => {
 
 ### 3.5.3 使用
 
-nodejs模块系统是基于commonjs规范的、一个单独的js文件就是一个模块、每一个模块都是一个单独的作用域、也就是说、在该模块内部定义的变量函数、对象等都运行在模块作用域中、无法被其他模块读取、除非为global对象的属性。这样不会污染到全局作用域、同时Node.js 采用了延迟加载的策略、即只有用到时模块才会被加载、且加载完成后会放到binding_cache中进行缓存、所以在第二次再引入相同的模块时不会重新加载。同时在编写或使用每个node 模块时、都有require()、exports、module这三个nodejs预先定义好的变量可供使用。
+nodejs模块系统是基于 commonjs 规范的、一个单独的js文件就是一个模块、每一个模块都是一个单独的作用域、也就是说、在该模块内部定义的变量函数、对象等都运行在模块作用域中、无法被其他模块读取、除非为global对象的属性。这样不会污染到全局作用域、同时Node.js 采用了延迟加载的策略、即只有用到时模块才会被加载、且加载完成后会放到 binding_cache 中进行缓存、所以在第二次再引入相同的模块时不会重新加载。同时在编写或使用每个 node 模块时、都有 require()、exports、module 这三个nodejs预先定义好的变量可供使用。
 
-#### 1.模块引入 require()函数 
+#### 1. 模块引入 require()函数 
 
 nodejs对所有模块的加载方法都是通过调用 require() 函数来加载和使用别的模块、这个函数接收一个字符串类型的模块名(原生和文件模块直接使用模块名、自定义模块要指定模块所在的位置)。
 
@@ -165,7 +151,10 @@ nodejs对所有模块的加载方法都是通过调用 require() 函数来加载
 
 导入语法:  const 变量对象名 =  require('原生/文件模块名/自定义模块位置');
 导入语法:  const {解构变量名} =  require('原生/文件模块名/自定义模块位置');
-
+const fs = require('node:fs');  // 导入原生内置模块
+const express = require('express');  // 导入安装到 node_modules 目录下的第三方模块
+const myModule = require('./myModule.js');  // 导入相对路径下自己定义的模块
+const nodeModule = require('./myModule.node');  // 导入扩展模块
 
 ```
 原生和文件模块不做路径解析、直接返回内部模块的导出对象。自定义模块做路径解析。
@@ -174,10 +163,10 @@ nodejs对所有模块的加载方法都是通过调用 require() 函数来加载
 3. 以 '../' 为前缀的模块是相对于当前调用 require() 文件的上一级目录。
 4. 当没有以 '/'、 './' 或 '../' 开头来表示文件时、这个模块必须是一个核心模块或加载自 node_modules 目录的文件模块。
 
-#### 2.模块的导出 module和exports对象
+#### 2.模块的导出 module 和exports对象
 
-每个nodejs模块都有一个全局对象module、同时module对象中有一个属性exports(它本身又是一个对象)。
-我们需要把模块希望暴露导出的属性和方法放入 module.exports 对象中、它是node模块真正的向外暴露属性和方法的出口、每个模块只能有一个多个时后面的覆盖前面的。
+每个 nodejs 模块都有一个全局对象 module、同时 module 对象中有一个属性exports(它本身又是一个对象)。
+我们需要把模块希望暴露导出的属性和方法放入 module.exports 对象中、它是node模块真正的向外暴露属性和方法的出口、每个模块只能有一个、多个时后面的覆盖前面的。
 
 ```JavaScript
 例如: a.js
@@ -185,28 +174,30 @@ function FunA(){
     return 'Tom';
 }
 const result = [1,2]
+
+// 只能有一个
 module.exports = {
     FunA,
     result,
     要导出的函数、
     .....对象等等
 }
-使用export 导出
-语法:  exports.导出变量名/导出方法名=模块内定义的变量名/方法名。
+// 使用export 导出、可以有多个
+// 语法:  exports.导出变量名/导出方法名=模块内定义的变量名/方法名。
 exports.FunA = FunA
 exports.result = result
 
-在 b.js里导入、这里假设他俩在同一层级
-b.js
+// 在 b.js里导入、这里假设他俩在同一层级
+// b.js
 const total = require('./a.js')
 total.FunA
 total.result
-也可以解构出来
+// 也可以解构出来
 const {FunA,result} = require('./a.js')
 
-另一种导出时就是exports对象、而exports对象的值本质上指向的是module对象。
+// 另一种导出时就是 exports 对象、而exports对象的值本质上指向的是module对象。
 const total = require('./a.js')
-同样可以解构出来
+// 同样可以解构出来
 const {FunA,result} = require('./a.js')
 
 
@@ -217,13 +208,14 @@ exports对象:  在模块中也使用这个对象向外暴露东西、它本身�
 `const exports = modules.exports`
 
 
-**注意:**  module.exports和exports的区别
-module.exports才是node模块真正的导出接口、即在使用require()方法引入时得到的返回值就是这个
+**注意:**  module.exports 和 exports 的区别
+module.exports 才是node模块真正的导出接口、即在使用require()方法引入时得到的返回值就是这个
 module.exports、一个模块文件中可以有多个exports输出、但只能有一个module.exports输出。
 所有exports对象最终都是通过module.exports导出的。
 建议都使用module.exports就行避免矛盾。
 
 ### 3.5.4 node模块加载机制
+
 在Nodejs中模块加载一般会经历:  路径分析、文件定位、编译执行这3个步骤。
 按照模块的分类、在Nodejs中模块加载会按照以下顺序进行优先加载:  
 1. **系统缓存:**  首先是先进行系统缓存binding_cache加载(因为模块被执行之后会在这里进行缓存)、判断缓存中是否有值。有不再加载直接使用之前加载过的、没有进行下一步检查。
@@ -264,45 +256,47 @@ module.exports、一个模块文件中可以有多个exports输出、但只能�
 ```
 
 ## 3.6 nodejs包管理工具NPM
-包管理器又称软件包管理系统、它是在电脑中自动安装、配制、卸载和升级软件包的工具组合、在各种系统软件和应用软件的安装管理中均有广泛应用。而在我们安装node的同时也会自动把npm也安装上、npm(全称node package manager)node包管理工具的简称、它是一个命令行工具、用于下载和管理node开发中需要到的各种模块/包/插件。
-可以在[官网](https://www.npmjs.com/) 上搜索你想要安装的模块。
+
+包管理器又称软件包管理系统、它是在电脑中自动安装、配制、卸载和升级软件包的工具组合、在各种系统软件和应用软件的安装管理中均有广泛应用。而在我们安装node的同时也会自动把npm也安装上、npm(全称node package manager)Node.js的标准包管理器的简称、它是一个命令行工具、用于下载和管理node开发中需要到的各种模块/包/插件。可以在[官网](https://www.npmjs.com/) 上搜索你想要安装的模块。目前社区也有 yarn and pnpm 两种工具作为替代品也是可以使用的。
 
 常用命令如下:  
-```javaScript
-npm -v === npm --version 查看当前安装的 npm 版本信息
-npm install 模块名   在本目录下增加一个node_modules并在这个目录里安装指定模块
-npm install 模块名@版本 安装指定版本的包
-npm uninstall 模块名   删除或者说卸载指定模块
-npm list 查看当前目录安装了哪些模块。
-npm config list 查看当前电脑主机安装了哪些全局模块。
-npm show 模块名 、显示指定模块的详情
-npm update  升级当前目录下的项目的所有模块、也可在后面指定模块名升级。
-npm config get registry 查看当前 npm 源
-npm config set registry=https://registry.npm.taobao.org  切换为 taobao 源
-npm run 运行node项目。
+```bash
+$ npm -v === npm --version # 查看当前安装的 npm 版本信息
+$ npm init -y # 快速初始化一个node项目
+$ npm install package-name   #  在本目录下增加一个node_modules并在这个目录里安装指定模块
+$ npm install package-name@version # 安装指定版本的包
+$ npm uninstall package-name   # 删除或者说卸载指定模块
+$ npm list # 查看当前目录安装了哪些模块。
+$ npm config list # 查看当前电脑主机安装了哪些全局模块。
+$ npm show package-name # 显示指定模块的详情
+$ npm update package-name # 升级当前目录下的项目的所有模块、也可在后面指定模块名升级。
+$ npm config get registry # 查看当前 npm 源即npm 包的下载地址。
+$ npm config set registry=https://registry.npm.taobao.org  # 切换为 taobao 源
+$ npm run script-name # 执行 package.json 文件中定义的脚本命令启动node项目。
+$ npm config list # 用于列出所有的 npm 配置信息。
 
 ```
 
 **node项目从零开发一般流程如下:**
+
 1. <strong> 先初始化为node项目</strong>
    
 ```javaScript
-方法:  使用 npm init / npm init -y 初始化为node项目(-y 表示快速初始化node项目包管理文件package.json)。
-将来要安装的模块/包的信息都会纪录在这个package.json文件中且包含有描述当前node项目的其它各种信息。它是当前项目相关信息的json格式配置文件
+方法:  使用`$ npm init / npm init -y `初始化为node项目(-y 表示快速初始化node项目包管理文件 package.json)。将来要安装的模块/包的信息都会记录在这个 package.json 文件中且包含有描述当前node项目的其它各种信息。它是一个包含当前项目相关信息的 json 格式配置文件。
 常见属性如下:
 {
     "name" : "包名/当前项目名称",
     "version" : "包的版本号/项目的版本号",
     "description" : "包的描述信息/项目的描述信息",
     "keywords" : "描述当前项目的关键字",
-    "main" :"index.js", "main 字段指定了node项目程序的主入口文件、即使用node命令启动项目时的入口文件、使用require('moduleName') 就会加载这个文件、这个字段的默认值是模块根目录下面的 index.js、也可以自定义指定位置的文件作为入口文件。主要负责调度组成整个程序的其它模块完成工作"
+    "main" :"index.js", // main 字段指定了node项目程序的主入口文件、即使用node命令启动项目时的入口文件、使用require('moduleName') 就会加载这个文件、这个字段的默认值是模块根目录下面的 index.js、也可以自定义指定位置的文件作为入口文件。主要负责调度组成整个程序的其它模块完成工作
     "scripts": {
        "test": "echo \"Error: no test specified\" && exit 1",
        "serve": "cross-env NODE_ENV=dev nodemon 入口文件位置",
        "prd": "cross-env NODE_ENV=production pm2 start 入口文件位置"
     },
-    这个选项叫npm脚本指定了node项目运行脚本命令的npm命令行缩写、即启动node项目的自定义命令、用来代替 node 运行文件名 这样启动js文件的方式。可以通过npm run 查看定义了哪些脚本命令。
-    语法:  npm run 自定义的命令。(自定义的命令是scripts中的键、如果定义为start时则run可以省略)。上面开发环境就是:  npm run serve、生产环境就是:  npm run prd
+    // 这个选项叫npm脚本指定了node项目运行脚本命令的npm命令行缩写、即启动node项目的自定义命令、用来代替 node 运行文件名 这样启动js文件的方式。可以通过npm run 查看定义了哪些脚本命令。
+    // 语法:  npm run 自定义的命令。(自定义的命令是scripts中的键、如果定义为start时则run可以省略)。上面开发环境就是:  npm run serve、生产环境就是:  npm run prd
     "author" : "包的作者/项目的作者",
     "license": "ISC","项目使用的开源协议"
     "contributors" : "包/项目的其他贡献者",
@@ -310,17 +304,17 @@ npm run 运行node项目。
        "type": "git",
        "url": "git+https://github.com/zangqingan/nodeStudy.git"
     },
-    包/项目代码的远程仓库信息、包括type和URL、type可以是git或svn、URL则是远程的仓库地址。
-    "homepage": "https://github.com/zangqingan/nodeStudy#readme",当前项目远程仓库的readme.md 文件地址。
+    // 包/项目代码的远程仓库信息、包括type和URL、type可以是git或svn、URL则是远程的仓库地址。
+    "homepage": "https://github.com/zangqingan/nodeStudy#readme", // 当前项目远程仓库的readme.md 文件地址。
     "dependencies": {
        "mongoose": "^5.8.3"
     }、
-    生产环境依赖、指定了项目运行时（即生产环境所依赖的模块列表）所依赖的模块、不装项目运行不了。
-   它们将会被安装在当前目录的 node_modules 目录下。
+    // 生产环境依赖、指定了项目运行时（即生产环境所依赖的模块列表）所依赖的模块、不装项目运行不了。
+   // 它们将会被安装在当前目录的 node_modules 目录下。
     "devDependencies": {
        "cross-env": "^7.0.3"
     }
-    开发环境依赖 指定了项目开发时所依赖的模块、发布时用不到它。
+    // 开发环境依赖 指定了项目开发时所依赖的模块、发布时用不到它。
 }
 
 ```
@@ -328,12 +322,15 @@ npm run 运行node项目。
 2. <strong>安装开发中实际用到的各种模块</strong>
 
 ```javaScript
-安装/卸载语法:  npm install/uninstall 包名/模块名@version   --sava / --save-dev / -g。
+安装/卸载语法: 
+` npm install/uninstall 包名/模块名@version   --sava / --save-dev / -g。`
+
 后面没有参数时默认会把模块直接安装到当前目录的node_modules目录中、同时模块相关的版本信息会放到包管理文件 package.json 的 dependencies 生产依赖选项中。
-     @version 指定模块的版本可选。
-    --save === -S 模块安装到生产依赖dependencies中、即:  模块信息自动写入package.json中的 "dependencies" 节点选项中。项目发布上线之后还会依赖用到的模块、没有这些模块、项目不能运行。
+    @version 指定模块的版本可选。
+    --save === -S 模块安装到生产依赖dependencies中、即: 模块信息自动写入package.json中的。"dependencies" 节点选项中。项目发布上线之后还会依赖用到的模块、没有这些模块、项目不能运行。
     --save-dev === -D 模块安装到开发依赖中、即:  模块信息自动写入package.json中的 "devDependencies" 节点选项。项目上线之后不会用到的模块、例如'babel-loader'等。
     -g,表示全局安装、就可以在任何项目的目录下使用。一般如 nodemon pm2等常用和项目无关的模块会全局安装。
+在 v5版本之前需要显性声明 --save、之后不带参数时默认就是放到 "dependencies"中。
 
 注意:  模块信息由模块名、模块版本信息组成。而版本号的格式如下:  
 如 "模块名": "可升级版本符号主版本号.次版本号.修改版本号" 
@@ -348,13 +345,14 @@ npm run 运行node项目。
 ^,用户使用当前版本后、最多升级到次版本的最新版本
 *,用户使用当前版本后、可以升级到最新版本即最新主版本
 
-
 ```
 
 3. <strong>正式使用各种模块</strong>
 根据项目的实际需求在 .js 文件中编写具体的代码即可、具体使用查看对象包文档提供的api接口即可。
 
+
 ## 3.7 nodejs程序Debug调试
+
 调试是每一个开发人员都要遇到的问题、选择一个合适的调试工具也尤为重要。 在 Node.js 开发过程中除了万能的 console.log 之外、还可以通过编辑器的调试工具或者其它的工具。
 
 
@@ -368,8 +366,9 @@ npm run 运行node项目。
 
 
 # 四、Node.js 内置核心模块
+
 node系统模块也是比较多的、对应的api也很多不过主要学一些常见的模块及对应的api即可。
-Node.js最常见的例子是作为web服务器、这也是我们只要基础时主要学习的东西。
+Node.js 最常见的例子是作为web服务器、这也是我们只要基础时主要学习的东西。
 就是写一个后端服务给自己提供接口。所以第一个模块我们学习 http 网络服务模块。
 
 ## 4.1 http 网络服务模块
@@ -491,13 +490,13 @@ req.method = 'GET'
 
 HTTP请求常见的请求方法类型及对应的 req.method 值:  
 | HTTP方法名 | 对应req.method 值 |
-| --------- | ------------- |
-|   get     |    GET        |
-|   post    |    POST       |
-|   put     |    PUT        |
-|   patch   |    PATH       |
-|   update  |    UPDATE     |
-|   delete  |    DELETE     |
+| ---------- | ----------------- |
+| get        | GET               |
+| post       | POST              |
+| put        | PUT               |
+| patch      | PATH              |
+| update     | UPDATE            |
+| delete     | DELETE            |
 ```
 
 
@@ -543,6 +542,7 @@ HTTP状态码: 即服务器端返回给客户端用来描述http请求状态的�
 
 
 ## 4.2 fs 文件系统操作模块
+
 文件是否存在判断、新建、写入、读取等是比较常用的功能。然后api一般都有同步、回调函数(异步)、基于promise(从fs/promises导出)三种。同步的不用、基于promise的没用过、所以之后都是用回调函数的也就是异步的api。常见是读取文件、写入日志等。**注意路径问题!**
 
 ### 4.2.1 文件夹(目录)相关操作
@@ -550,11 +550,10 @@ HTTP状态码: 即服务器端返回给客户端用来描述http请求状态的�
 目录已存在新建会报错、删除不存在的目录也会报错。
 
 ```javaScript
-const fs = require('fs')
-const fs = require('node:fs')//现在最新已经是这样引入了
-const asyncFs = require('fs/promises')
-// 目录创建
-// 同步
+const fs = require('node:fs')//现在最新已经是这样引入了、同步和异步版本
+const fs = require('node:fs/promises') // 引入promise版本
+
+// 同步-创建目录
 try{
   fs.mkdirSync('./hello')
   console.log('创建目录成功');
@@ -562,33 +561,33 @@ try{
   console.log(err,'新建目录失败')
   throw err;
 }
-// 异步
+// 异步回调-创建目录
 fs.mkdir('./async',(err) => {
   if(err) {
     console.log(err,'新建目录失败')
     throw err;
   }
 })
-// 基于promise
+// 基于promise-创建目录
 asyncFs.mkdir('/promise').then(res => {
   console.log('res',res)
 })
-// 删除
-// 同步
+
+// 同步-删除目录
 try {
   fs.rmdirSync('./hello')
 } catch (err) {
   console.log(err,'删除目录失败')
   throw err;
 }
-// 异步
+// 异步-删除目录
 fs.rmdir('./async',(err) => {
   if(err) {
     console.log(err,'删除目录失败')
     throw err;
   }
 })
-// 基于promise
+// 基于promise-删除目录
 asyncFs.rmdir('./async').then(res => {
   console.log(res,'删除目录成功')
 }).catch(err => {
@@ -684,9 +683,13 @@ readStream.pipe(errorLog)
 
 
 ## 4.3 path 路径处理模块
-在nodejs中这个模块使用频率也是比较高的、主要是路径的拼接、解析、以及获取
+系统中的每个文件都有一个路径。
+在Linux和macOS上，路径可能看起来像:/users/joe/file.txt，
+而Windows计算机则不同，并且具有如下结构:C:\users\joe\file.txt
+path模块是nodejs中提供的一个处理路径的模块、在nodejs中这个模块使用频率也是比较高的、主要是路径的获取、拼接、解析。
 
 ```javaScript
+const path = require('node:path');
 /**
  * path.extname() 方法返回文件的扩展名
  * path.basename() 方法返回 path 的最后一部分,即取最后一层(取文件名)。
@@ -929,10 +932,12 @@ runQuestionLoop();
 
 线程是操作系统能够进行运算调度的最小单位，首先我们要清楚线程是隶属于进程的，被包含于进程之中。一个线程只能隶属于一个进程，但是一个进程是可以拥有多个线程的。
 
-process 模块是node的全局模块、不需要引入可以直接使用。
+process 模块是node的全局模块、不需要引入也可以直接使用。
 通过它来获得node进程相关的信息，比如运行node程序时的命令行参数。或者设置进程相关信息，比如设置环境变量。
 
 ```javaScript
+// process 模块是node的全局模块、不需要引入也可以直接使用。
+const process = require('node:process');
 // 常见属性和方法
     process.env：环境变量，例如通过 process.env.NODE_ENV 获取不同环境项目配置信息
     process.pid：获取当前进程id
@@ -1033,8 +1038,8 @@ Node.js 以 8KB 为界限来区分是小对象还是大对象
 2. 资源压缩: zlib模块就是利用了缓冲区（Buffer）的功能来操作二进制数据流，提供了压缩或解压功能。
 
 ## 4.9 zlib 资源解压缩模块
-这个模块是用来对资源进行压缩的、提供了使用Gzip、Deflate/ inflation和Brotli实现的压缩功能。
-浏览器通过HTTP请求头部里加上Accept-Encoding，告诉服务器使用何种方法压缩资源。
+这个模块是用来对资源进行压缩的、提供了使用Gzip、Deflate/ inflation 和 Brotli 实现的压缩功能。
+浏览器通过HTTP请求头部里加上 Accept-Encoding，告诉服务器使用何种方法压缩资源。
 
 `Accept-Encoding:gzip, deflate`
 
@@ -1042,13 +1047,18 @@ Node.js 以 8KB 为界限来区分是小对象还是大对象
 // 本地gzip压缩
 const fs = require('fs');
 const zlib = require('zlib');
-
+// 压缩
 const gzip = zlib.createGzip();
-
 const inFile = fs.createReadStream('./extra/fileForCompress.txt');
 const out = fs.createWriteStream('./extra/fileForCompress.txt.gz');
-
 inFile.pipe(gzip).pipe(out);
+
+// 解压
+const gunzip = zlib.createGunzip();
+const readStream = fs.createReadStream('index.txt.gz')
+const writeStream = fs.createWriteStream('index2.txt')
+readStream.pipe(gunzip).pipe(writeStream)
+
 
 // 服务端开启gzip压缩
 // 首先判断 是否包含 accept-encoding 首部，且值为gzip。
@@ -1061,12 +1071,13 @@ const filepath = './extra/fileForGzip.html';
 const server = http.createServer(function(req, res){
     const acceptEncoding = req.headers['accept-encoding'];
     let gzip;
-    if(acceptEncoding.indexOf('gzip')!=-1){ // 判断是否需要gzip压缩
+    if(acceptEncoding.indexOf('gzip') != -1){ // 判断是否需要gzip压缩
         gzip = zlib.createGzip();       
         // 记得响应 Content-Encoding，告诉浏览器：文件被 gzip 压缩过
         res.writeHead(200, {
             'Content-Encoding': 'gzip'
         });
+        // 使用管道将可读流中的数据通过 Gzip 压缩，再通过管道传输到可写流中进行写入
         fs.createReadStream(filepath).pipe(gzip).pipe(res);
     }else{
         fs.createReadStream(filepath).pipe(res);
@@ -1077,6 +1088,7 @@ server.listen('3000');
 ```
 
 ## 4.10 crypto 加解密模块
+
 Crypto 加密模块是 C／C++ 实现这些算法后，暴露为 javascript 接口的模块，包含对 OpenSSL 的哈希、HMAC、加密、解密、签名、以及验证功能的一整套封装。
 密码学的知识是非常丰富的: 有对称加密算法、非对称加密算法、散列(哈希)算法(信息摘要算法)
 1. 对称式加密就是加密和解密使用同一个密钥
@@ -1206,8 +1218,9 @@ node实例是单线程作业的。在服务端编程中，通常会创建多个n
 # 五、Node.js 常用第三方模块
 
 ## 5.1 cross-env 
+cross-env 是跨平台设置和使用环境变量 不论是在Windows系统还是POSIX系统。
 因为Windows平台无法直接设置环境变量、所以使用这个包。
-在包管理文件的脚本选项中如下设置、之后在node系统模块-进程模块process.end.NODE_ENV 就可以访问到当前变量值。
+在包管理文件的脚本选项中如下设置、之后在node系统模块-进程模块 process.end.NODE_ENV 就可以访问到当前变量值。
 ```javaScript
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -1462,10 +1475,6 @@ await User.deleteOne({username:'我是第一个找到的'})
 1. cookie
 2. session
 3. jwt
-
-    
-   
-
     方法二：使用koa-jwt中间件这个中间件还可以和其它组合使用，具体看文档。
     这个中间件只是用来认证的，生成token用的还是jsonwebtoken这个中间件。
     由于 koa-jwt 从 koa-v2 分支开始不再导出 jsonwebtoken 的 sign 、 verify 和 decode 方法，若要单独生成 token 、验证 token 等，需另从 jsonwebtoken 中将其引入：
@@ -1622,6 +1631,142 @@ JWT和session比较:
 
 ## 5.9 日志功能实现
 
+
+## 5.10 静态资源服务器实现
+
+原生node要实现静态资源服务器，本质就是使用fs模块读取文件，然后返回给前端。
+一般配合path、mine两个模块。
+
+```js
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
+// 创建HTTP服务器
+const server = http.createServer((req, res) => {
+  // 获取请求的URL、请求方法
+  const { url, method } = req
+
+  // 解析请求的文件路径
+  // 文件夹路径，这里假设是 'public'
+  // const filePath = path.join('./public', url);
+  const filePath = path.join(process.cwd(), '../',url) // 获取文件路径
+  console.log(process.cwd())// 这个目录是相对于node启动目录的。
+  console.log(url)
+  console.log(filePath)
+   
+  // 请求静态资源
+  if(method === 'GET' && url.startsWith('/public')) {
+    // 检查文件是否存在
+    fs.access(filePath, (err) => {
+        if (err) {
+            // 如果文件不存在，返回404错误
+            res.statusCode = 404;
+            res.end(`File ${url} not found!`);
+            return;
+        }
+
+        // 打开文件
+        fs.readFile(filePath, (fileErr, data) => {
+            if (fileErr) {
+                // 如果读取文件时出错，返回500错误
+                res.statusCode = 500;
+                res.end(`Error reading file from ${filePath}`);
+                return;
+            }
+
+            // 设置响应头，例如类型为文本HTML
+            const contentType = getContentType(filePath);
+            res.setHeader('Content-Type', contentType);
+
+            // 发送文件内容
+            res.end(data);
+        });
+    });
+  }
+});
+
+// 
+// 根据文件扩展名获取Content-Type - 可以适合用 mime 这个库来实现。
+function getContentType(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  switch (ext) {
+    case '.html':
+    case '.htm':
+      return 'text/html';
+    case '.css':
+      return 'text/css';
+    case '.js':
+      return 'application/javascript';
+    case '.json':
+      return 'application/json';
+    case '.png':
+      return 'image/png';
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.gif':
+      return 'image/gif';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+// 启动服务器
+server.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
+
+
+## 5.11 邮件服务
+
+```bash
+$ npm install js-yaml # 解析yaml文件
+$ npm install nodemailer # 发送邮件
+```
+
+```js
+import nodemailder from 'nodemailer'
+import yaml from 'js-yaml'
+import fs from 'node:fs'
+import http from 'node:http'
+import url from 'node:url'
+const mailConfig = yaml.load(fs.readFileSync('./mail.yaml', 'utf8'))
+const transPort = nodemailder.createTransport({
+    service: "qq",
+    port: 587,
+    host: 'smtp.qq.com',
+    secure: true,
+    auth: {
+        pass: mailConfig.pass,
+        user: mailConfig.user
+    }
+})
+
+
+http.createServer((req, res) => {
+    const { pathname } = url.parse(req.url)
+    if (req.method === 'POST' && pathname == '/send/mail') {
+        let mailInfo = ''
+        req.on('data', (chunk) => {
+            mailInfo += chunk.toString()
+        })
+        req.on('end', () => {
+            const body = JSON.parse(mailInfo)
+            transPort.sendMail({
+                to: body.to,
+                from: mailConfig.user,
+                subject: body.subject,
+                text: body.text
+            })
+            res.end('ok')
+        })
+    }
+}).listen(3000)
+
+
+```
 
 # 六、Node.js 进阶
 深入原理底层知识
