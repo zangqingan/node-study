@@ -3,13 +3,25 @@
   "version": "1.0.0",
   "description": "个人对nodejs的学习记录",
   "main": "./src/test.js",
+  "type": "module",
+  "author": "zangqingan",
+  "license": "ISC",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "cross-env NODE_ENV=dev nodemon ./src/studyModel/fs-study.js",
-    "prd": "cross-env NODE_ENV=production pm2 start ./src/test.js"
+    "prod": "cross-env NODE_ENV=production pm2 start ./src/test.js",
+    "lint:eslint": "eslint --fix  --cache --max-warnings 0  \"./**/*.{vue,js,jsx,ts,tsx}\"  --cache-location \"node_modules/.cache/eslint/\"",
+    "lint:format": "prettier  --write --cache \"./**/*.{js,ts,json,jsx,tsx,css,less,scss,vue,html,md}\"",
+    "lint": "pnpm lint:format && pnpm lint:eslint",
+    "clear:cache": "rimraf node_modules/.cache",
+    "prepare": "husky",
+    "commit": "git-cz"
   },
-  "author": "zangqingan",
-  "license": "ISC",
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
+  },
   "dependencies": {
     "inflection": "^3.0.0",
     "js-yaml": "^4.1.0",
@@ -18,6 +30,18 @@
     "nodemailer": "^6.9.13"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@commitlint/cz-commitlint": "^19.8.0",
+    "@eslint/js": "^9.25.1",
+    "commitizen": "^4.3.1",
+    "eslint": "^9.25.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
+    "prettier": "3.5.3",
+    "rimraf": "^6.0.1"
   }
 }
