@@ -1,25 +1,30 @@
 # 一、概述
-2024.1.26 重新梳理node知识体系、开始深入学习。
-目前node稳定版本已经是 v20.11.0 比我刚开始学时可以说是变化非常大的。 
-同时node本身知识点又是比较松散、所以这次重新梳理旨在构建一个自己掌握知识的知识体系。
 
-2024.5.24 nodejs官网更新版本已经更新到 v20.13.1、要尝试写文章输出了。 last dance。
+1. 2024.1.26 重新梳理node知识体系、开始深入学习。目前node稳定版本已经是 v20.11.0 比我刚开始学时可以说是变化非常大的。 同时node本身知识点又是比较松散、所以这次重新梳理旨在构建一个自己掌握知识的知识体系。
+
+2. 2024.5.24 nodejs官网更新版本已经更新到 v20.13.1、要尝试写文章输出了。 last dance。
+
+3. 2025.6.4 增加eslint+commitlint，包管理器换为pnpm，同时再一次梳理node知识体系。nodejs官网稳定版本已经是 v22.16.0，同时启用了[新官网](https://nodejs.org/)。可以说变化巨大。我们的目标还是一样理解后端思维争取做一个全栈前端。
 
 # 二、准备工作
 
-## 2.1 node环境安装
+**node环境安装**
 在[node官网](https://nodejs.org)下载稳定版本双击运行安装即可、安装成功之后在命令窗口中输入以下命令可以查看安装的node版本。在安装之后 node 和 包管理工具 npm 都已经安装完成。
 
 **查看node和npm的版本信息**
+安装完成之后可以通过以下命令查看node和npm的版本信息。
 ```bash
 $ node -v
 $ npm -v
+$ npx -v
 ```
-但是需要多版本时只能重新安装node、为此一般会使用版本管理工具。这样可以管理多个node版本。
 
-1. 在windows系统里一般是使用 [nvm](https://github.com/coreybutler/nvm-windows)全称是 Node Version Manager(node版本管理工具)来管理多个node版本。好处是node版本切换方便、
-   
+**node版本管理工具**
+需要其它版本时只能卸载后重新安装、为此一般会使用版本管理工具这样可以管理多个node版本。在windows系统里一般是使用 [nvm](https://github.com/coreybutler/nvm-windows) 全称是 Node Version Manager(node版本管理工具)来管理多个node版本。好处是node版本切换方便。
+
 **nvm常用命令如下:**
+现在用的基本上最低都是 v8.x 以上的版本了因为它们都支持 ES6 特性、v12版本之后node开始支持ESM的模块化语法。个人在用v14、v16、v18等偶数主版本、社区最新版已经到v24.1.0了、LTS版也已经更新到v22.16.0(20250604)。
+
 | 命令名               | 含义                                            |
 | -------------------- | ----------------------------------------------- |
 | nvm -v               | 查看nvm是否已正确安装及其版本。                 |
@@ -31,18 +36,21 @@ $ npm -v
 | nvm uninstall 版本号 | 卸载指定版本的node                              |
 | nvm -h               | 查看帮助                                        |
 
-现在用的基本上最低都是 v8.x 以上的版本了因为它们都支持 ES6 特性、v12版本之后node开始支持ESM的模块化语法。个人在用v14、v16、v18这3个偶数主版本、社区最新版已经到v21了、LTS版也已经更新到v20.11.0。
-
-2. 在linux系统里同样可以使用nvm来管理多个node版本。[nvm](https://github.com/nvm-sh/nvm)、跟着步骤安装即可。使用命令上时共同的。
-
-
+**注意：**在linux系统里同样可以使用nvm来管理多个node版本。[nvm](https://github.com/nvm-sh/nvm)、跟着步骤安装即可。使用命令上是共同的。
 
 # 三、Node.js 入门基础
 
-Node.js 是一个免费、开源、跨平台的JavaScript运行时环境，允许开发人员创建服务器、web应用程序、命令行工具和脚本。Node.js 基础的学习可以说是很简单的、因为它的真正用途或者说一般实际用途是: 运行在服务端作为web server(服务器)存在。也就是说对于我们前端工程师而言就是用来提供api接口的、它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的、同时原生node是比较繁杂的。我们主要要学习的就是这些思路和套路。
+**常用网址:**
+1. [官方网站](https://nodejs.org) 主要用来查询相关api、
+2. [中文网站](https://nodejs.cn) 主要用来查询相关api、
+3. [npm中文网](https://www.npmjs.cn/)
+4. [Nodejs学习指南](https://blog.poetries.top/node-learning-notes)社区学习网址
 
-[官方网站](https://nodejs.org) 主要用来查询相关api
-[Nodejs学习指南](https://blog.poetries.top/node-learning-notes)社区学习网址
+正如官方介绍的: Node.js 是一个免费、开源、跨平台的JavaScript运行时环境，允许开发人员创建服务器、web应用程序、命令行工具和脚本。目标是在任何地方运行JavaScript。
+
+Node.js 真正用途或者说一般实际用途是: 运行在服务端作为web server(服务器)存在。也就是说对于我们前端工程师而言就是用来提供api接口的、它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的、同时原生node是比较繁杂的。
+
+我们主要要学习的就是这些思路和套路。
 
 ## 3.1 服务端和前端的概念和区别
 
@@ -60,7 +68,7 @@ server端也就是服务器端、主要进行业务逻辑的操作如:  数据�
 记住重点在于切换思路、记住对应的解决方案就行。
 
 ## 3.2 nodejs基础介绍
-Node.js 是一个免费、开源、跨平台的JavaScript运行时环境(更进一步的说是在服务端的运行环境),并不是一门新的编程语言。它的作者是 Ryan Dahl、底层是使用c++编写的。
+Node.js 是一个免费、开源、跨平台的JavaScript运行时环境(更进一步的说是在服务端的运行环境),并不是一门新的编程语言。它的作者是 Ryan Dahl、底层是使用c/c++编写的。
 
 它是运行谷歌v8引擎上的、单线程的、基于事件驱动的、异步的、非阻塞式 I/O 的JavaScript运行时。
 
@@ -77,7 +85,7 @@ Node.js 是一个免费、开源、跨平台的JavaScript运行时环境(更进�
 4. **论坛社区:**  小型的业务不复杂的应用可以直接使用node全栈、如Nodeclub 就是使用 Node.js 和 MongoDB 开发的社区系统
 5. **等等:**
 
-简单地理解就是nodejs提供了一种简单安全的方法在 JavaScript 中构建高性能和可扩展的网络应用程序即JavaScript可以当作后端语言使用了。
+简单地理解就是 nodejs 提供了一种简单安全的方法在 JavaScript 中构建高性能和可扩展的网络应用程序即JavaScript可以当作后端语言使用了。
 
 
 ## 3.3 nodejs和JavaScript的区别
@@ -144,6 +152,12 @@ nodejs模块系统是基于 commonjs 规范的、一个单独的js文件就是�
 #### 1. 模块引入 require()函数 
 
 nodejs对所有模块的加载方法都是通过调用 require() 函数来加载和使用别的模块、这个函数接收一个字符串类型的模块名(原生和文件模块直接使用模块名、自定义模块要指定模块所在的位置)。
+有四种使用格式:
+1. 支持引入内置模块例如 http os fs child_process 等nodejs内置模块
+2. 支持引入第三方模块express md5 koa 等
+3. 支持引入自己编写的模块 ./ ../ 等
+4. 支持引入addon C++扩展模块 .node文件
+
 
 **注意:**  模块名中的.js扩展名可以省略、require() 函数的返回值是一个 node 模块导出对象 --> module.exports === {}、这个对象拥有加载模块向外暴露的所有属性和方法。可以定义一个变量接收这个对象返回值、这样就可以通过这个变量来调用模块向外导出的所有属性和方法。也可以直接解构需要的属性或方法。
 
@@ -163,7 +177,7 @@ const nodeModule = require('./myModule.node');  // 导入扩展模块
 3. 以 '../' 为前缀的模块是相对于当前调用 require() 文件的上一级目录。
 4. 当没有以 '/'、 './' 或 '../' 开头来表示文件时、这个模块必须是一个核心模块或加载自 node_modules 目录的文件模块。
 
-#### 2.模块的导出 module 和exports对象
+#### 2.模块的导出 module 和 exports对象
 
 每个 nodejs 模块都有一个全局对象 module、同时 module 对象中有一个属性exports(它本身又是一个对象)。
 我们需要把模块希望暴露导出的属性和方法放入 module.exports 对象中、它是node模块真正的向外暴露属性和方法的出口、每个模块只能有一个、多个时后面的覆盖前面的。
@@ -179,8 +193,8 @@ const result = [1,2]
 module.exports = {
     FunA,
     result,
-    要导出的函数、
-    .....对象等等
+    // 要导出的函数、
+    // .....对象等等
 }
 // 使用export 导出、可以有多个
 // 语法:  exports.导出变量名/导出方法名=模块内定义的变量名/方法名。
@@ -210,7 +224,7 @@ exports对象:  在模块中也使用这个对象向外暴露东西、它本身�
 
 **注意:**  module.exports 和 exports 的区别
 module.exports 才是node模块真正的导出接口、即在使用require()方法引入时得到的返回值就是这个
-module.exports、一个模块文件中可以有多个exports输出、但只能有一个module.exports输出。
+module.exports。一个模块文件中可以有多个exports输出、但只能有一个module.exports输出。
 所有exports对象最终都是通过module.exports导出的。
 建议都使用module.exports就行避免矛盾。
 
@@ -263,6 +277,7 @@ module.exports、一个模块文件中可以有多个exports输出、但只能�
 ```bash
 $ npm -v === npm --version # 查看当前安装的 npm 版本信息
 $ npm init -y # 快速初始化一个node项目
+$ npm install # 安装一个包或一组包，并且会在当前目录存放一个node_modules。
 $ npm install package-name   #  在本目录下增加一个node_modules并在这个目录里安装指定模块
 $ npm install package-name@version # 安装指定版本的包
 $ npm uninstall package-name   # 删除或者说卸载指定模块
@@ -274,16 +289,20 @@ $ npm config get registry # 查看当前 npm 源即npm 包的下载地址。
 $ npm config set registry=https://registry.npm.taobao.org  # 切换为 taobao 源
 $ npm run script-name # 执行 package.json 文件中定义的脚本命令启动node项目。
 $ npm config list # 用于列出所有的 npm 配置信息。
-
+$ npm run script-name # 执行 package.json 文件中定义的脚本命令。
+$ npm outdated # 列出当前项目中需要更新的包。
+$ npm publish # 发布自己开发的包到 npm 库中。
+$ npm login # 登录到 npm 账户。
+$ npm logout # 注销当前 npm 账户。
 ```
 
 **node项目从零开发一般流程如下:**
 
 1. <strong> 先初始化为node项目</strong>
-   
-```javaScript
+
 方法:  使用`$ npm init / npm init -y `初始化为node项目(-y 表示快速初始化node项目包管理文件 package.json)。将来要安装的模块/包的信息都会记录在这个 package.json 文件中且包含有描述当前node项目的其它各种信息。它是一个包含当前项目相关信息的 json 格式配置文件。
 常见属性如下:
+```json
 {
     "name" : "包名/当前项目名称",
     "version" : "包的版本号/项目的版本号",
@@ -321,7 +340,6 @@ $ npm config list # 用于列出所有的 npm 配置信息。
 
 2. <strong>安装开发中实际用到的各种模块</strong>
 
-```javaScript
 安装/卸载语法: 
 ` npm install/uninstall 包名/模块名@version   --sava / --save-dev / -g。`
 
@@ -332,7 +350,7 @@ $ npm config list # 用于列出所有的 npm 配置信息。
     -g,表示全局安装、就可以在任何项目的目录下使用。一般如 nodemon pm2等常用和项目无关的模块会全局安装。
 在 v5版本之前需要显性声明 --save、之后不带参数时默认就是放到 "dependencies"中。
 
-注意:  模块信息由模块名、模块版本信息组成。而版本号的格式如下:  
+**注意:**  模块信息由模块名、模块版本信息组成。而版本号的格式如下:  
 如 "模块名": "可升级版本符号主版本号.次版本号.修改版本号" 
 --> "cross-env": "^7.0.3"
 
@@ -345,24 +363,26 @@ $ npm config list # 用于列出所有的 npm 配置信息。
 ^,用户使用当前版本后、最多升级到次版本的最新版本
 *,用户使用当前版本后、可以升级到最新版本即最新主版本
 
-```
-
 3. <strong>正式使用各种模块</strong>
 根据项目的实际需求在 .js 文件中编写具体的代码即可、具体使用查看对象包文档提供的api接口即可。
 
+## 3.7 npx 命令
+npx是一个命令行工具，它是npm 5.2.0版本中新增的功能。它允许用户在不安装全局包的情况下，运行已安装在本地项目中的包或者远程仓库中的包。npx的作用是在命令行中运行node包中的可执行文件，而不需要全局安装这些包。这可以使开发人员更轻松地管理包的依赖关系，并且可以避免全局污染的问题。它还可以帮助开发人员在项目中使用不同版本的包，而不会出现版本冲突的问题。
 
-## 3.7 nodejs程序Debug调试
+**npm 和 npx 区别**
+1. npx侧重于执行命令的，执行某个模块命令。虽然会自动安装模块，但是重在执行某个命令
+2. npm侧重于安装或者卸载某个模块的。重在安装，并不具备执行某个模块的功能。
+
+npx 的运行规则和npm 是一样的 本地目录查找.bin 看有没有 如果没有就去全局的node_moduels 查找，如果还没有就去下载这个包然后运行命令，然后删除这个包。
+
+## 3.8 nodejs程序Debug调试
 
 调试是每一个开发人员都要遇到的问题、选择一个合适的调试工具也尤为重要。 在 Node.js 开发过程中除了万能的 console.log 之外、还可以通过编辑器的调试工具或者其它的工具。
 
 
-
-
-
-
-
-
-
+## 3.9 node常见全局变量
+在nodejs中使用 global 变量定义，ECMAscriptAPI基本都能用。
+process对象是一个全局对象，可以在任何模块中直接访问，无需导入或定义。
 
 
 # 四、Node.js 内置核心模块
@@ -683,24 +703,27 @@ readStream.pipe(errorLog)
 
 
 ## 4.3 path 路径处理模块
-系统中的每个文件都有一个路径。
+系统中的每个文件都有一个路径,path模块在不同的操作系统是有差异的(windows | posix)。
 在Linux和macOS上，路径可能看起来像:/users/joe/file.txt，
 而Windows计算机则不同，并且具有如下结构:C:\users\joe\file.txt
 path模块是nodejs中提供的一个处理路径的模块、在nodejs中这个模块使用频率也是比较高的、主要是路径的获取、拼接、解析。
 
 ```javaScript
 const path = require('node:path');
+
 /**
  * path.extname() 方法返回文件的扩展名
  * path.basename() 方法返回 path 的最后一部分,即取最后一层(取文件名)。
  * path.dirname() 方法返回 path 的目录名，去掉最后一层(去掉文件名)
  * path.parse() 方法将一个路径解析为对象格式
+ * path.format() 方法将一个路径对象格式解析为路径字符串
  */
 const testpath1 = 'W:/VSCodeProjects/nodeStudy/readme.md'
 console.log('取到文件的扩展名',path.extname(testpath1))// .md
 console.log('取到的是文件名',path.basename(testpath1))//readme.md
 console.log('取到的是文件目录名',path.dirname(testpath1))//W:/VSCodeProjects/nodeStudy
 console.log('将一个路径解析为对象格式',path.parse(testpath1))//{root: 'W:/',dir: 'W:/VSCodeProjects/nodeStudy', base: 'readme.md',ext: '.md', name: 'readme'}
+console.log('将一个对象格式的路径转为字符串格式',path.format(path.parse(testpath1)))//W:/VSCodeProjects/nodeStudy/readme.md
 const testpath2 = 'http://img.doutula.com/production/uploads/image/2020/05/21/20200521045427_yIPwpZ.jpg'
 console.log('取到文件的扩展名',path.extname(testpath2))// .jpg
 console.log('取到的是文件名',path.basename(testpath2))// 20200521045427_yIPwpZ.jpg
@@ -715,7 +738,7 @@ console.log('将一个路径解析为对象格式',path.parse(testpath2))//{root
  * 将所有给定的 path 片段连接在一起，然后规范化生成的路径。
  * 
  * resolve()和join()方法两者是差不多的。
- * __dirname当前文件所在系统的绝对路径
+ * __dirname 当前文件所在系统的绝对路径
  * __filename 当前文件所在系统的绝对路径加上文件名
  */
 const fullFileName1 = path.resolve(__dirname,'../','../','public','readfiletest.txt')
@@ -1214,6 +1237,49 @@ node实例是单线程作业的。在服务端编程中，通常会创建多个n
   - 缺点：实现相对复杂，对主进程的稳定性要求较高。
 
 
+
+## 4.12 os 操作系统模块
+os 模块可以跟操作系统进行交互，提供了一些常用的方法，比如获取操作系统的信息、获取CPU信息、获取内存信息、获取磁盘信息、获取网络信息等。
+应用：有一些后台系统需要知道用户的来源信息，或者根据系统类型执行对应的脚本文件。
+
+```js
+// const os = require("node:os");
+// const { exec } = require("child_process");
+
+import os from "node:os";
+import { exec } from "child_process";
+
+console.log(os.arch()); // 系统架构
+console.log(os.platform()); // 系统平台
+console.log(os.release()); // 系统版本
+console.log(os.cpus()); // 系统CPU信息
+console.log(os.freemem()); // 系统空闲内存
+console.log(os.totalmem()); // 系统总内存
+console.log(os.homedir()); // 系统用户的主目录
+console.log(os.hostname()); // 系统主机名
+console.log(os.tmpdir()); // 系统临时目录
+console.log(os.type()); // 系统类型名
+console.log(os.networkInterfaces()); // 系统网络接口信息
+
+// 例子根据系统类型执行对应脚本
+function openBrowser(url) {
+  if (os.platform() === "darwin") {
+    // macOS
+    exec(`open ${url}`); //执行shell脚本
+  } else if (os.platform() === "win32") {
+    // Windows
+    exec(`start ${url}`); //执行shell脚本
+  } else {
+    // Linux, Unix-like
+    exec(`xdg-open ${url}`); //执行shell脚本
+  }
+}
+
+// Example usage
+openBrowser("https://www.juejin.cn");
+
+
+```
 
 # 五、Node.js 常用第三方模块
 
@@ -1794,3 +1860,4 @@ PM2生产环境部署,Docker,Jenkins持续集成
 ## 7.4 设计模式
 SOLID五大设计原则,单例模式,工厂模式,装饰器模式,代理模式,适配器模式,观察者模式
 ## 7.5 等
+
