@@ -955,10 +955,11 @@ runQuestionLoop();
 
 线程是操作系统能够进行运算调度的最小单位，首先我们要清楚线程是隶属于进程的，被包含于进程之中。一个线程只能隶属于一个进程，但是一个进程是可以拥有多个线程的。
 
-process 模块是node的全局模块、不需要引入也可以直接使用。
+process 是Nodejs操作当前进程和控制当前进程的API，并且是挂载到globalThis下面的全局API，所以不需要引入也可以直接使用。
+
 通过它来获得node进程相关的信息，比如运行node程序时的命令行参数。或者设置进程相关信息，比如设置环境变量。
 
-```javaScript
+```js
 // process 模块是node的全局模块、不需要引入也可以直接使用。
 const process = require('node:process');
 // 常见属性和方法
@@ -979,7 +980,7 @@ const process = require('node:process');
 ```
 
 **常见用法**
-```javaScript
+```js
 // 获取环境变量、根据不同的变量值使用不同的配置
 if(process.env.NODE_ENV === 'production'){
     console.log('生产环境');
@@ -992,9 +993,27 @@ if(process.env.NODE_ENV === 'production'){
 
 ```
 
+## 4.8 child_process 子进程模块
+子进程是Nodejs核心API，如果你会shell命令，他会有非常大的帮助，或者你喜欢编写前端工程化工具之类的，他也有很大的用处，以及处理CPU密集型应用。
+
+**常见使用场景**
+1. 执行系统命令：比如执行npm install、git push等。
+2. 执行脚本：比如执行一个node脚本、执行一个python脚本、执行一个php脚本等。
+
+```js
+// 引入模块
+const { spawn, exec, execFile } = require('node:child_process');
+// 执行系统命令
+const child = spawn('ls', ['-lh', '/usr']);
+child.stdout.on('data', (data) => {
+  console.log(`stdout: ${data}`);
+});
+child.stderr.on('data', (data) => {
+ 
+})
 
 
-## 4.8 buffer 缓冲区模块
+## 4.9 buffer 缓冲区模块
 用它来处理二进制数据，比如文件流的读写、网络请求数据的处理等。
 
 ### 4.8.1 概述
@@ -1060,7 +1079,7 @@ Node.js 以 8KB 为界限来区分是小对象还是大对象
 1. I/O 操作: 类似文件读取写入流操作、在 Stream 中我们是不需要手动去创建自己的缓冲区，在 Node.js 的流中将会自动创建。
 2. 资源压缩: zlib模块就是利用了缓冲区（Buffer）的功能来操作二进制数据流，提供了压缩或解压功能。
 
-## 4.9 zlib 资源解压缩模块
+## 4.10 zlib 资源解压缩模块
 这个模块是用来对资源进行压缩的、提供了使用Gzip、Deflate/ inflation 和 Brotli 实现的压缩功能。
 浏览器通过HTTP请求头部里加上 Accept-Encoding，告诉服务器使用何种方法压缩资源。
 
@@ -1110,7 +1129,7 @@ server.listen('3000');
 
 ```
 
-## 4.10 crypto 加解密模块
+## 4.11 crypto 加解密模块
 
 Crypto 加密模块是 C／C++ 实现这些算法后，暴露为 javascript 接口的模块，包含对 OpenSSL 的哈希、HMAC、加密、解密、签名、以及验证功能的一整套封装。
 密码学的知识是非常丰富的: 有对称加密算法、非对称加密算法、散列(哈希)算法(信息摘要算法)
@@ -1225,7 +1244,7 @@ function enmd5salt(data,salt){
 
 ```
 
-## 4.11 cluster 集群模块
+## 4.12 cluster 集群模块
 node实例是单线程作业的。在服务端编程中，通常会创建多个node实例来处理客户端的请求，以此提升系统的吞吐率。对这样多个node实例，我们称之为cluster（集群）。在cluster模块中，主进程称为master，子进程称为worker。
 
 集群有以下两种常见的实现方案，而node自带的cluster模块采用的是第二种。
@@ -1238,7 +1257,7 @@ node实例是单线程作业的。在服务端编程中，通常会创建多个n
 
 
 
-## 4.12 os 操作系统模块
+## 4.13 os 操作系统模块
 os 模块可以跟操作系统进行交互，提供了一些常用的方法，比如获取操作系统的信息、获取CPU信息、获取内存信息、获取磁盘信息、获取网络信息等。
 应用：有一些后台系统需要知道用户的来源信息，或者根据系统类型执行对应的脚本文件。
 
