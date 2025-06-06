@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>markdown to html</title>
+    <link rel="stylesheet" href="../css/mdToHtml.css">
+</head>
+<body>
+    <h1>一、概述</h1>
+<ol>
+<li><p>2024.1.26 重新梳理node知识体系、开始深入学习。目前node稳定版本已经是 v20.11.0 比我刚开始学时可以说是变化非常大的。 同时node本身知识点又是比较松散、所以这次重新梳理旨在构建一个自己掌握知识的知识体系。</p>
+</li>
+<li><p>2024.5.24 nodejs官网更新版本已经更新到 v20.13.1、要尝试写文章输出了。 last dance。</p>
+</li>
+<li><p>2025.6.4 增加eslint+commitlint，包管理器换为pnpm，同时再一次梳理node知识体系。nodejs官网稳定版本已经是 v22.16.0，同时启用了<a href="https://nodejs.org/">新官网</a>。可以说变化巨大。我们的目标还是一样理解后端思维争取做一个全栈前端。</p>
+</li>
+</ol>
+<h1>二、准备工作</h1>
+<p><strong>node环境安装</strong>
+在<a href="https://nodejs.org">node官网</a>下载稳定版本双击运行安装即可、安装成功之后在命令窗口中输入以下命令可以查看安装的node版本。在安装之后 node 和 包管理工具 npm 都已经安装完成。</p>
+<p><strong>查看node和npm的版本信息</strong>
+安装完成之后可以通过以下命令查看node和npm的版本信息。</p>
+<pre><code class="language-bash">$ node -v
+$ npm -v
+$ npx -v
+</code></pre>
+<p><strong>node版本管理工具</strong>
+需要其它版本时只能卸载后重新安装、为此一般会使用版本管理工具这样可以管理多个node版本。在windows系统里一般是使用 <a href="https://github.com/coreybutler/nvm-windows">nvm</a> 全称是 Node Version Manager(node版本管理工具)来管理多个node版本。好处是node版本切换方便。</p>
+<p><strong>nvm常用命令如下:</strong>
+现在用的基本上最低都是 v8.x 以上的版本了因为它们都支持 ES6 特性、v12版本之后node开始支持ESM的模块化语法。个人在用v14、v16、v18等偶数主版本、社区最新版已经到v24.1.0了、LTS版也已经更新到v22.16.0(20250604)。</p>
+<table>
+<thead>
+<tr>
+<th>命令名</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>nvm -v</td>
+<td>查看nvm是否已正确安装及其版本。</td>
+</tr>
+<tr>
+<td>nvm list</td>
+<td>列举所有已安装的node版本(带*的表示当前用的版本)</td>
+</tr>
+<tr>
+<td>nvm list available</td>
+<td>查看所有node可安装版本</td>
+</tr>
+<tr>
+<td>nvm current</td>
+<td>显示node当前使用版本</td>
+</tr>
+<tr>
+<td>nvm use 版本号</td>
+<td>使用指定版本的node</td>
+</tr>
+<tr>
+<td>nvm install 版本号</td>
+<td>安装指定版本的node</td>
+</tr>
+<tr>
+<td>nvm uninstall 版本号</td>
+<td>卸载指定版本的node</td>
+</tr>
+<tr>
+<td>nvm -h</td>
+<td>查看帮助</td>
+</tr>
+</tbody></table>
+<p>**注意：**在linux系统里同样可以使用nvm来管理多个node版本。<a href="https://github.com/nvm-sh/nvm">nvm</a>、跟着步骤安装即可。使用命令上是共同的。</p>
+<h1>三、Node.js 入门基础</h1>
+<p><strong>常用网址:</strong></p>
+<ol>
+<li><a href="https://nodejs.org">官方网站</a> 主要用来查询相关api、</li>
+<li><a href="https://nodejs.cn">中文网站</a> 主要用来查询相关api、</li>
+<li><a href="https://www.npmjs.cn/">npm中文网</a></li>
+<li><a href="https://blog.poetries.top/node-learning-notes">Nodejs学习指南</a>社区学习网址</li>
+</ol>
+<p>正如官方介绍的: Node.js 是一个免费、开源、跨平台的JavaScript运行时环境，允许开发人员创建服务器、web应用程序、命令行工具和脚本。目标是在任何地方运行JavaScript。</p>
+<p>Node.js 真正用途或者说一般实际用途是: 运行在服务端作为web server(服务器)存在。也就是说对于我们前端工程师而言就是用来提供api接口的、它学习的难处在于服务器端的开发思路和套路与前端开发是不一样的、同时原生node是比较繁杂的。</p>
+<p>我们主要要学习的就是这些思路和套路。</p>
+<h2>3.1 服务端和前端的概念和区别</h2>
+<p>前端:  主要和用户肉眼所看到的页面打交道、主要工作就是写页面（HTML）、美化页面（css）、调用后端提供的 api接口去请求或提交数据等。</p>
+<p>server端也就是服务器端、主要进行业务逻辑的操作如:  数据的增删改查、数据库的操作、对外暴露api接口等。</p>
+<p>后端开发思维是和前端不一样的、在开发过程中要考虑以下多个方面的问题:  </p>
+<ol>
+<li><strong>服务的稳定性:</strong>  server端可能会遭受各种恶意攻击、但是服务不能挂掉。--&gt; 通过PM2进行进程守候在服务挂掉后能自动重启。</li>
+<li><strong>要考虑服务器性能如内存和cpu:</strong>  在客户端只有一个浏览器内存不是问题、而对于服务端来说cpu和内存都是稀缺资源。--&gt; 通过stream写日志、使用redis存session 优化内存和cpu。</li>
+<li><strong>日志管理:</strong>  前端也参与日志但是只是发送不关心后续、server端则要纪录、存储、以及分析日志。</li>
+<li><strong>安全问题:</strong>  server会时刻遭受各种网络恶意攻击、而前端较少。--&gt; 通过登陆验证、预防常见的xss攻击和sql注入。</li>
+<li><strong>集群和服务拆分:</strong>  当产品发展速度快、流量可能会迅速增加、项目变得很大时、就需要考虑集群和拆分服务了。</li>
+</ol>
+<p>记住重点在于切换思路、记住对应的解决方案就行。</p>
+<h2>3.2 nodejs基础介绍</h2>
+<p>Node.js 是一个免费、开源、跨平台的JavaScript运行时环境(更进一步的说是在服务端的运行环境),并不是一门新的编程语言。它的作者是 Ryan Dahl、底层是使用c/c++编写的。</p>
+<p>它是运行谷歌v8引擎上的、单线程的、基于事件驱动的、异步的、非阻塞式 I/O 的JavaScript运行时。</p>
+<ol>
+<li><strong>单线程:</strong> Node.js 使用单线程来运行、而不是向 Apache HTTP 之类的其它服务器、每个请求将生产一个线程、这种方法避免了 CPU 上下文切换和内存中的大量执行堆栈</li>
+<li><strong>事件驱动:</strong></li>
+<li><strong>异步的:</strong></li>
+<li><strong>非阻塞式 I/O:</strong> Node.js 避免了由于需要等待输入或者输出（数据库、文件系统、Web服务器...）响应而造成的 CPU 时间损失、这得益于 Libuv 强大的异步 I/O。</li>
+<li><strong>跨平台:</strong> 起初 Node.js 只能运行于 Linux 平台、在 v0.6.0 版本后得益于 Libuv 的支持可以在 Windows 平台运行。</li>
+</ol>
+<p>根据它的特点可以知道它适用在哪些方面:</p>
+<ol>
+<li><strong>I/O 密集型场景:</strong> Node.js 的优势主要在于事件循环、非阻塞异步 I/O、只开一个线程、不会每个请求过来我都去创建一个线程、从而产生资源开销。</li>
+<li><strong>RESTful API:</strong> 通常我们可以使用 Node.js 来做为中间层、负责组装数据提供 API 接口给到前端调用、这些数据源可能来自第三方接口或者数据库、例如、以前可能我们通过后端 Java、PHP 等其它语言来做、现在我们前端工程师通过 Node.js 即可完成、后端则可以更专注于业务开发。</li>
+<li><strong>基础工具:</strong> 可以做为基础工具、前端领域中的编译器、构建工具、搭建脚手架等。比较出名的例如 Webpack、Gulp </li>
+<li><strong>论坛社区:</strong>  小型的业务不复杂的应用可以直接使用node全栈、如Nodeclub 就是使用 Node.js 和 MongoDB 开发的社区系统</li>
+<li><strong>等等:</strong></li>
+</ol>
+<p>简单地理解就是 nodejs 提供了一种简单安全的方法在 JavaScript 中构建高性能和可扩展的网络应用程序即JavaScript可以当作后端语言使用了。</p>
+<h2>3.3 nodejs和JavaScript的区别</h2>
+<ol>
+<li>ecmascript定义了语法、无论是写JavaScript还是nodejs都必须遵守的、但是nodejs不能操作DON、不能监听页面事件、不能发送Ajax、不能处理http请求。</li>
+<li>JavaScript使用了ecmascript语法规范还外加浏览器提供的web api (web api主要包括用来操作DOM、BOM、监听事件、发送Ajax请求等一系列的api。)</li>
+<li>nodejs也使用了ecmascript语法规范还外加node api (node api主要包括Node.js 标准库、对外提供的 JavaScript 接口、例如模块 http、buffer、fs、stream 等。Libuv一个跨平台的支持事件驱动的 I/O 库。V8-Google 开源的高性能 JavaScript 引擎、使用 C++ 开发、并且应用于谷歌浏览器。)</li>
+</ol>
+<h2>3.4 nodejs的基本使用</h2>
+<p>在安装好node之后、环境就配置好了此时就可以在一个js文件里编写JavaScript代码并使用如下命令运行一个js文件、同时会一起安装nodejs的包管理器NPM。</p>
+<p><code>$ node example.js</code></p>
+<p>当然Nodejs最简单最常见的例子是作为一个web服务器。
+使用以下命令就可以运行这个web服务器:</p>
+<p><code>$ node myHttp.js </code>
+<strong>myHttp.js</strong></p>
+<pre><code class="language-javascript">const { createServer } = require(&#39;node:http&#39;)
+
+const hostname = &#39;127.0.0.1&#39;
+const port = 3000
+
+const server = createServer((req, res) =&gt; {
+  res.statusCode = 200
+  res.setHeader(&#39;Content-Type&#39;, &#39;text/plain&#39;)
+  res.end(&#39;Hello World\n&#39;)
+})
+
+server.listen(port, hostname, () =&gt; {
+  console.log(`Server running at http://${hostname}:${port}/`)
+})
+</code></pre>
+<h2>3.5 nodejs的模块系统</h2>
+<h3>3.5.1 概述</h3>
+<p>在编写稍大一点的应用程序时一般都会将代码按照功能拆分成不同的文件也就是所谓的模块化、好处是:</p>
+<ol>
+<li>避免变量污染、命名冲突</li>
+<li>提高代码复用率</li>
+<li>提高维护性</li>
+<li>依赖关系的管理。</li>
+</ol>
+<p>使用模块化开发也比较符合设计原则中的单一置换原则、开放封闭原则。</p>
+<p>而在node.js中就是以模块为基本单位来划分功能的、一个模块本质上就是一个 .js 文件。
+为了让node模块之间可以相互调用、Node.js提供了一个完整的模块加载系统--&gt;即CommonJS规范。在v12版本之前、nodejs只使用Commonjs 规范。在 v12 版本之后也支持了ESM、这样就和前端一样了、但是这里还是介绍一下Commonjs 规范。</p>
+<p><strong>注意:</strong>  这里 .js文件 和模块是一一对应的、即:  一个 Node.js 文件就是一个模块、这个文件可能是JavaScript 代码、JSON 或者编译过的C/C++ 扩展。所以创建一个模块是很简单的就是新建一个.js文件。</p>
+<h3>3.5.2 分类</h3>
+<p>可以简单地分为两类:  </p>
+<ol>
+<li>系统模块: nodejs原生提供的模块、调用时只写模块名称即可。</li>
+<li>第三方模块: 非 Node.js 自带的模块统称、调用时要写清楚路径地址。</li>
+</ol>
+<h3>3.5.3 使用</h3>
+<p>nodejs模块系统是基于 commonjs 规范的、一个单独的js文件就是一个模块、每一个模块都是一个单独的作用域、也就是说、在该模块内部定义的变量函数、对象等都运行在模块作用域中、无法被其他模块读取、除非为global对象的属性。这样不会污染到全局作用域、同时Node.js 采用了延迟加载的策略、即只有用到时模块才会被加载、且加载完成后会放到 binding_cache 中进行缓存、所以在第二次再引入相同的模块时不会重新加载。同时在编写或使用每个 node 模块时、都有 require()、exports、module 这三个nodejs预先定义好的变量可供使用。</p>
+<h4>1. 模块引入 require()函数</h4>
+<p>nodejs对所有模块的加载方法都是通过调用 require() 函数来加载和使用别的模块、这个函数接收一个字符串类型的模块名(原生和文件模块直接使用模块名、自定义模块要指定模块所在的位置)。
+有四种使用格式:</p>
+<ol>
+<li>支持引入内置模块例如 http os fs child_process 等nodejs内置模块</li>
+<li>支持引入第三方模块express md5 koa 等</li>
+<li>支持引入自己编写的模块 ./ ../ 等</li>
+<li>支持引入addon C++扩展模块 .node文件</li>
+</ol>
+<p><strong>注意:</strong>  模块名中的.js扩展名可以省略、require() 函数的返回值是一个 node 模块导出对象 --&gt; module.exports === {}、这个对象拥有加载模块向外暴露的所有属性和方法。可以定义一个变量接收这个对象返回值、这样就可以通过这个变量来调用模块向外导出的所有属性和方法。也可以直接解构需要的属性或方法。</p>
+<pre><code class="language-JavaScript">
+导入语法:  const 变量对象名 =  require(&#39;原生/文件模块名/自定义模块位置&#39;);
+导入语法:  const {解构变量名} =  require(&#39;原生/文件模块名/自定义模块位置&#39;);
+const fs = require(&#39;node:fs&#39;);  // 导入原生内置模块
+const express = require(&#39;express&#39;);  // 导入安装到 node_modules 目录下的第三方模块
+const myModule = require(&#39;./myModule.js&#39;);  // 导入相对路径下自己定义的模块
+const nodeModule = require(&#39;./myModule.node&#39;);  // 导入扩展模块
+</code></pre>
+<p>原生和文件模块不做路径解析、直接返回内部模块的导出对象。自定义模块做路径解析。</p>
+<ol>
+<li>以 &#39;/&#39; 为前缀的模块是文件的绝对路径。</li>
+<li>以 &#39;./&#39; 为前缀的模块是相对于当前调用 require() 文件的同级目录。</li>
+<li>以 &#39;../&#39; 为前缀的模块是相对于当前调用 require() 文件的上一级目录。</li>
+<li>当没有以 &#39;/&#39;、 &#39;./&#39; 或 &#39;../&#39; 开头来表示文件时、这个模块必须是一个核心模块或加载自 node_modules 目录的文件模块。</li>
+</ol>
+<h4>2.模块的导出 module 和 exports对象</h4>
+<p>每个 nodejs 模块都有一个全局对象 module、同时 module 对象中有一个属性exports(它本身又是一个对象)。
+我们需要把模块希望暴露导出的属性和方法放入 module.exports 对象中、它是node模块真正的向外暴露属性和方法的出口、每个模块只能有一个、多个时后面的覆盖前面的。</p>
+<pre><code class="language-JavaScript">例如: a.js
+function FunA(){
+    return &#39;Tom&#39;;
+}
+const result = [1,2]
+
+// 只能有一个
+module.exports = {
+    FunA,
+    result,
+    // 要导出的函数、
+    // .....对象等等
+}
+// 使用export 导出、可以有多个
+// 语法:  exports.导出变量名/导出方法名=模块内定义的变量名/方法名。
+exports.FunA = FunA
+exports.result = result
+
+// 在 b.js里导入、这里假设他俩在同一层级
+// b.js
+const total = require(&#39;./a.js&#39;)
+total.FunA
+total.result
+// 也可以解构出来
+const {FunA,result} = require(&#39;./a.js&#39;)
+
+// 另一种导出时就是 exports 对象、而exports对象的值本质上指向的是module对象。
+const total = require(&#39;./a.js&#39;)
+// 同样可以解构出来
+const {FunA,result} = require(&#39;./a.js&#39;)
+
+</code></pre>
+<p>exports对象:  在模块中也使用这个对象向外暴露东西、它本身又是一个对象并且nodejs将一个指向module.exports的引用赋值给了exports、即exports的值(地址值)指向的就是module.exports对象。exports对象、可以理解为它是一个副本(简写形式)。</p>
+<p><code>const exports = modules.exports</code></p>
+<p><strong>注意:</strong>  module.exports 和 exports 的区别
+module.exports 才是node模块真正的导出接口、即在使用require()方法引入时得到的返回值就是这个
+module.exports。一个模块文件中可以有多个exports输出、但只能有一个module.exports输出。
+所有exports对象最终都是通过module.exports导出的。
+建议都使用module.exports就行避免矛盾。</p>
+<h3>3.5.4 node模块加载机制</h3>
+<p>在Nodejs中模块加载一般会经历:  路径分析、文件定位、编译执行这3个步骤。
+按照模块的分类、在Nodejs中模块加载会按照以下顺序进行优先加载:  </p>
+<ol>
+<li><p><strong>系统缓存:</strong>  首先是先进行系统缓存binding_cache加载(因为模块被执行之后会在这里进行缓存)、判断缓存中是否有值。有不再加载直接使用之前加载过的、没有进行下一步检查。</p>
+</li>
+<li><p><strong>系统模块:</strong>  然后查找定义在Node.js源码的lib目录下的系统模块也就是原生模块、这个优先级仅次于缓存加载、部分核心模块已经被编译成二进制、省略了路径分析、文件定位直接加载到了内存中。有直接加载使用、没有进行下一步检查。</p>
+</li>
+<li><p><strong>文件模块:</strong>  优先加载 ./、../、/开头的文件模块、如果文件没有加上扩展名、会依次按照.js、.json、.node进行扩展名补足尝试、那么在尝试的过程中也是以同步阻塞模式来判断文件是否存在、从性能优化的角度来看待、
+.json、.node最好还是加上文件的扩展名。有直接加载使用、没有进行下一步检查。</p>
+</li>
+<li><p><strong>目录做为模块:</strong>  这种情况发生在文件模块加载过程中、也没有找到、但是发现是一个目录的情况、这个时候会将这个目录当作一个包来处理、Node这块采用了Commonjs规范、先会在项目根目录查找package.json文件、取出文件中定义的main属性(&quot;main&quot;: &quot;lib/hello.js&quot;)描述的入口文件进行加载、也没加载到、则会抛出默认错误: Error: Cannot find module &#39;lib/hello.js&#39;。有直接加载使用、没有进行下一步检查。</p>
+</li>
+<li><p><strong>node_modules 目录加载:</strong> 对于系统模块、路径文件模块都找不到时、Node.js会从当前项目的node_modules目录里进行查找、没有则往上一级父目录的node_modules进行查找、直到系统的根目录的node_modules。有直接加载使用、没有进行下一步检查。</p>
+</li>
+<li><p><strong>最终</strong> 如果查找的模块还是没有找到、则 require() 会抛出一个 code 属性为 &#39;MODULE_NOT_FOUND&#39; 的 Error 即找不到要加载的模块的错误。</p>
+</li>
+</ol>
+<h3>3.5.5 node项目一般目录结构</h3>
+<p>对于原生nodejs没有脚手架等工具时可根据个人编程爱好和模块分类生成一般如下:  </p>
+<pre><code class="language-javaScript">
+项目名称
+    -node_modules  项目安装依赖存放目录初始化node项目时自动生成
+    -public 存放静态文件、图片、音频、视频等资源目录
+        -images 图片
+        -logs 日志
+        -music 音乐
+        -.....其它静态资源
+    -src 项目代码的实际存放位置
+        -config 项目全局相关的配置
+        -doc 存放项目说明文档、接口文档等
+        -controllers 控制器
+        -models 数据库表定义文件目录
+        -middleware  自定义模块第三方中间件 
+        -routers 项目路由
+        -utils 自定义工具类
+        -index.js 项目入口文件
+</code></pre>
+<h2>3.6 nodejs包管理工具NPM</h2>
+<p>包管理器又称软件包管理系统、它是在电脑中自动安装、配制、卸载和升级软件包的工具组合、在各种系统软件和应用软件的安装管理中均有广泛应用。而在我们安装node的同时也会自动把npm也安装上、npm(全称node package manager)Node.js的标准包管理器的简称、它是一个命令行工具、用于下载和管理node开发中需要到的各种模块/包/插件。可以在<a href="https://www.npmjs.com/">官网</a> 上搜索你想要安装的模块。目前社区也有 yarn and pnpm 两种工具作为替代品也是可以使用的。</p>
+<p>常用命令如下:  </p>
+<pre><code class="language-bash">$ npm -v === npm --version # 查看当前安装的 npm 版本信息
+$ npm init -y # 快速初始化一个node项目
+$ npm install # 安装一个包或一组包，并且会在当前目录存放一个node_modules。
+$ npm install package-name   #  在本目录下增加一个node_modules并在这个目录里安装指定模块
+$ npm install package-name@version # 安装指定版本的包
+$ npm uninstall package-name   # 删除或者说卸载指定模块
+$ npm list # 查看当前目录安装了哪些模块。
+$ npm config list # 查看当前电脑主机安装了哪些全局模块。
+$ npm show package-name # 显示指定模块的详情
+$ npm update package-name # 升级当前目录下的项目的所有模块、也可在后面指定模块名升级。
+$ npm config get registry # 查看当前 npm 源即npm 包的下载地址。
+$ npm config set registry=https://registry.npm.taobao.org  # 切换为 taobao 源
+$ npm run script-name # 执行 package.json 文件中定义的脚本命令启动node项目。
+$ npm config list # 用于列出所有的 npm 配置信息。
+$ npm run script-name # 执行 package.json 文件中定义的脚本命令。
+$ npm outdated # 列出当前项目中需要更新的包。
+$ npm publish # 发布自己开发的包到 npm 库中。
+$ npm login # 登录到 npm 账户。
+$ npm logout # 注销当前 npm 账户。
+</code></pre>
+<p><strong>node项目从零开发一般流程如下:</strong></p>
+<ol>
+<li><strong> 先初始化为node项目</strong></li>
+</ol>
+<p>方法:  使用<code>$ npm init / npm init -y </code>初始化为node项目(-y 表示快速初始化node项目包管理文件 package.json)。将来要安装的模块/包的信息都会记录在这个 package.json 文件中且包含有描述当前node项目的其它各种信息。它是一个包含当前项目相关信息的 json 格式配置文件。
+常见属性如下:</p>
+<pre><code class="language-json">{
+    &quot;name&quot; : &quot;包名/当前项目名称&quot;,
+    &quot;version&quot; : &quot;包的版本号/项目的版本号&quot;,
+    &quot;description&quot; : &quot;包的描述信息/项目的描述信息&quot;,
+    &quot;keywords&quot; : &quot;描述当前项目的关键字&quot;,
+    &quot;main&quot; :&quot;index.js&quot;, // main 字段指定了node项目程序的主入口文件、即使用node命令启动项目时的入口文件、使用require(&#39;moduleName&#39;) 就会加载这个文件、这个字段的默认值是模块根目录下面的 index.js、也可以自定义指定位置的文件作为入口文件。主要负责调度组成整个程序的其它模块完成工作
+    &quot;scripts&quot;: {
+       &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;,
+       &quot;serve&quot;: &quot;cross-env NODE_ENV=dev nodemon 入口文件位置&quot;,
+       &quot;prd&quot;: &quot;cross-env NODE_ENV=production pm2 start 入口文件位置&quot;
+    },
+    // 这个选项叫npm脚本指定了node项目运行脚本命令的npm命令行缩写、即启动node项目的自定义命令、用来代替 node 运行文件名 这样启动js文件的方式。可以通过npm run 查看定义了哪些脚本命令。
+    // 语法:  npm run 自定义的命令。(自定义的命令是scripts中的键、如果定义为start时则run可以省略)。上面开发环境就是:  npm run serve、生产环境就是:  npm run prd
+    &quot;author&quot; : &quot;包的作者/项目的作者&quot;,
+    &quot;license&quot;: &quot;ISC&quot;,&quot;项目使用的开源协议&quot;
+    &quot;contributors&quot; : &quot;包/项目的其他贡献者&quot;,
+    &quot;repository&quot;: {
+       &quot;type&quot;: &quot;git&quot;,
+       &quot;url&quot;: &quot;git+https://github.com/zangqingan/nodeStudy.git&quot;
+    },
+    // 包/项目代码的远程仓库信息、包括type和URL、type可以是git或svn、URL则是远程的仓库地址。
+    &quot;homepage&quot;: &quot;https://github.com/zangqingan/nodeStudy#readme&quot;, // 当前项目远程仓库的readme.md 文件地址。
+    &quot;dependencies&quot;: {
+       &quot;mongoose&quot;: &quot;^5.8.3&quot;
+    }、
+    // 生产环境依赖、指定了项目运行时（即生产环境所依赖的模块列表）所依赖的模块、不装项目运行不了。
+   // 它们将会被安装在当前目录的 node_modules 目录下。
+    &quot;devDependencies&quot;: {
+       &quot;cross-env&quot;: &quot;^7.0.3&quot;
+    }
+    // 开发环境依赖 指定了项目开发时所依赖的模块、发布时用不到它。
+}
+</code></pre>
+<ol start="2">
+<li><strong>安装开发中实际用到的各种模块</strong></li>
+</ol>
+<p>安装/卸载语法: 
+<code> npm install/uninstall 包名/模块名@version   --sava / --save-dev / -g。</code></p>
+<p>后面没有参数时默认会把模块直接安装到当前目录的node_modules目录中、同时模块相关的版本信息会放到包管理文件 package.json 的 dependencies 生产依赖选项中。
+    @version 指定模块的版本可选。
+    --save === -S 模块安装到生产依赖dependencies中、即: 模块信息自动写入package.json中的。&quot;dependencies&quot; 节点选项中。项目发布上线之后还会依赖用到的模块、没有这些模块、项目不能运行。
+    --save-dev === -D 模块安装到开发依赖中、即:  模块信息自动写入package.json中的 &quot;devDependencies&quot; 节点选项。项目上线之后不会用到的模块、例如&#39;babel-loader&#39;等。
+    -g,表示全局安装、就可以在任何项目的目录下使用。一般如 nodemon pm2等常用和项目无关的模块会全局安装。
+在 v5版本之前需要显性声明 --save、之后不带参数时默认就是放到 &quot;dependencies&quot;中。</p>
+<p><strong>注意:</strong>  模块信息由模块名、模块版本信息组成。而版本号的格式如下:<br>如 &quot;模块名&quot;: &quot;可升级版本符号主版本号.次版本号.修改版本号&quot; 
+--&gt; &quot;cross-env&quot;: &quot;^7.0.3&quot;</p>
+<p>版本格式:  主版本号.次版本号.修改版本号。
+主版本号:  功能模块有大的变动、比如增加多个模块或者整体架构发生变化。
+次版本:  模块局部的变动。
+修改版本:  bug修复或者增加一些小功能。
+可升级版本符号主版本号有如下三种:<br>~、用户使用当前版本后、最多升级到修改版的最新版本
+^,用户使用当前版本后、最多升级到次版本的最新版本
+*,用户使用当前版本后、可以升级到最新版本即最新主版本</p>
+<ol start="3">
+<li><strong>正式使用各种模块</strong>
+根据项目的实际需求在 .js 文件中编写具体的代码即可、具体使用查看对象包文档提供的api接口即可。</li>
+</ol>
+<h2>3.7 npx 命令</h2>
+<p>npx是一个命令行工具，它是npm 5.2.0版本中新增的功能。它允许用户在不安装全局包的情况下，运行已安装在本地项目中的包或者远程仓库中的包。npx的作用是在命令行中运行node包中的可执行文件，而不需要全局安装这些包。这可以使开发人员更轻松地管理包的依赖关系，并且可以避免全局污染的问题。它还可以帮助开发人员在项目中使用不同版本的包，而不会出现版本冲突的问题。</p>
+<p><strong>npm 和 npx 区别</strong></p>
+<ol>
+<li>npx侧重于执行命令的，执行某个模块命令。虽然会自动安装模块，但是重在执行某个命令</li>
+<li>npm侧重于安装或者卸载某个模块的。重在安装，并不具备执行某个模块的功能。</li>
+</ol>
+<p>npx 的运行规则和npm 是一样的 本地目录查找.bin 看有没有 如果没有就去全局的node_moduels 查找，如果还没有就去下载这个包然后运行命令，然后删除这个包。</p>
+<h2>3.8 nodejs程序Debug调试</h2>
+<p>调试是每一个开发人员都要遇到的问题、选择一个合适的调试工具也尤为重要。 在 Node.js 开发过程中除了万能的 console.log 之外、还可以通过编辑器的调试工具或者其它的工具。</p>
+<h2>3.9 node常见全局变量</h2>
+<p>在nodejs中使用 global 变量定义，ECMAscriptAPI基本都能用。
+process对象是一个全局对象，可以在任何模块中直接访问，无需导入或定义。</p>
+<h1>四、Node.js 内置核心模块</h1>
+<p>node系统模块也是比较多的、对应的api也很多不过主要学一些常见的模块及对应的api即可。
+Node.js 最常见的例子是作为web服务器、这也是我们只要基础时主要学习的东西。
+就是写一个后端服务给自己提供接口。所以第一个模块我们学习 http 网络服务模块。</p>
+<h2>4.1 http 网络服务模块</h2>
+<h3>4.1.1 概述</h3>
+<p>http模块可以说是nodejs最核心的模块、同时也是比较复杂的一个模块。可以很方便地创建作为web server的HTTP服务器和客户端。上手很简单、但一旦深入学习也很难因为它要学习网络协议等其它相关的知识。</p>
+<ol>
+<li>服务器server:  接收来自客户端(浏览器)的请求、并将客户端请求的地址返回给客户端。</li>
+<li>客户端client:  向服务器发起请求、并将服务器返回的内容打印到控制台。</li>
+</ol>
+<p><strong>例子</strong></p>
+<pre><code class="language-javaScript">
+const http = require(&#39;http&#39;);
+
+// http server 例子-http.Server实例、用来提供服务、处理客户端发起的http请求
+const server = http.createServer(function(serverReq, serverRes){
+    const url = serverReq.url
+    serverRes.end( &#39;您访问的地址是:  &#39; + url )
+})
+
+server.listen(3000);
+
+// http client 例子-http.ClientReques实例、用来向其它服务端发起请求。
+const client = http.get(&#39;http://127.0.0.1:3000&#39;, function(clientRes){
+    clientRes.pipe(process.stdout)
+})
+
+// serverReq/clientRes：其实都是 http.IncomingMessage实例。serverReq 用来获取客户端请求的相关信息，如请求头信息-request header；而clientRes用来获取服务端返回的相关信息，比如响应头信息-response header
+
+
+// serverRes：http.ServerResponse实例
+</code></pre>
+<h3>4.1.2 HTTP协议学习拓展</h3>
+<p>HTTP协议是计算机分层体系中应用层的网络协议(全称:hyper transfer protocol)超文本传输协议的缩写、用来从万维网服务器传输超文本到本地浏览器的传输协议。</p>
+<p>它是基于TCP/IP通信协议来传递数据(HTML文件、图片等)、它工作于客户端-服务器架构上、浏览器作为客户端通过url向服务器发送HTTP请求、服务器接收到请求经过处理后将结果返回给客户端。</p>
+<p><strong>特点:</strong>  简单快速、灵活、无状态。</p>
+<p>HTTP协议和url的关系:<br>http就是通过使用统一资源表示符(uri)来传输数据和建立连接的、而网络地址url(统一资源定位符)是一种特殊的uri、每一个都对应了唯一的请求资源、url的组成和js中一样。</p>
+<p>而对于现阶段而言就是使用浏览器输入网址浏览页面而已、那么在浏览器输入网址到显示页面的过程是什么？或者说发生了哪些事情?</p>
+<ol>
+<li>客户端进行dns解析(查找网址对应的ip地址)、建立tcp连接(三次握手)、发送http请求。</li>
+<li>server端接收到http请求、处理并将结果返回。而server端怎么接收http请求、怎么返回结果在node里就是使用http模块操作的。</li>
+<li>客户端接收到返回的数据并进行处理、渲染页面、执行js等</li>
+</ol>
+<blockquote>
+<p>HTTP请求本质上是一个数据流、由请求头（headers）和请求体（body）2部分组成。</p>
+</blockquote>
+<pre><code class="language-javaScript">HTTP请求信息:  一般用request表示-即客户端发送一个HTTP请求时传递给服务器的信息。
+由以下四部分组成:
+   请求行:
+   请求头:  放置本次请求的相关信息、是键值对的格式。
+   请求体:  post请求时向后端传递的数据、
+   空行:
+
+可视化的请求报文类似如下: 指明HTTP版本、请求方法、请求地址、请求头部等信息。
+GET /hello HTTP/1.1
+Host: 127.0.0.1:3000
+Connection: keep-alive
+Cache-Control: no-cache
+</code></pre>
+<blockquote>
+<p>HTTP响应本质上也是一个数据流、由响应头（headers）和响应体（body）组成。</p>
+</blockquote>
+<pre><code class="language-javaScript">HTTP响应信息:  response即服务器端返回给客户端的信息。
+由以下四部分
+   响应状态行:
+   响应头:  放置本次响应的相关信息、是键值对的格式。
+   响应正文:  服务器端返回给客户端的数据
+   空行:
+</code></pre>
+<p>在node作为web server时、每次客户端发送请求时就会触发http.createServer函数的参数回调函数中的两个对象request、response。本质上是每当服务器被请求时就会触发request事件函数。</p>
+<h3>4.1.3 request对象</h3>
+<p>request一般也缩写成req: 表示请求对象用来获取一些客户端请求发送给服务器的信息、即客户端传过来的东西。它是http.IncomingMessage类的实例、比较常用的实例属性和方法如下:</p>
+<pre><code class="language-javaScript">   req.headers 获取请求头信息(是一个对象)、通常用JSON.stringify转成json字符串。
+   req.httpVersion 获取http协议的版本
+   req.method 获取http请求的方法类型名、大写。如GET
+   req.url 获取整个请求路径path,注意它是包括查询字符串。
+
+例如: 浏览器访问如下地址
+// http://127.0.0.1:3000/hello?nick=chyingp&amp;hello=world
+req.httpVersion = &#39;http&#39;
+req.url = &#39;/hello?name=david&amp;hello=world&#39;
+req.method = &#39;GET&#39;
+   
+   req.url的值可以通过 &#39;?&#39; 进行拆分、前面为路由、后面为查询字符串
+      req.path = req.url.split(&#39;?&#39;)[0] ,自定义路由路径
+      req.query = req.url.split(&#39;?&#39;)[1]、自定义查询字符串对象
+        query此时时一个使用&amp;符号连接的字符串、可以再通过这个符号拆分或者使用原生的URLSearchParams对象对其进行处理。
+注意这里的path和query都是我们自己加给req对象的属性、本身是没有的。
+
+处理get请求、即客户端向服务端获取数据、
+    要使用req.url截取?前面部分、和req.method结合以此来做路由接口、
+    再使用req.url截取?后面部分、就可以解析查询字符串。
+处理post请求、客户端向服务器端传递数据、
+    在node中通过req.on方法监听data chunk事件、数据是像水流一样一点点传递、传递过程中会一直触发data事件并执行对应的回调函数。
+    let result 
+    req.on(&#39;data&#39;,(chunk) =&gt; {
+        result += chunk
+        // chunk就是一块块数据、可以定义一个变量接受。
+    }) 
+     
+    在所有数据传递完成会触发end事件、并执行回调函数。
+    这样就可以获取到前端传递的请求体数据了。
+    req.on(&#39;end&#39;,() =&gt; {
+        console.log( &#39;post body is: &#39; + result );
+    }) 
+
+HTTP请求常见的请求方法类型及对应的 req.method 值:  
+| HTTP方法名 | 对应req.method 值 |
+| ---------- | ----------------- |
+| get        | GET               |
+| post       | POST              |
+| put        | PUT               |
+| patch      | PATH              |
+| update     | UPDATE            |
+| delete     | DELETE            |
+</code></pre>
+<h3>4.1.4 response对象</h3>
+<p>response一般也缩写成res: 表示响应对象是服务器端响应给浏览器数据或其它信息时使用的对象。需要程序猿编写指明返回的是什么。即: 我们设置返回给浏览器的信息。
+一般来说返回的内容包括：状态代码/状态描述信息、响应头部、响应主体</p>
+<p>它是http.ServerResponse类的实例、常见实例方法如下:</p>
+<pre><code class="language-javaScript">设置状态代码/状态描述信息、响应头部
+   res.statusCode = 404 设置响应的状态码
+   res.statusMessage = &#39;Not Found&#39; 设置响应信息文本
+   这两个可以通过 res.writeHead(statusCode,statusMessage,headers) 方法同时设置
+      res.writeHead(404,&#39;Not Found&#39;,{
+          &#39;Content-Type&#39;: &#39;text/plain&#39;,
+          &#39;Set-Cookie&#39;: [&#39;type=ninja&#39;, &#39;language=javascript&#39;]
+      })
+   响应头也可以单独设置响应头的相关信息、如下设置数据编码格式。这两个方法都必须再res.end方法之前执行。
+      res.setHeader(&#39;Content-Type&#39;,&#39;text/html;charset=utf-8&#39;) 
+      res.setHeader(&#39;Set-Cookie&#39;, [&#39;type=ninja&#39;, &#39;language=javascript&#39;])
+设置响应主体
+   res.write(写数据) 设置响应返回的数据、直接写到HTML页面上所以一般不用。
+   res.end(JSON.stringify(data)) 结束响应并将json格式的字符串数据返回
+
+
+HTTP状态码: 即服务器端返回给客户端用来描述http请求状态的提示信息
+由三位数字组成、第一位数字定义了响应的类型
+   1xx:表示服务器端已经接收到请求、正在处理
+   2xx:表示服务器端已经成功的正确的理解和接收请求
+   3xx:表示要完成对请求的响应必须进行进一步的的操作
+   4xx:客户端错误、即客户端发送的请求语法有问题或者无法实现
+   5xx:服务器端错误、即服务器端不能实现、
+
+常见有:  
+   200 OK 请求成功
+   400 bad request 客户端请求有语法错误、不能被服务器理解
+   401 unauthorized 请求未经过授权
+   403 forbidden 服务器收到了请求、但是拒绝提供服务
+   500 internal server error 服务器发生了不可预测的错误
+   503 server unavailable 服务器当前不能处理客户端的请求、过会儿可能恢复。
+</code></pre>
+<h2>4.2 fs 文件系统操作模块</h2>
+<p>文件是否存在判断、新建、写入、读取、更改文件权限等是比较常用的功能。然后api一般都有同步、回调函数(异步)、基于promise(从fs/promises导出)三种。常见是读取文件、写入日志等。<strong>注意路径问题!</strong></p>
+<h3>4.2.1 文件夹(目录)相关操作</h3>
+<p>常见读取某一个文件夹内所有文件的文件名进而批量注册路由或者中间件是比较常用的、或者创建删除一个新的目录。
+目录已存在新建会报错、删除不存在的目录也会报错。</p>
+<pre><code class="language-js">// const fs = require(&#39;node:fs&#39;)//现在最新已经是这样引入了、同步和异步版本
+// const fs = require(&#39;node:fs/promises&#39;) // 引入promise版本
+import fs from &quot;node:fs&quot;;
+import asyncFs from &quot;node:fs/promises&quot;;
+
+// 同步-创建目录
+try{
+  fs.mkdirSync(&#39;./hello&#39;)
+  console.log(&#39;创建目录成功&#39;);
+}catch(err){
+  console.log(err,&#39;新建目录失败&#39;)
+  throw err;
+}
+// 异步回调-创建目录
+fs.mkdir(&#39;./async&#39;,(err) =&gt; {
+  if(err) {
+    console.log(err,&#39;新建目录失败&#39;)
+    throw err;
+  }
+})
+// 基于promise-创建目录
+asyncFs.mkdir(&#39;/promise&#39;).then(res =&gt; {
+  console.log(&#39;res&#39;,res)
+})
+
+// 同步-删除目录
+try {
+  fs.rmdirSync(&#39;./hello&#39;)
+} catch (err) {
+  console.log(err,&#39;删除目录失败&#39;)
+  throw err;
+}
+// 异步-删除目录
+fs.rmdir(&#39;./async&#39;,(err) =&gt; {
+  if(err) {
+    console.log(err,&#39;删除目录失败&#39;)
+    throw err;
+  }
+})
+// 基于promise-删除目录
+asyncFs.rmdir(&#39;./async&#39;).then(res =&gt; {
+  console.log(res,&#39;删除目录成功&#39;)
+}).catch(err =&gt; {
+  console.log(err,&#39;删除目录失败&#39;)
+  throw err;
+})
+
+// 读取文件夹内的所有文件
+fs.readdir(&#39;./&#39;,(err,data) =&gt;{
+    //判断是否读取成功,成功返回结果在回调函数的第二个参数里
+    if(err == null &amp;&amp; err ==undefined){
+        console.log(err,&#39;读取成功&#39;, data)
+    }else{
+        console.log(&#39;read fail!&#39;)
+        throw err;
+    }
+})
+</code></pre>
+<h3>4.2.2 文件相关操作</h3>
+<p>文件主要是读取或写入文件内容、一般会和path、流等知识点一起使用。</p>
+<pre><code class="language-js">import fs from &quot;node:fs&quot;;
+import path from &quot;node:path&quot;;
+// 读取文件内容
+const fullFileName1 = path.resolve(__dirname,&#39;../&#39;,&#39;../&#39;,&#39;public&#39;,&#39;files&#39;,&#39;a.json&#39;)
+const fullFileName2 = path.join(__dirname,&#39;../&#39;,&#39;../&#39;,&#39;public&#39;,&#39;files&#39;,&#39;a.json&#39;)
+console.log(fullFileName1)
+console.log(fullFileName2)
+fs.readFile(fullFileName1,{encoding:&#39;utf-8&#39;},(err,data) =&gt; {
+    if(err){
+        console.error(err)
+        return
+    }
+    console.log(data.toString())
+})
+// 写入方法有两个
+const fullFileName = path.join(__dirname,&#39;../&#39;,&#39;../&#39;,&#39;public&#39;,&#39;readfiletest.txt&#39;)
+fs.writeFile(
+  fullFileName,
+  &#39;我是用异步方法新写入的内容它会追加到之前文件内容的后面&#39;,
+  {encoding:&#39;utf-8&#39;,flag:&#39;a&#39;},
+  (err,data)=&gt;{
+    if(err)throw err
+    console.log(&#39;异步方法data写入成功：&#39;,data)//undefined
+})
+const data = &#39;/n 我是用appendFile方法新写入的内容它不会覆盖之前文件所有的内容&#39;
+fs.appendFile(
+  fullFileName,
+  data,
+  {encoding:&#39;utf-8&#39;},
+  (err,data) =&gt; {
+    if (err) throw err;
+    console.log(&#39;数据已追加到文件&#39;,data);
+})
+
+// 流操作
+const fullFileName = path.join(__dirname,&#39;../&#39;,&#39;../&#39;,&#39;public&#39;,&#39;readfiletest.txt&#39;)
+const readStream =  fs.createReadStream(fullFileName,{encoding:&#39;utf-8&#39;})
+let data = &#39;&#39;
+readStream.on(&#39;data&#39;,chunk =&gt; {
+  data += chunk
+})
+readStream.on(&#39;end&#39;, () =&gt; {
+  console.log(&#39;data读取结束&#39;)
+  // 直接写入流
+  writeLog(accessLog,data)
+})
+readStream.on(&#39;error&#39;, err =&gt; {
+  console.log(err)
+})
+// 定义一个写入流函数
+function createWriteStream(filename){
+  const fullFileName = path.join(__dirname,&#39;../&#39;,&#39;../&#39;,&#39;public/logs&#39;,filename)
+  // 写入流
+  const writeStream = fs.createWriteStream(fullFileName,{flags:&#39;a&#39;,encoding:&#39;utf-8&#39;})
+  return writeStream
+}
+// 访问日志
+const accessLog = createWriteStream(&#39;access.log&#39;)
+// 错误日志
+const errorLog = createWriteStream(&#39;error.log&#39;)
+
+// 定义一个写入函数
+function writeLog(writeLogStream,log){
+  writeLogStream.write(`${log}\n`)
+}
+// 管道写入流
+readStream.pipe(errorLog)
+
+</code></pre>
+<h2>4.3 path 路径处理模块</h2>
+<p>系统中的每个文件都有一个路径,path模块在不同的操作系统是有差异的(windows | posix)。
+在Linux和macOS上，路径可能看起来像:/users/joe/file.txt，
+而Windows计算机则不同，并且具有如下结构:C:\users\joe\file.txt
+path模块是nodejs中提供的一个处理路径的模块、在nodejs中这个模块使用频率也是比较高的、主要是路径的获取、拼接、解析。</p>
+<pre><code class="language-javaScript">const path = require(&#39;node:path&#39;);
+
+/**
+ * path.extname() 方法返回文件的扩展名
+ * path.basename() 方法返回 path 的最后一部分,即取最后一层(取文件名)。
+ * path.dirname() 方法返回 path 的目录名，去掉最后一层(去掉文件名)
+ * path.parse() 方法将一个路径解析为对象格式
+ * path.format() 方法将一个路径对象格式解析为路径字符串
+ */
+const testpath1 = &#39;W:/VSCodeProjects/nodeStudy/readme.md&#39;
+console.log(&#39;取到文件的扩展名&#39;,path.extname(testpath1))// .md
+console.log(&#39;取到的是文件名&#39;,path.basename(testpath1))//readme.md
+console.log(&#39;取到的是文件目录名&#39;,path.dirname(testpath1))//W:/VSCodeProjects/nodeStudy
+console.log(&#39;将一个路径解析为对象格式&#39;,path.parse(testpath1))//{root: &#39;W:/&#39;,dir: &#39;W:/VSCodeProjects/nodeStudy&#39;, base: &#39;readme.md&#39;,ext: &#39;.md&#39;, name: &#39;readme&#39;}
+console.log(&#39;将一个对象格式的路径转为字符串格式&#39;,path.format(path.parse(testpath1)))//W:/VSCodeProjects/nodeStudy/readme.md
+const testpath2 = &#39;http://img.doutula.com/production/uploads/image/2020/05/21/20200521045427_yIPwpZ.jpg&#39;
+console.log(&#39;取到文件的扩展名&#39;,path.extname(testpath2))// .jpg
+console.log(&#39;取到的是文件名&#39;,path.basename(testpath2))// 20200521045427_yIPwpZ.jpg
+console.log(&#39;取到的是文件目录名&#39;,path.dirname(testpath2))// http://img.doutula.com/production/uploads/image/2020/05/21
+console.log(&#39;将一个路径解析为对象格式&#39;,path.parse(testpath2))//{root: &#39;&#39;,dir: &#39;http://img.doutula.com/production/uploads/image/2020/05/21&#39;, base: &#39;20200521045427_yIPwpZ.jpg&#39;,ext: &#39;.jpg&#39;, name: &#39;20200521045427_yIPwpZ&#39;}
+
+/**
+ * path.resolve() 方法用来拼接路径,将给定的路径序列从右到左进行处理，后面的每个 path 会被追加到前面，直到构造出绝对路径。
+ * 如果没有传入 path 片段，则 path.resolve() 会返回当前工作目录的绝对路径。
+ * 
+ * path.join() 方法使用平台特定的分隔符作为定界符 Windows系统下是\，而在Linux系统下是/。
+ * 将所有给定的 path 片段连接在一起，然后规范化生成的路径。
+ * 
+ * resolve()和join()方法两者是差不多的。
+ * __dirname 当前文件所在系统的绝对路径
+ * __filename 当前文件所在系统的绝对路径加上文件名
+ */
+const fullFileName1 = path.resolve(__dirname,&#39;../&#39;,&#39;../&#39;,&#39;public&#39;,&#39;readfiletest.txt&#39;)
+const fullFileName2 = path.join(__dirname,&#39;../&#39;,&#39;../&#39;,&#39;public&#39;,&#39;readfiletest.txt&#39;)
+console.log(&#39;resolve：&#39;,fullFileName1)
+console.log(&#39;join：&#39;,fullFileName2)
+// 当前文件所在的文件名
+console.log(&#39;__dirname&#39;,__dirname)// E:\Full-stack-Engineer\studyNotes\node-study\src\studyModel
+console.log(&#39;__filename&#39;,__filename) // E:\Full-stack-Engineer\studyNotes\node-study\src\studyModel\path-study.js
+</code></pre>
+<h2>4.4 events 事件处理模块</h2>
+<p>node中的模块很多都继承了events模块(使用对象冒充的方式)，比如http、fs等使用的on()方法就是继承的api。
+它是通过其中的 EventEmitter类 来定义和触发事件、本质是观察者模式的实现、类似发布/订阅模式。
+一定是先注册后触发、同一事件多个事件触发器按顺序执行。监听数量默认十个，</p>
+<pre><code class="language-js">
+/**
+ * node原生事件模块events
+ * 通过events的EventEmitter类实现对事件的绑定监听和触发
+ */
+const events = require(&#39;node:events&#39;)
+import events from &quot;node:events&quot;;
+
+// 创建eventEmitter实例对象
+const myEventEmitter = new events.EventEmitter()
+
+
+// 定义事件名并绑定对应的回调函数
+myEventEmitter.on(&#39;eventname&#39;,(msg) =&gt; {
+    console.log(`事件触发时传入的信息: ${msg}`)
+})
+
+// 在想触发事件的地方写上就会触发定义的事件
+myEventEmitter.emit(&#39;eventname&#39;,&#39;事件触发了&#39;)
+
+/**
+ * 如果想要自定义的话，es5之前时通过原型链的继承实现
+ * 而es6之后可以直接通过类实现
+ */
+// es5
+function SelfEmitter() {
+    events.EventEmitter.call(this)
+}
+const self = new SelfEmitter()
+Object.setPrototypeOf(SelfEmitter.prototype, events.EventEmitter.prototype);
+Object.setPrototypeOf(SelfEmitter, events.EventEmitter)
+self.on(&#39;self&#39;,(msg) =&gt; {
+    console.log(&#39;自定义es5类继承&#39;,msg)
+})
+self.emit(&#39;self&#39;,&#39;11&#39;)
+
+// es6
+class MyEmitter extends events.EventEmitter {}
+const man = new MyEmitter()
+function wakeup(){
+    console.log(&#39;man has woken up&#39;)
+}
+man.on(&#39;wakeup&#39;, wakeup)
+man.emit(&#39;wakeup&#39;)
+man.removeListener(&#39;wakeup&#39;, wakeup);
+</code></pre>
+<h2>4.5 stream 流模块</h2>
+<p>流是Node.js中处理流数据的抽象接口、stream模块提供了实现流接口的API。
+平常一般不会直接用到stream模块这是因为很多其它模块都实现了这个接口、例如: 对http 服务器发起请求的request，response 对象就都是一个 Stream实例，还有stdout（标准输出）。同时所有的 Stream 对象又都是 EventEmitter 的实例、所以也继承了事件相关的属性和方法。
+常用的事件有：</p>
+<ol>
+<li>end - 没有更多的数据可读时触发。</li>
+<li>error - 在接收和写入过程中发生错误时触发。</li>
+<li>data - 当有数据可读时持续触发。</li>
+<li>finish - 所有数据已被写入到底层系统时触发。</li>
+</ol>
+<p><strong>Nodejs有四种流类型：</strong></p>
+<ol>
+<li>Writable - 可以写入数据的流、比如fs.createWriteStream()、http.IncomingRequest、process.stdin。</li>
+<li>Readable - 可以从中读取数据的流、比如fs.createReadStream()。</li>
+<li>Duplex - 可读和可写的流、比如 net.Socket()。</li>
+<li>Transform - 可以在写入和读取数据时修改或转换数据的双工流、比如 zlib.createDeflate()（数据压缩/解压）。。</li>
+</ol>
+<h2>4.6 readline 逐行读取模块</h2>
+<p>主要用来实现逐行读取，比如读取用户输入，或者读取文件内容。
+<strong>常见使用场景如下</strong></p>
+<ol>
+<li>文件逐行读取：比如说进行日志分析。</li>
+<li>自动完成：比如输入npm，自动提示&quot;help init install&quot;。</li>
+<li>命令行工具：比如npm init这种问答式的脚手架工具。</li>
+</ol>
+<pre><code class="language-javaScript">// 主要用到一个api用来创建一个新的readline实例
+const rl = readline.createInterface({
+  input: &#39;要监听的可读流、必填&#39;,
+  output: &#39;&#39;,
+  completer: &#39;按tab时自动完成的函数&#39;
+
+})
+// rl.question(msg,callback)、它会在控制台输入一行提示，当用户完成输入，敲击回车，cbk就会被调用，并把用户输入作为参数传入。
+rl.question(&#39;请选择yes/no&#39;,(answer) =&gt; {
+  if(answer === &#39;yes&#39;) {
+
+  }
+  if(answer === &#39;no) {
+
+  }
+})
+</code></pre>
+<pre><code class="language-javaScript">// 在命令行工具输入
+const readline = require(&#39;node:readline&#39;);
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+rl.question(&#39;Please input a word: &#39;, function(answer){
+    console.log(&#39;You have entered [%s]&#39;, answer.toUpperCase());
+    rl.close();
+});
+
+// 自动完成：代码提示-当用户输入npm时，按tab键，自动提示用户可选的子命令，如help、init、install。
+function completer(line) {
+    const command = &#39;npm&#39; 
+    const subCommands = [&#39;help&#39;, &#39;init&#39;, &#39;install&#39;] 
+    // 输入为空，或者为npm的一部分，则tab补全为npm
+    if(line.length &lt; command.length){
+        return [command.indexOf(line) === 0 ? [command] : [], line] 
+    }
+    // 输入 npm，tab提示 help init install
+    // 输入 npm in，tab提示 init install
+    let hits = subCommands.filter(function(subCommand){ 
+        const lineTrippedCommand = line.replace(command, &#39;&#39;).trim() 
+        return lineTrippedCommand &amp;&amp; subCommand.indexOf( lineTrippedCommand ) === 0 
+    })
+    if(hits.length === 1){
+        hits = hits.map(function(hit){
+            return [command, hit].join(&#39; &#39;) 
+        }) 
+    }
+    return [hits.length ? hits : subCommands, line] 
+}
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  completer: completer
+}) 
+rl.prompt()
+
+
+// 自定义命令行工具
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: &#39;OHAI&gt; &#39;
+});
+
+const preHint = `
+This utility will walk you through creating a package.json file.
+It only covers the most common items, and tries to guess sensible defaults.
+
+See \`npm help json\` for definitive documentation on these fields
+and exactly what they do.
+
+Use \`npm install &lt;pkg&gt; --save\` afterwards to install a package and
+save it as a dependency in the package.json file.
+
+Press ^C at any time to quit.
+`;
+
+console.log(preHint);
+
+// 问题
+let questions = [ &#39;name&#39;, &#39;version&#39;, &#39;author&#39;];
+
+// 默认答案
+let defaultAnswers = [ &#39;name&#39;, &#39;1.0.0&#39;, &#39;none&#39; ];
+
+// 用户答案
+let answers = [];
+let index = 0;
+
+function createPackageJson(){
+    var map = {};
+    questions.forEach(function(question, index){
+        map[question] = answers[index];
+    });
+
+    fs.writeFileSync(&#39;./package.json&#39;, JSON.stringify(map, null, 4));
+}
+
+function runQuestionLoop() {
+
+    if(index === questions.length) {
+        createPackageJson();
+        rl.close();
+        return;
+    }
+    
+    let defaultAnswer = defaultAnswers[index];
+    let question = questions[index] + &#39;: (&#39; + defaultAnswer +&#39;) &#39;;
+    
+    rl.question(question, function(answer){
+        answers.push(answer || defaultAnswer);
+        index++;
+        runQuestionLoop();
+    });
+}
+runQuestionLoop();
+
+</code></pre>
+<h2>4.7 process 进程模块</h2>
+<p>进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位，是操作系统结构的基础，进程是线程的容器。</p>
+<p>线程是操作系统能够进行运算调度的最小单位，首先我们要清楚线程是隶属于进程的，被包含于进程之中。一个线程只能隶属于一个进程，但是一个进程是可以拥有多个线程的。</p>
+<p>process 是Nodejs操作当前进程和控制当前进程的API，并且是挂载到globalThis下面的全局API，所以不需要引入也可以直接使用。</p>
+<p>通过它来获得node进程相关的信息，比如运行node程序时的命令行参数。或者设置进程相关信息，比如设置环境变量。</p>
+<pre><code class="language-js">// process 模块是node的全局模块、不需要引入也可以直接使用。
+const process = require(&#39;node:process&#39;);
+// 常见属性和方法
+    process.env：环境变量，例如通过 process.env.NODE_ENV 获取不同环境项目配置信息
+    process.pid：获取当前进程id
+    process.ppid：当前进程对应的父进程
+    process.platform：获取当前进程运行的操作系统平台
+    process.cwd()：获取当前进程工作目录
+    process.uptime()：当前进程已运行时间，例如：pm2 守护进程的 uptime 值
+    进程事件：
+      process.on(&#39;uncaughtException&#39;, cb) 捕获异常信息、
+      process.on(&#39;exit&#39;, cb）进程退出监听
+    三个标准流：
+      process.stdout 标准输出、
+      process.stdin 标准输入、
+      process.stderr 标准错误输出
+</code></pre>
+<p><strong>常见用法</strong></p>
+<pre><code class="language-js">// 获取环境变量、根据不同的变量值使用不同的配置
+if(process.env.NODE_ENV === &#39;production&#39;){
+    console.log(&#39;生产环境&#39;);
+}else{
+    console.log(&#39;非生产环境&#39;);
+}
+
+
+
+</code></pre>
+<h2>4.8 child_process 子进程模块</h2>
+<p>子进程是Nodejs核心API，如果你会shell命令，他会有非常大的帮助，或者你喜欢编写前端工程化工具之类的，他也有很大的用处，以及处理CPU密集型应用。</p>
+<p><strong>常见使用场景</strong></p>
+<ol>
+<li>执行系统命令：比如执行npm install、git push等。</li>
+<li>执行脚本：比如执行一个node脚本、执行一个python脚本、执行一个php脚本等。</li>
+</ol>
+<pre><code class="language-js">// 引入模块
+const { spawn, exec, execFile } = require(&#39;node:child_process&#39;);
+// 执行系统命令
+const child = spawn(&#39;ls&#39;, [&#39;-lh&#39;, &#39;/usr&#39;]);
+child.stdout.on(&#39;data&#39;, (data) =&gt; {
+  console.log(`stdout: ${data}`);
+});
+child.stderr.on(&#39;data&#39;, (data) =&gt; {
+ 
+})
+
+
+## 4.9 buffer 缓冲区模块
+用它来处理二进制数据，比如文件流的读写、网络请求数据的处理等。
+
+### 4.8.1 概述
+Buffer 用于读取或操作二进制数据流、将数据缓冲起来，它是临时性的、做为 Node.js API 的一部分使用时无需 require，用于操作网络协议、数据库、图片和文件 I/O 等一些需要大量二进制数据的场景。
+
+所谓二进制数据就是使用 0 和 1 两个数码来表示的数据，这是计算机存储在内存中的数据。
+
+对于流式数据，会采用缓冲区将数据临时存储起来，等缓冲到一定的大小之后在存入硬盘中。
+而stream流是对输入输出设备的抽象，这里的设备可以是文件、网络、内存等。
+流是有方向性的，当程序从某个数据源读入数据，会开启一个输入流，这里的数据源可以是文件或者网络等，例如我们从 a.txt 文件读入数据。相反的当我们的程序需要写出数据到指定数据源（文件、网络等）时，则开启一个输出流。当有一些大文件操作时，我们就需要 Stream 像管道一样，一点一点的将数据流出。
+
+那么这么数据是怎么流动的呢?通常，数据的移动是为了处理或者读取它，并根据它进行决策。伴随着时间的推移，每一个过程都会有一个最小或最大数据量。如果数据到达的速度比进程消耗的速度快，那么少数早到达的数据会处于等待区等候被处理。反之，如果数据到达的速度比进程消耗的数据慢，那么早先到达的数据需要等待一定量的数据到达之后才能被处理。这里的等待区就指的缓冲区（Buffer），它是计算机中的一个小物理单位，通常位于计算机的 RAM 中。相当于一个临时存储区。
+
+### 4.8.2 基本使用
+学习内容主要是api的使用、包括Buffer实例的创建、比较、连接、拷贝、查找、遍历、类型转换、截取、编码转换等。
+Buffer 实例是使用 Buffer 构造函数创建的，该函数根据提供的参数以不同方式分配返回的 Buffer。
+在v10版本之后已经弃用改为使用Buffer.from()、Buffer.alloc() 与 Buffer.allocUnsafe() 三种方式来创建。
+**创建方法**
+1. Buffer.from(array,encoding)
+2. Buffer.alloc(length)
+3. Buffer.allocUnsafe(length)
+
+Buffer 字符编码: 在创建buffer时可以指定字符编码以实现 Buffer 实例与 JavaScript 字符串之间的相互转换。
+**支持的字符编码如下:**
+1. &#39;utf8&#39; - 多字节编码的 Unicode 字符不传递 encoding 默认按照 UTF-8 格式转换存储。许多网页和其他文档格式都使用 UTF-8。
+2. &#39;ascii&#39; - 仅适用于 7 位 ASCII 数据。此编码速度很快，如果设置则会剥离高位。
+3. &#39;utf16le&#39; - 2 或 4 个字节，小端序编码的 Unicode 字符。支持代理对（U+10000 至 U+10FFFF）。
+4. &#39;ucs2&#39; - &#39;utf16le&#39; 的别名。
+5. &#39;base64&#39; - Base64 编码。当从字符串创建 Buffer 时，此编码也会正确地接受 RFC 4648 第 5 节中指定的 “URL 和文件名安全字母”。
+6. &#39;latin1&#39; - 一种将 Buffer 编码成单字节编码字符串的方法（由 RFC 1345 中的 IANA 定义，第 63 页，作为 Latin-1 的补充块和 C0/C1 控制码）。
+7. &#39;binary&#39; - &#39;latin1&#39; 的别名。
+8. &#39;hex&#39; - 将每个字节编码成两个十六进制的字符。
+
+```javaScript
+// 创建
+const { Buffer } = require(&#39;node:buffer&#39;);
+const buff1 = Buffer.from([1,4,&#39;df&#39;])
+console.log(&#39;buff1&#39;,buff1) //buff1 &lt;Buffer 01 04 00&gt;
+const bAlloc1 = Buffer.alloc(10); // 创建一个大小为 10 个字节的缓冲区
+console.log(bAlloc1); // &lt;Buffer 00 00 00 00 00 00 00 00 00 00&gt;
+</code></pre>
+<h3>4.8.3 Buffer内存机制</h3>
+<p>由于 Buffer 需要处理的是大量的二进制数据，假如用一点就向系统去申请，则会造成频繁的向系统申请内存调用，所以 Buffer 所占用的内存不再由 V8 分配，而是在 Node.js 的 C++ 层面完成申请，在 JavaScript 中进行内存分配。因此，这部分内存我们称之为堆外内存。</p>
+<p>Node.js 采用了 slab 机制进行预先申请、事后分配，是一种动态的管理机制。
+使用 Buffer.alloc(size) 传入一个指定的 size 就会申请一块固定大小的内存区域。
+<strong>slab 具有如下三种状态：</strong></p>
+<ol>
+<li>full：完全分配状态</li>
+<li>partial：部分分配状态</li>
+<li>empty：没有被分配状态</li>
+</ol>
+<p>Node.js 以 8KB 为界限来区分是小对象还是大对象</p>
+<ol>
+<li>在初次加载时就会初始化 1 个 8KB 的内存空间，buffer.js 源码有体现。</li>
+<li>根据申请的内存大小分为 小 Buffer 对象 和 大 Buffer 对象。</li>
+<li>小 Buffer 情况，会继续判断这个 slab 空间是否足够。如果空间足够就去使用剩余空间同时更新 slab 分配状态，偏移量会增加。如果空间不足，slab 空间不足，就会去创建一个新的 slab 空间用来分配</li>
+<li>大 Buffer 情况，则会直接走 createUnsafeBuffer(size) 函数</li>
+<li>不论是小 Buffer 对象还是大 Buffer 对象，内存分配是在 C++ 层面完成，内存管理在 JavaScript 层面1. 终还是可以被 V8 的垃圾回收标记所回收。</li>
+</ol>
+<h3>4.8.4 应用</h3>
+<ol>
+<li>I/O 操作: 类似文件读取写入流操作、在 Stream 中我们是不需要手动去创建自己的缓冲区，在 Node.js 的流中将会自动创建。</li>
+<li>资源压缩: zlib模块就是利用了缓冲区（Buffer）的功能来操作二进制数据流，提供了压缩或解压功能。</li>
+</ol>
+<h2>4.10 zlib 资源解压缩模块</h2>
+<p>这个模块是用来对资源进行压缩的、提供了使用Gzip、Deflate/ inflation 和 Brotli 实现的压缩功能。
+浏览器通过HTTP请求头部里加上 Accept-Encoding，告诉服务器使用何种方法压缩资源。</p>
+<p><code>Accept-Encoding:gzip, deflate</code></p>
+<pre><code class="language-javaScript">// 本地gzip压缩
+const fs = require(&#39;fs&#39;);
+const zlib = require(&#39;zlib&#39;);
+// 压缩
+const gzip = zlib.createGzip();
+const inFile = fs.createReadStream(&#39;./extra/fileForCompress.txt&#39;);
+const out = fs.createWriteStream(&#39;./extra/fileForCompress.txt.gz&#39;);
+inFile.pipe(gzip).pipe(out);
+
+// 解压
+const gunzip = zlib.createGunzip();
+const readStream = fs.createReadStream(&#39;index.txt.gz&#39;)
+const writeStream = fs.createWriteStream(&#39;index2.txt&#39;)
+readStream.pipe(gunzip).pipe(writeStream)
+
+
+// 服务端开启gzip压缩
+// 首先判断 是否包含 accept-encoding 首部，且值为gzip。
+// 否：返回未压缩的文件。
+// 是：返回gzip压缩后的文件。
+const http = require(&#39;http&#39;);
+const zlib = require(&#39;zlib&#39;);
+const fs = require(&#39;fs&#39;);
+const filepath = &#39;./extra/fileForGzip.html&#39;;
+const server = http.createServer(function(req, res){
+    const acceptEncoding = req.headers[&#39;accept-encoding&#39;];
+    let gzip;
+    if(acceptEncoding.indexOf(&#39;gzip&#39;) != -1){ // 判断是否需要gzip压缩
+        gzip = zlib.createGzip();       
+        // 记得响应 Content-Encoding，告诉浏览器：文件被 gzip 压缩过
+        res.writeHead(200, {
+            &#39;Content-Encoding&#39;: &#39;gzip&#39;
+        });
+        // 使用管道将可读流中的数据通过 Gzip 压缩，再通过管道传输到可写流中进行写入
+        fs.createReadStream(filepath).pipe(gzip).pipe(res);
+    }else{
+        fs.createReadStream(filepath).pipe(res);
+    }
+})
+server.listen(&#39;3000&#39;);
+</code></pre>
+<h2>4.11 crypto 加解密模块</h2>
+<p>Crypto 加密模块是 C／C++ 实现这些算法后，暴露为 javascript 接口的模块，包含对 OpenSSL 的哈希、HMAC、加密、解密、签名、以及验证功能的一整套封装。
+密码学的知识是非常丰富的: 有对称加密算法、非对称加密算法、散列(哈希)算法(信息摘要算法)</p>
+<ol>
+<li>对称式加密就是加密和解密使用同一个密钥</li>
+<li>非对称式加密就是加密和解密所使用的不是同一个密钥，通常有两个密钥，称为“公钥”和“私钥”，它们两个必需配对使用，否则不能打开加密文件。这里的“公钥”是指可以对外公布的，“私钥”则不能，只能由持有人一个人知道。</li>
+<li>散列算法是指把任意长度的输入消息数据转化为固定长度的输出数据的一种密码算法。</li>
+</ol>
+<p><strong>Cipher类</strong> 用于加密数据，属于对称密钥加密，假设通信双方 A、B 通讯方 A 使用 key 对明文进行加密传输，通讯方 B 接收到密文后，使用同样的 key 进行解密得到明文。
+在v10版本之后不在使用 crypto.createCipher 而是使用 crypto.createCipheriv()方法创建。
+crypto.createCipheriv(algorithm, pwd, iv) 指定算法、密码、向量创建 cipher 加密对象</p>
+<p>数据解密: 使用crypto.createDecipheriv() 方法
+crypto.createDecipheriv(algorithm, pwd, iv) 指定算法、密码、向量创建 decipher 解密对象</p>
+<p><strong>非对称加密</strong> 是指加密秘钥和解密秘钥不同的密码算法，又称为 公开密码算法 或 公钥算法，该算法使用一个秘钥进行加密，用另外一个秘钥进行解密。加密秘钥可以公开，又称为 公钥。解密秘钥必须保密，又称为 私钥
+常见非对称算法包括 RSA、SM2（国密）、DH、DSA、ECDSA、ECC 等。</p>
+<p><strong>散列算法(信息摘要算法)</strong>: 散列加密、是让大容量信息在数字签名软件签署私人秘钥前被 “压缩” 成一种保密格式，也就是把一个任意长度的字节串变换成一定长度的十六进制数字串（32个字符） 一致性验证。
+特点</p>
+<ol>
+<li>不可逆</li>
+<li>输入两个不同的明文不会得到相同的输出值</li>
+<li>根据输出值，不能得到原始的明文，即过程不可逆</li>
+</ol>
+<p>散列算法主要分为三大类</p>
+<ol>
+<li>MD（Message Digest，消息摘要算法）、MD 系列 主要包括 MD2、MD4、MD5。</li>
+<li>SHA（Secure Hash Algorithm，安全散列算法）、SHA 系列 主要包括 SHA-1、SHA-2 系列（SHA-1 的衍生算法，包含 SHA-224、SHA-256、SHA-384、SHA-512）。</li>
+<li>MAC（Message Authentication Code，消息认证码算法）、MAC 系列 主要包括 HmacMD5、HmacSHA1、HmacSHA256、HmacSHA384 和 HmacSHA512 算法。</li>
+</ol>
+<p><strong>哈希散列-Hash</strong></p>
+<ol>
+<li>先使用 crypto.createHash(algorithm) 方法创建一个hash对象。参数 algorithm 可选择系统上安装的 OpenSSL 版本所支持的算法: 常见sha1、md5、sha256、sha512等。</li>
+<li>使用 hash对象的实例方法 hash.update() 给给定的数据更新哈希内容。在流式传输新数据时，可以多次调用该方法。</li>
+<li>使用 hash对象的实例方法 hash.digest(encoding)计算所有传入数据的 hash 摘要。参数 encoding（编码方式）可以为 hex、binary、base64。声明了编码方式则返回字符串,否则返回Buffer实例。调用这个方法之后hash对象就报废了不能再次调用了。</li>
+</ol>
+<pre><code class="language-js">// 实现方法
+const hash = crypto.createHash(&#39;sha256&#39;)
+const msg = &#39;hello&#39;
+// 更新内容
+hash.update(msg)
+// 计算摘要
+const result =  hash.digest(&#39;hex&#39;)
+console.log(result) // 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+
+// 链式调用
+const msg = &#39;hello&#39;
+const result = crypto.createHash(&#39;sha256&#39;).update(msg).digest(&#39;hex&#39;)
+console.log(result) // 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824 
+
+// 封装成一个函数
+function hashSha256(data) {
+    return crypto.createHash(&#39;sha256&#39;).update(data).digest(&#39;hex&#39;)
+}
+const otherResult = hashSha256(msg)
+console.log(otherResult) // 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+</code></pre>
+<p><strong>哈希加盐-HMAC</strong>
+HMAC的全称是Hash-based Message Authentication Code，也即在hash的加盐运算。
+算是对哈希散列的一个加强,增加了加盐操作更加难破解。使用方法和步骤类似,多了一个指定“盐值”的操作。</p>
+<ol>
+<li>使用crypto.createHmac(algorithm, secret)方法创建并返回一个使用给定算法和密钥的Hmac对象。</li>
+<li>使用 hmac.update()方法</li>
+<li>使用 hmac.digest()方法</li>
+</ol>
+<pre><code class="language-js">const msg = &#39;hello&#39;
+function createSaltSha256(data,key=&#39;1qaz&#39;) {
+    return crypto.createHmac(&#39;sha256&#39;,key).update(data).digest(&#39;hex&#39;)
+}
+const result = createSaltSha256(msg)
+console.log(result)// c930f048e252abf8cda7fe936da95fa73f01b742fd5f3b618cf9f29fda229f22
+const result2 = createSaltSha256(msg,&#39;123&#39;)
+console.log(result2) // 0ce62924a2ed57b5af99840366b2db54b5057a3d12e943bfcae51a6d04bac6f5
+</code></pre>
+<p><strong>MD5</strong>: Message-Digest Algorithm 5，信息-摘要算法。和hash是一样的,算法参数传入&#39;md5&#39;即可。
+常见的应用场景有</p>
+<ol>
+<li>密码保护: 将md5后的密码保存到数据库，而不是保存明文密码，避免拖库等事件发生后，明文密码外泄。</li>
+<li>下载文件校验: 比如从网上下载一个软件，一般网站都会将软件的md5值附在网页上，用户下载完软件后，可对下载到本地的软件进行md5运算，然后跟网站上的md5值进行对比，确保下载的软件是完整的</li>
+<li>防篡改：比如数字证书的防篡改，就用到了摘要算法。（当然还要结合数字签名等手段）</li>
+</ol>
+<p>密码保护好处: </p>
+<ol>
+<li>防内部攻击：网站主人也不知道用户的明文密码，避免网站主人拿着用户明文密码干坏事。</li>
+<li>防外部攻击：如网站被黑客入侵，黑客也只能拿到md5后的密码，而不是用户的明文密码。</li>
+</ol>
+<p>md5也是hash的一种,通过之前的我们知道对相同内容加密后密文是一样的,这是存在安全隐患的。
+所以一般在使用md5时也会增加加盐操作,而且盐值也是要随机产生的。
+所谓加盐就是在密码特定位置插入特定字符串后，再对修改后的字符串进行md5运算。</p>
+<pre><code class="language-js">//md5 加盐后加密,盐值要存起来
+function md5salt(data){
+    let saltdata = `${data}:${Math.random().toString().slice(2, 5)}`
+    return crypto.createHash(&#39;md5&#39;).update(saltdata).digest(&#39;hex&#39;)
+}
+//md5 加盐后解密,
+function enmd5salt(data,salt){
+
+}
+
+
+
+</code></pre>
+<h2>4.12 cluster 集群模块</h2>
+<p>node实例是单线程作业的。在服务端编程中，通常会创建多个node实例来处理客户端的请求，以此提升系统的吞吐率。对这样多个node实例，我们称之为cluster（集群）。在cluster模块中，主进程称为master，子进程称为worker。</p>
+<p>集群有以下两种常见的实现方案，而node自带的cluster模块采用的是第二种。</p>
+<ol>
+<li>多个node实例+多个端口,集群内的node实例，各自监听不同的端口，通过反向代理服务器向各端口服务进行转发</li>
+</ol>
+<ul>
+<li>优点：实现简单，各实例相对独立，这对服务稳定性高有好处。</li>
+<li>缺点：增加端口占用，进程之间通信比较麻烦。</li>
+</ul>
+<ol start="2">
+<li>1 个 Node 实例开启多个进程监听同一个端口,通过负载均衡技术主进程向子进程转发请求(Master-&gt;Worker),集群内，创建一个主进程(master)，以及若干个子进程(worker)。由master监听客户端连接请求，并根据特定的策略，转发给worker。</li>
+</ol>
+<ul>
+<li>优点：通常只占用一个端口减少了端口的资源浪费，通信相对简单，转发策略更灵活。</li>
+<li>缺点：实现相对复杂，对主进程的稳定性要求较高。</li>
+</ul>
+<h2>4.13 os 操作系统模块</h2>
+<p>os 模块可以跟操作系统进行交互，提供了一些常用的方法，比如获取操作系统的信息、获取CPU信息、获取内存信息、获取磁盘信息、获取网络信息等。
+应用：有一些后台系统需要知道用户的来源信息，或者根据系统类型执行对应的脚本文件。</p>
+<pre><code class="language-js">// const os = require(&quot;node:os&quot;);
+// const { exec } = require(&quot;child_process&quot;);
+
+import os from &quot;node:os&quot;;
+import { exec } from &quot;child_process&quot;;
+
+console.log(os.arch()); // 系统架构
+console.log(os.platform()); // 系统平台
+console.log(os.release()); // 系统版本
+console.log(os.cpus()); // 系统CPU信息
+console.log(os.freemem()); // 系统空闲内存
+console.log(os.totalmem()); // 系统总内存
+console.log(os.homedir()); // 系统用户的主目录
+console.log(os.hostname()); // 系统主机名
+console.log(os.tmpdir()); // 系统临时目录
+console.log(os.type()); // 系统类型名
+console.log(os.networkInterfaces()); // 系统网络接口信息
+
+// 例子根据系统类型执行对应脚本
+function openBrowser(url) {
+  if (os.platform() === &quot;darwin&quot;) {
+    // macOS
+    exec(`open ${url}`); //执行shell脚本
+  } else if (os.platform() === &quot;win32&quot;) {
+    // Windows
+    exec(`start ${url}`); //执行shell脚本
+  } else {
+    // Linux, Unix-like
+    exec(`xdg-open ${url}`); //执行shell脚本
+  }
+}
+
+// Example usage
+openBrowser(&quot;https://www.juejin.cn&quot;);
+
+</code></pre>
+<h2>4.14 util 工具类模块</h2>
+<p>util 是Node.js内部提供的很多实用或者工具类型的API，方便我们快速开发。</p>
+<h1>五、Node.js 常用第三方模块</h1>
+<h2>5.1 cross-env</h2>
+<p>cross-env 是跨平台设置和使用环境变量 不论是在Windows系统还是POSIX系统。
+因为Windows平台无法直接设置环境变量、所以使用这个包。
+在包管理文件的脚本选项中如下设置、之后在node系统模块-进程模块 process.end.NODE_ENV 就可以访问到当前变量值。</p>
+<pre><code class="language-javaScript">  &quot;scripts&quot;: {
+    &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;,
+    &quot;serve&quot;: &quot;cross-env NODE_ENV=dev nodemon ./src/test.js&quot;,
+    &quot;prd&quot;: &quot;cross-env NODE_ENV=production pm2 start ./src/test.js&quot;
+  },
+</code></pre>
+<h2>5.2 nodemon</h2>
+<p>它是一种工具，可在检测到目录中的文件更改时通过自动重新启动节点应用程序来帮助开发基于 node.js 的应用程序。不然像之前node 文件名运行时无法做到实时监听修改了的文件。但是这个一般是开发环境使用
+全局安装:</p>
+<p><code>$npm install -g nodemon</code></p>
+<p><strong>使用</strong></p>
+<pre><code class="language-javaScript">  &quot;scripts&quot;: {
+    &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;,
+    &quot;serve&quot;: &quot;cross-env NODE_ENV=dev nodemon ./src/test.js&quot;,
+    &quot;prd&quot;: &quot;cross-env NODE_ENV=production pm2 start ./src/test.js&quot;
+  },
+</code></pre>
+<h2>5.3 pm2</h2>
+<p>PM2 是一个守护进程管理工具，帮助您管理和守护您的应用程序。生产环境使用是用来替代nodemon的。更多功能可上<a href="https://pm2.keymetrics.io/">官网</a>查看。
+全局安装:</p>
+<p><code>$npm install pm2@latest -g</code></p>
+<p><strong>使用</strong></p>
+<pre><code class="language-javaScript">  &quot;scripts&quot;: {
+    &quot;test&quot;: &quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;,
+    &quot;serve&quot;: &quot;cross-env NODE_ENV=dev nodemon ./src/test.js&quot;,
+    &quot;prd&quot;: &quot;cross-env NODE_ENV=production pm2 start ./src/test.js&quot;
+  },
+</code></pre>
+<p>它常用命令如下:</p>
+<pre><code class="language-javaScript">$ pm2 start app.js 启动、守护和监控应用程序
+$ pm2 restart app_name 重启
+$ pm2 reload app_name 重载
+$ pm2 stop app_name 停止
+$ pm2 delete app_name 删除当前任务进程
+
+pm2 stop 0             # 停止指定进程id
+pm2 restart 0          # 重启指定进程id
+pm2 delete 0           # 将进程从pm2列表中删除
+
+$ pm2 list/ls 查看所有进程
+$ pm2 logs 查看日志、 --lines 100 可以指定行数
+$ pm2 monit 查看监控信息
+$ pm2 startup 设置开机自启动
+</code></pre>
+<h2>5.4 inflection模块</h2>
+<p>安装:  npm install inflection
+转化英文单复数、转化为驼峰格式的类名等可以考虑使用inflection库</p>
+<h2>5.5 bcrypt模块</h2>
+<p>安装:  npm install bcrypt
+给密码hash化的模块</p>
+<h2>5.6 lodash模块</h2>
+<p>Lodash 是一个一致性、模块化、高性能的 JavaScript 实用工具库。
+用来处理字符串、遍历数组(里面是对象的)、对象时都可以考虑使用
+安装:  npm install lodash
+引入:  const _ = reuqire(&#39;lodash&#39;)</p>
+<h2>5.7 nodejs操作数据库</h2>
+<p>主要学习操作MySQL、mongodb、redis这三种数据库即可。</p>
+<h3>5.6.1 node操作MySQL数据库</h3>
+<p>通过第三方模块 mysql模块操作MySQL数据库实现数据的增删改查(CRUD)。
+实际上学习的主要是sql语句、因为node连接MySQL数据是很简单的。</p>
+<h3>5.6.2 node操作Mongodb数据库</h3>
+<h4>1.概述</h4>
+<p>使用 mongoose模块、它是一个MongoDB对象建模工具、设计用于异步环境支持promise和回调函数两个形式。
+好处是不用在一数据库是否连接上就可以设计模型或者进行数据的curd操作。</p>
+<p>安装:  <code>$ npm install mongoose --save</code></p>
+<p>使用步骤:  </p>
+<pre><code class="language-JavaScript">// 1. 引入 mongoose 模块
+const mongoose = require(&#39;mongoose&#39;)
+// 2. 创建一个数据库连接对象
+// 如:  连接本地的express-test 数据库写法如下、注意如果localhost不起作用使用127.0.0.1代替。
+// 线上远程服务器地址就写远程的、本质是一样的。
+// 回调形式-低版本的。v8以上版本是不用了的
+mongoose.connect(
+  &#39;mongodb://localhost:27017/express-test&#39;, 
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+  },
+  err =&gt; {
+    if(err){
+      console.log(&quot;数据库连接失败&quot;,err)
+      return
+    }
+    console.log(&quot;数据库连接成功!&quot;)
+  }
+)
+// 一般是定义一个函数连接
+async function createConnection() {
+  try {
+    await mongoose.connect(&#39;mongodb://127.0.0.1:27017/express-test&#39;)
+  } catch (error) {
+    // 连接失败
+    console.log(error)
+  }
+}
+createConnection()
+
+// 3.定义 Schema 即可对数据进行curd操作。当然实际开发时是抽离在models文件夹定义各模型文件对数据库中的数据。Schema-模型约束(模式)类似mysql中定义表及表的字段和字段约束。
+// 通过mongoose模块的 Schema接口定义文档结构包含的字段名、字段约束以及存储数据的类型、通过model方法创建模型。
+// 之后就可以通过返回的模型名操作对应的集合、完成curd操作。
+// 定义一个约束条件schema(集合里字段(field)的数据类型,默认值等)
+// 一个广告集合(表)例子
+const adSchema = new mongoose.Schema({
+    name:{
+      type:String,
+      default:&#39;&#39;
+    },
+    items:[{
+      image:{type:String},
+      url:{type:String},
+    }]    
+})
+// 直接定义一个变量接受直接使用
+const Ad = mongoose.model(&#39;Ad&#39;, adSchema)
+// 创建一个模型(集合对象模型)并导出
+module.exports = mongoose.model(&#39;Ad&#39;,adSchema)
+</code></pre>
+<h4>2. CRUD操作</h4>
+<p>在完成mongodb数据库的连接和模型约束的定义和集合的生产之后、对集合的CRUD操作是非常方便的。
+集合名.各种方法名、就可以实现对mongodb数据库集合的各种操作。
+一个模型就是一个类、所以是schema里定义的可以算是属性对象。
+如果要定义方法可以加到schema对象的methods属性上、而且要定义在model方法前。</p>
+<pre><code class="language-javaScript">adSchema.methods.sayHi = function() {
+   const greeting = this.name
+   console.log(greeting)
+}
+const ad = new Ad({name:&#39;测试广告名&#39;})
+ad.sayHi()
+</code></pre>
+<ol>
+<li>新增操作: model本质是一个类、所以可以使用类的方式新增一条数据、也可以使用api</li>
+</ol>
+<pre><code class="language-javaScript">// 以一个用户集合为例
+const schema = new mongoose.Schema({
+    username:{
+      type:String
+    },
+    password:{
+      type:String,
+    }
+  
+})
+const User = mongoose.model(&#39;User&#39;,schema)
+// 创建一个新对象(插入一条数据)、创建的实例也叫文档。
+const newUser = new User({username:&#39;zhangsan&#39;,password:&#39;123456&#39;})
+newUser.save()
+// 另一种新增方法
+await User.create({ username: &#39;small&#39; })
+// 一次创建很多
+await User.insertMany([
+    {username:&#39;很多1&#39;,password:&#39;fdsgsa112&#39;},
+    {username:&#39;很多2&#39;,password:&#39;12wsxqaz&#39;},
+])
+
+</code></pre>
+<ol start="2">
+<li>查找操作
+查找可以使用多种方法和多种限制条件。
+Model.find()、它是Model类的方法、可以传入一个查询对象、也就是schema种定义的字段。不穿时查所有。
+Model.find()、可以对查询结果进行美化处理。
+Model.findById()、根据ObjectId查找。
+Model.findByOne()、也是传入一个查询参数对象。
+它们后面都可以链式调用其它方法、如:exec()、美化输出、等</li>
+</ol>
+<pre><code class="language-javaScript">// 查找所有的
+const result = await User.find()
+// 传入查询参数
+const zhangsan = await User.find({username:&#39;zhangsan&#39;})
+// 根据id
+const zhangsan = await User.findById(id)
+// 只查找一个
+const firstOne= await User.findByOne({})
+</code></pre>
+<ol start="3">
+<li>更新操作
+每个模型都有自己的更新方法，用于修改数据库中的文档
+Model.updateOne(conditions,update)、更新第一个符合条件的文档，接受两个参数、第一个时查询条件、第二个是要更新的内容。没有返回值
+Model.updateMany(conditions,update)、更新多个传入一个数组对象、没有返回值
+如果需要有返回值使用以下方法、他会返回找到的那条数据。
+Model.findByIdAndUpdate(id,update)、根据id找并更新。
+Model.findOneAndUpdate(conditions, update, options)、找到第一个、一般也是只传递前两个参数。</li>
+</ol>
+<pre><code class="language-javaScript">// 一个-没有返回值
+await User.updateOne({username:&#39;zhangsan&#39;},{username:&#39;张三&#39;})
+// 同时修改多个-没有返回值
+await User.updateMany({username:&#39;修改&#39;},{username:&#39;多个&#39;})
+// 通过id查找修改更新
+await User.findByIdAndUpdate(&#39;65bdde1e2ca35331532577d7&#39;,{username:&#39;通过id查找修改&#39;})
+// 找第一个
+ await User.findOneAndUpdate({username:&#39;很多1&#39;},{username:&#39;我是第一个找到的&#39;})
+</code></pre>
+<ol start="4">
+<li>删除操作
+和更新操作类似、
+Model.deleteOne() 
+Model.deleteMany()
+同样也有先查找的api、
+Model.findByIdAndDelete()
+Model.findOneAndDelete()</li>
+</ol>
+<pre><code class="language-javaScript">await User.deleteOne({username:&#39;我是第一个找到的&#39;})
+</code></pre>
+<h4>3. CRUD深入操作</h4>
+<h3>5.6.3 node操作redis数据库</h3>
+<h2>5.8 node认证与授权</h2>
+<p><strong>用户的认证和授权问题是指</strong></p>
+<ol>
+<li>认证就是让服务器知道你是谁，</li>
+<li>授权就是服务器知道你是谁后确认你能干什么，不能干什么。</li>
+</ol>
+<p>这一切的源头是因为：HTTP协议是非连接性的，使用浏览器访问页面的内容会在关闭浏览器后丢失，HTTP链接也会断开，没有任何机制去记录访问的页面信息也就是会话信息。所以必须要有一种机制让浏览器页面知道原来页面的会话内容，这也是会话session的原理。</p>
+<ol>
+<li>认证：在服务器端对客户端传回来的token信息进行验证并获取用户信息。</li>
+<li>授权：根据获取到的用户信息使用中间件保护接口，即不同的用户只能访问不同的接口。</li>
+</ol>
+<p>目前由3中方法实现上述功能: </p>
+<ol>
+<li>cookie</li>
+<li>session</li>
+<li>jwt
+ 方法二：使用koa-jwt中间件这个中间件还可以和其它组合使用，具体看文档。
+ 这个中间件只是用来认证的，生成token用的还是jsonwebtoken这个中间件。
+ 由于 koa-jwt 从 koa-v2 分支开始不再导出 jsonwebtoken 的 sign 、 verify 和 decode 方法，若要单独生成 token 、验证 token 等，需另从 jsonwebtoken 中将其引入：
+ 安装：npm i koa-jwt
+ const jwt = require(&quot;koa-jwt&quot;)
+ const auth = jwt({secret}) 这样就生成了一个认证中间件了
+ 验证后的信息也是挂载到ctx.state.user上的。</li>
+</ol>
+<h3>5.7.1 cookie</h3>
+<ol>
+<li>cookie
+在开始之前要回到之前学习的http协议是无状态的、也就是说这次发起了http请求在连接关闭后、服务端不会记录用户的信息、下次你再发起http请求时、服务器还是无法判断你是谁、这也就是无状态的含义。这时就需要一种技术让服务器能记住我是谁、即解决 &quot;如何记录客户端的用户信息&quot;的问题。
+Cookie 就是用于存储 web 页面当前用户信息的一小段的文本信息、本质是以名/值对形式（key-value格式）存储在浏览器端(客户端)的一段字符串(最大5kb)。</li>
+</ol>
+<p>cookie的机制:<br>客户端第一次发送一个请求到服务器 --》 这时由于是第一次肯定是没有cookie的
+服务器在接收到前端发送的请求时、会生成一个唯一的信息(如用户id)其实也就是cookie、并通过http响应头的Set-Cookie字段把cookie返回给客户端、 --》
+客户端在接收到响应头后取出cookie并保存在浏览器中、之后再向服务器发送http请求时、都将这个Cookie放在http请求头中一起发送给服务器端 --》
+服务器再次接收到请求时、检查请求头中是否存在cookie、存在则返回响应数据给前端即可。如此整个流程也就走完了一次。</p>
+<p>cookie的属性项
+属性项 	属性项介绍
+形式:  NAME=VALUE 键值对、可以设置要保存的 Key/Value、注意这里的 NAME 不能和其他属性项的名字一样
+Expires 	过期时间、在设置的某个时间点后该 Cookie 就会失效,不设置则关闭浏览器窗口时消失。
+Domain 	生成该 Cookie 的域名、如 domain=&quot;<a href="http://www.baidu.com">www.baidu.com</a>&quot;
+Path 	该 Cookie 是在当前的哪个路径下生成的、如 path=/wp-admin/
+Secure 	如果设置了这个属性、那么只会在 SSL 连接时才会回传该 Cookie</p>
+<p>特点:<br>    跨域不共享:  浏览器为每一个不同的域名存储一段cookie
+    格式如 key=value; k1=v1;k2=v2;k3=v3; 可以结构化存储数据了、
+    每次发送http请求、都会把请求域(向谁请求)中的cookie一起发送给后端(server端)。
+    server端可以修改cookie的值并返回给浏览器(res)。
+    浏览器也可以通过js修改cookie但是有限制、一般只能设置过期时间等
+    支持设置为 HttpOnly、防止 Cookie 被客户端的 JavaScript 访问。</p>
+<p>在浏览器端是可以直接操作cookie的、通过document.cookie 属性来创建 、读取、及删除 cookie。
+读取:  const x = document.cookie;
+设置/修改:  document.cookie=&quot;username=John Doe; expires=Thu, 18 Dec 2043 12:00:00 GMT; path=/&quot;;
+删除 cookie 非常简单。只需要设置 expires 参数为以前的时间即可。但是一般不这样操作。</p>
+<p>前端在接收到服务器端返回的cookie信息时一般是存储在浏览器localStorage和sessionStorage中、这就又是另外的知识了。</p>
+<ol start="2">
+<li><p>localStorage本地存储
+一种持久化的存储方式、也就是说如果不手动清除、数据就永远不会过期。
+它是采用键值对的方式存储数据、按域名将数据分别保存到对应数据库文件里。
+相比 Cookie 来说、它能保存更大的数据。
+localStorage 的特点:<br> 大小限制为 5MB ~10MB；
+ 在同源的所有标签页和窗口之间共享数据；
+ 数据仅保存在客户端、不与服务器进行通信；
+ 数据持久存在且不会过期、重启浏览器后仍然存在；
+ 对数据的操作是同步的。
+常用api:<br> // 通过setItem()增加一个数据项
+ localStorage.setItem(&#39;myName&#39;, &#39;Semlinker&#39;);
+ // 通过getItem()获取某个数据项
+ let me = localStorage.getItem(&#39;myName&#39;);
+ // 通过removeItem()移除某个数据项
+ localStorage.removeItem(&#39;myName&#39;);
+ // 移除所有数据项
+ localStorage.clear();</p>
+</li>
+<li><p>sessionStorage会话存储
+与服务端的 session 类似、sessionStorage 是一种会话级别的缓存、关闭浏览器时数据会被清除。
+需要注意的是 sessionStorage 的作用域是窗口级别的、也就是说不同窗口之间保存的 sessionStorage 数据是不能共享的。</p>
+</li>
+</ol>
+<p>sessionStorage 的特点:<br>    sessionStorage 的数据只存在于当前浏览器的标签页；
+    数据在页面刷新后依然存在、但在关闭浏览器标签页之后数据就会被清除；
+    与 localStorage 拥有统一的 API 接口；对数据的操作是同步的。
+常用api:<br>    // 通过setItem()增加一个数据项
+    sessionStorage.setItem(&#39;myName&#39;, &#39;Semlinker&#39;);
+    // 通过getItem()获取某个数据项
+    let me = sessionStorage.getItem(&#39;myName&#39;);
+    // 通过removeItem()移除某个数据项
+    sessionStorage.removeItem(&#39;myName&#39;);
+    // 移除所有数据项
+    sessionStorage.clear();
+这上面是浏览器端也就是前端操作cookie。</p>
+<p>node后端操作cookie、进而实现登陆验证。
+通过 req.headers.cookie 可以获取前端请求头中携带的cookie数据。</p>
+<p>通过 res.setHeader(&#39;Set-Cookie&#39;,<code>username=${data.username};path=/;httpOnly;expires=${getCookieExpires()};Secure</code>)、服务器端可以设置响应头信息返回cookie。</p>
+<h3>5.7.2 session</h3>
+<p>事实上使用上面的cookie已经可以实现用户的认证和授权了、不过使用cookie存储会暴露username(用户名、手机号、邮箱名等)等个人重要信息所以是很危险的。
+解决方法:  使用session会话控制、cookie中存储userId,后端保存对应的敏感信息如username。</p>
+<p>session在计算机中，尤其是在网络应用中，称为“会话控制”。意思是当用户使用浏览器访问网页向服务器通信的时候，服务器会在内存里(或者redis中)开辟一块内存区域用来存储了当前用户会话相关的属性及配置信息，这块内存区域就叫做 session，它本质是一个对象。它存储了userId与真正用户名对应的信息。在通信时只要后端的username与userId唯一对应就能知道当前用户的其它信息了、它是一种解决cookie存储缺点的方法。</p>
+<p>具体实现是:服务器会将session的引用地址通过响应头的set-cookie字段返回给客户端，客户端一般将这个值命名为sessionid并存储在cookie中(这是一种方法)，而cookie是浏览器中一个可以保存数据的内存区域。</p>
+<p>此后用户再向服务器端请求时都会在请求头的cookie字段携带这个sessionid发给服务器，服务器根据sessionid在自己内存里找到唯一对应的内存区域即session对象并解析，解析后就知道当前用户的权限能干什么不能干什么最后将信息再次返回给前端。</p>
+<p>客户端要退出当前会话只需要把cookie清空即可，或者在服务器主动清除session。
+优点：</p>
+<ol>
+<li>相比于jwt，session可以被服务器主动清除。</li>
+<li>session保存在服务器端，相对更加安全。</li>
+<li>和浏览器的cookie结合使用，比较灵活，兼容比较好。
+缺点：</li>
+<li>cookie+session在跨域场景中不好，因为cookie不可跨域。</li>
+<li>如果是分布式部署，需要做多机session共享机制</li>
+<li>基于cookie的机制很容易被CSRF攻击</li>
+</ol>
+<h3>5.7.3 JWT</h3>
+<p>JWT是json web token的缩写，它是RFC(网络请求意见稿)的一个开放标准RFC7519。
+它定义了一种紧凑且独立的方式，用来将各方之间的信息作为JSON对象进行安全传输。
+该信息是可以被验证和信任的，因为这个信息是经过数字签名的。
+它也是为了实现客户端和服务器端之间认证的和鉴权的一种方法，它本质是一串字符串。</p>
+<p>JWT构成：头部(header)+有效载荷(payload)+签名(signature)，它们之间使用 . 分隔。</p>
+<ol>
+<li>头部(header)：本质是一个json有两个字段，在生成token时使用 base64 进行了编码。</li>
+</ol>
+<ul>
+<li>typ(type):token(令牌)的类型，这里固定是JWT</li>
+<li>alg(algorithm):使用何种hash算法加密，如RSA，SHA256等
+类似：{&quot;typ&quot;:&quot;JWT&quot;,&quot;alg&quot;:&quot;HS256&quot;} base64 编码后就变成了一堆字符串如下：&#39;eyjhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9&#39;</li>
+</ul>
+<ol start="2">
+<li><p>有效载荷(payload)：本质也是一个json，字段是真实存储需要传递的信息，如用户id，用户名等。
+还有一个元数据信息，如过期时间，发布人等等。与header不同，除了base64编码外有效载荷还可以再次进行加密。
+类似：{&quot;user_id&quot;:&quot;zhangsan&quot;} base64url 编码后如下： &#39;eyJ1c2VyX2lkIjoiemhhbmdzYM4ifQ&#39;</p>
+</li>
+<li><p>签名(signature)：对头部和有效载荷这两部分进行签名(即使用密钥再加密一次)，目的是保证token在传输的过程中没有被篡改或者损坏。
+而且在签名之后还要再进行一次base64编码。
+完整的签名算法是：signature = HMACSHA256(base64UrlEncode(header) + &#39;.&#39; + base64UrlEncode(payload),secret密钥)</p>
+</li>
+</ol>
+<p>JWT工作流程：</p>
+<ol>
+<li>首先客户端向服务器发送请求时会携带有效载荷，服务器端接收到后进行验证，验证成功就将需要返回的信息加入到有效载荷中，再对有效载荷和jwt头部一起进行base64编码。</li>
+<li>然后使用密钥对编码之后的有效载荷和jwt头部进行签名，签名完成之后再进行一次base64编码就形成一个token(令牌本质就是一串字符串)返回给客户端。返回格式是自己设定的如: {token:&#39;xxxx&#39;}</li>
+<li>最后客户端将token保存在localStorage或者sessionStorage中，在下次请求时在请求头中的 authorization 字段带上这个 token 就可以验证用户信息了。</li>
+<li>而退出只需要将token删除即可，也就是将localStorage或者sessionStorage中的token删除、而前端对localStorage或者sessionStorage的操作都是有浏览器提供的api接口的。</li>
+</ol>
+<p>JWT和session比较: </p>
+<ol>
+<li>可扩展性，jwt更好不需要在服务器端存储token。</li>
+<li>安全性，都有可能会遭受攻击，要自己注意防范，不要把重要信息放在token里。</li>
+<li>性能，jwt存储大量信息时开销比较大，而session多时后端也需要根据id查找。</li>
+<li>时效性，jwt差一点，因为session可以在服务器端主动删除。</li>
+</ol>
+<h3>5.7.4 实现逻辑</h3>
+<p>解决方案都是现成的记住就好。
+登录认证流程：</p>
+<ol>
+<li>首先前端登录时需要把用户名、用户密码等标识信息传递给后端</li>
+<li>然后后端先判断数据库是否存在该用户、存在用户后端对不敏感的信息添加到有效载荷中签名生成token，最后返回token给前端。</li>
+<li>之后前端对其它接口的请求都带上这个token。</li>
+</ol>
+<p>实际操作：在middleware文件夹新建一个auth.js，此时前端已经登录获取了token。</p>
+<ol>
+<li>认证步骤1：获取前端请求头对象的 authorization，前端不设置时默认为空</li>
+<li>认证步骤2：对authorization的值进行拆分，获取其中的token</li>
+<li>认证步骤3：验证token 如果token被修改过或者为空，都是401错误，即没有认证。</li>
+</ol>
+<h2>5.9 日志功能实现</h2>
+<h2>5.10 静态资源服务器实现</h2>
+<p>原生node要实现静态资源服务器，本质就是使用fs模块读取文件，然后返回给前端。
+一般配合path、mine两个模块。</p>
+<pre><code class="language-js">const http = require(&#39;http&#39;);
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建HTTP服务器
+const server = http.createServer((req, res) =&gt; {
+  // 获取请求的URL、请求方法
+  const { url, method } = req
+
+  // 解析请求的文件路径
+  // 文件夹路径，这里假设是 &#39;public&#39;
+  // const filePath = path.join(&#39;./public&#39;, url);
+  const filePath = path.join(process.cwd(), &#39;../&#39;,url) // 获取文件路径
+  console.log(process.cwd())// 这个目录是相对于node启动目录的。
+  console.log(url)
+  console.log(filePath)
+   
+  // 请求静态资源
+  if(method === &#39;GET&#39; &amp;&amp; url.startsWith(&#39;/public&#39;)) {
+    // 检查文件是否存在
+    fs.access(filePath, (err) =&gt; {
+        if (err) {
+            // 如果文件不存在，返回404错误
+            res.statusCode = 404;
+            res.end(`File ${url} not found!`);
+            return;
+        }
+
+        // 打开文件
+        fs.readFile(filePath, (fileErr, data) =&gt; {
+            if (fileErr) {
+                // 如果读取文件时出错，返回500错误
+                res.statusCode = 500;
+                res.end(`Error reading file from ${filePath}`);
+                return;
+            }
+
+            // 设置响应头，例如类型为文本HTML
+            const contentType = getContentType(filePath);
+            res.setHeader(&#39;Content-Type&#39;, contentType);
+
+            // 发送文件内容
+            res.end(data);
+        });
+    });
+  }
+});
+
+// 
+// 根据文件扩展名获取Content-Type - 可以适合用 mime 这个库来实现。
+function getContentType(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  switch (ext) {
+    case &#39;.html&#39;:
+    case &#39;.htm&#39;:
+      return &#39;text/html&#39;;
+    case &#39;.css&#39;:
+      return &#39;text/css&#39;;
+    case &#39;.js&#39;:
+      return &#39;application/javascript&#39;;
+    case &#39;.json&#39;:
+      return &#39;application/json&#39;;
+    case &#39;.png&#39;:
+      return &#39;image/png&#39;;
+    case &#39;.jpg&#39;:
+    case &#39;.jpeg&#39;:
+      return &#39;image/jpeg&#39;;
+    case &#39;.gif&#39;:
+      return &#39;image/gif&#39;;
+    default:
+      return &#39;application/octet-stream&#39;;
+  }
+}
+
+// 启动服务器
+server.listen(3000, () =&gt; {
+  console.log(&#39;Server is running on port 3000&#39;);
+});
+</code></pre>
+<h2>5.11 邮件服务</h2>
+<pre><code class="language-bash">$ npm install js-yaml # 解析yaml文件
+$ npm install nodemailer # 发送邮件
+</code></pre>
+<pre><code class="language-js">import nodemailder from &#39;nodemailer&#39;
+import yaml from &#39;js-yaml&#39;
+import fs from &#39;node:fs&#39;
+import http from &#39;node:http&#39;
+import url from &#39;node:url&#39;
+const mailConfig = yaml.load(fs.readFileSync(&#39;./mail.yaml&#39;, &#39;utf8&#39;))
+const transPort = nodemailder.createTransport({
+    service: &quot;qq&quot;,
+    port: 587,
+    host: &#39;smtp.qq.com&#39;,
+    secure: true,
+    auth: {
+        pass: mailConfig.pass,
+        user: mailConfig.user
+    }
+})
+
+
+http.createServer((req, res) =&gt; {
+    const { pathname } = url.parse(req.url)
+    if (req.method === &#39;POST&#39; &amp;&amp; pathname == &#39;/send/mail&#39;) {
+        let mailInfo = &#39;&#39;
+        req.on(&#39;data&#39;, (chunk) =&gt; {
+            mailInfo += chunk.toString()
+        })
+        req.on(&#39;end&#39;, () =&gt; {
+            const body = JSON.parse(mailInfo)
+            transPort.sendMail({
+                to: body.to,
+                from: mailConfig.user,
+                subject: body.subject,
+                text: body.text
+            })
+            res.end(&#39;ok&#39;)
+        })
+    }
+}).listen(3000)
+
+</code></pre>
+<h1>六、Node.js 进阶</h1>
+<p>深入原理底层知识</p>
+<h2>6.1 EventLoop 事件轮询</h2>
+<h2>6.2 I/O 模型</h2>
+<h2>6.3 Memory 内存管理</h2>
+<h2>6.4 Threads&amp;Process 线程和进程</h2>
+<h2>6.5 Schedule 定时任务</h2>
+<h2>6.6 Template 模板引擎</h2>
+<h2>6.7 Cache 缓存</h2>
+<h2>6.8 V8 虚拟机</h2>
+<h2>6.9 Testing 单元测试</h2>
+<h2>6.10 性能优化</h2>
+<h2>6.11 微服务</h2>
+<h2>6.12 线上部署</h2>
+<h1>七、其它知识</h1>
+<p>后续  to do list</p>
+<h2>7.1 Http深入</h2>
+<h2>7.2 DevOps</h2>
+<p>PM2生产环境部署,Docker,Jenkins持续集成</p>
+<h2>7.3 数据结构</h2>
+<p>队列queue,Set,Map,List,Heap堆,Stack栈,Graph图,二叉树,红黑树,十大排序方法.</p>
+<h2>7.4 设计模式</h2>
+<p>SOLID五大设计原则,单例模式,工厂模式,装饰器模式,代理模式,适配器模式,观察者模式</p>
+<h2>7.5 等</h2>
+
+</body>
+</html>

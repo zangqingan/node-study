@@ -2,19 +2,19 @@
  * node原生事件模块events
  * 通过events的EventEmitter类实现对事件的绑定监听和触发
  */
-const events = require('node:events')
+// const events = require("node:events");
+import events from "node:events";
 
 // 创建eventEmitter实例对象
-const myEventEmitter = new events.EventEmitter()
-
+const myEventEmitter = new events.EventEmitter();
 
 // 定义事件名并绑定对应的回调函数
-myEventEmitter.on('eventname',(msg) => {
-    console.log(`事件触发时传入的信息: ${msg}`)
-})
+myEventEmitter.on("eventname", (msg) => {
+  console.log(`事件触发时传入的信息: ${msg}`);
+});
 
 // 在想触发事件的地方写上就会触发定义的事件
-myEventEmitter.emit('eventname','事件触发了')
+myEventEmitter.emit("eventname", "事件触发了");
 
 /**
  * 如果想要自定义的话，es5之前时通过原型链的继承实现
@@ -22,37 +22,25 @@ myEventEmitter.emit('eventname','事件触发了')
  */
 // es5
 function SelfEmitter() {
-    events.EventEmitter.call(this)
+  events.EventEmitter.call(this);
 }
-const self = new SelfEmitter()
+const self = new SelfEmitter();
 Object.setPrototypeOf(SelfEmitter.prototype, events.EventEmitter.prototype);
-Object.setPrototypeOf(SelfEmitter, events.EventEmitter)
-self.on('self',(msg) => {
-    console.log('自定义es5类继承',msg)
-})
-self.emit('self','11')
+Object.setPrototypeOf(SelfEmitter, events.EventEmitter);
+self.on("self", (msg) => {
+  console.log("自定义es5类继承", msg);
+});
+self.emit("self", "11");
 
 // es6
 class MyEmitter extends events.EventEmitter {}
-const man = new MyEmitter()
-function wakeup(){
-    console.log('man has woken up')
+const man = new MyEmitter();
+function wakeup() {
+  console.log("man has woken up");
 }
-man.on('wakeup', wakeup)
-man.emit('wakeup')
-man.removeListener('wakeup', wakeup);
-
-
-
-
-
-
-
-
-
-
-
-
+man.on("wakeup", wakeup);
+man.emit("wakeup");
+man.removeListener("wakeup", wakeup);
 
 // EventEmitter类本质类似发布订阅的模式
 // const EventEmitter = {
@@ -83,8 +71,3 @@ man.removeListener('wakeup', wakeup);
 //   }
 
 // }
-
-
-
-
-

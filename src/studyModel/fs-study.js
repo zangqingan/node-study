@@ -1,7 +1,10 @@
 // 1，引入内置的核心fs模块
-const fs = require('node:fs')
-const asyncFs = require('node:fs/promises')
-const path = require('node:path')
+// const fs = require("node:fs");
+// const asyncFs = require("node:fs/promises");
+// const path = require("node:path");
+import fs from "node:fs";
+import asyncFs from "node:fs/promises";
+import path from "node:path";
 
 // 2,引入之后就可以直接使用这个模块提供的api了。
 // 目录的读取增删改
@@ -118,7 +121,7 @@ const path = require('node:path')
 //             // 成功执行resolve
 //             resolve(
 //                 JSON.parse(data.toString())
-//             )           
+//             )
 //         })
 //     })
 // }
@@ -139,7 +142,7 @@ const path = require('node:path')
  * data:要写入的数据,如果写入文件不存在，先创建再写入数据。
  * [options] ：可选和读取文件的函数一样，默认'w'即写入内容会覆盖原内容。
  * callback：和读取文件的函数一样
- */ 
+ */
 // const fullFileName = path.join(__dirname,'../','../','public','readfiletest.txt')
 // fs.writeFile(fullFileName,'我是用异步方法新写入的内容它会追加到之前文件内容的后面',{encoding:'utf-8',flag:'a'},(err,data)=>{
 //     if(err)throw err
@@ -161,7 +164,6 @@ const path = require('node:path')
 //     console.log('数据已追加到文件',data);
 // })
 
-
 /**
  * 文件拷贝的原理是通过fs.readFile从一个文件读取内容，然后通过fs.writeFile将其写入另一个文件。
  * readFile会默认将文件内容全部读取到内存中，然后再写入另一个文件。
@@ -171,35 +173,35 @@ const path = require('node:path')
  * 步骤是先创建可读流、然后通过管道一点点写入目标文件。
  */
 // 定义一个可读流
-const fullFileName = path.join(__dirname,'../','../','public','readfiletest.txt')
-const readStream =  fs.createReadStream(fullFileName,{encoding:'utf-8'})
-let data = ''
-readStream.on('data',chunk => {
-  data += chunk
-})
-readStream.on('end', () => {
-  console.log('data读取结束')
+const fullFileName = path.join(__dirname, "../", "../", "public", "readfiletest.txt");
+const readStream = fs.createReadStream(fullFileName, { encoding: "utf-8" });
+let data = "";
+readStream.on("data", (chunk) => {
+  data += chunk;
+});
+readStream.on("end", () => {
+  console.log("data读取结束");
   // 直接写入流
-  writeLog(accessLog,data)
-})
-readStream.on('error', err => {
-  console.log(err)
-})
+  writeLog(accessLog, data);
+});
+readStream.on("error", (err) => {
+  console.log(err);
+});
 // 定义一个写入流函数
-function createWriteStream(filename){
-  const fullFileName = path.join(__dirname,'../','../','public/logs',filename)
+function createWriteStream(filename) {
+  const fullFileName = path.join(__dirname, "../", "../", "public/logs", filename);
   // 写入流
-  const writeStream = fs.createWriteStream(fullFileName,{flags:'a',encoding:'utf-8'})
-  return writeStream
+  const writeStream = fs.createWriteStream(fullFileName, { flags: "a", encoding: "utf-8" });
+  return writeStream;
 }
 // 访问日志
-const accessLog = createWriteStream('access.log')
+const accessLog = createWriteStream("access.log");
 // 错误日志
-const errorLog = createWriteStream('error.log')
+const errorLog = createWriteStream("error.log");
 
 // 定义一个写入函数
-function writeLog(writeLogStream,log){
-  writeLogStream.write(`${log}\n`)
+function writeLog(writeLogStream, log) {
+  writeLogStream.write(`${log}\n`);
 }
 // 管道写入流
-readStream.pipe(errorLog)
+readStream.pipe(errorLog);
