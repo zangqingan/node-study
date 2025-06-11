@@ -1,74 +1,43 @@
 // 实际开发封装的版本
-const mysql = require('mysql')
+const mysql = require("mysql");
 // 创建连接对象
 // 引入配置
-const {MYSQL_CONF} = require('./globalConfig.js')
+const { MYSQL_CONF } = require("./globalConfig.js");
 const con = mysql.createConnection({
-    // 域，线上环境就是线上的数据库地址，本地是localhost
-    host:MYSQL_CONF.host,
-    // 数据库的用户
-    user:MYSQL_CONF.user,
-    password:MYSQL_CONF.password,
-    port:MYSQL_CONF.port,
-    database:MYSQL_CONF.database//指定要连接的数据库
-})
+  // 域，线上环境就是线上的数据库地址，本地是localhost
+  host: MYSQL_CONF.host,
+  // 数据库的用户
+  user: MYSQL_CONF.user,
+  password: MYSQL_CONF.password,
+  port: MYSQL_CONF.port,
+  database: MYSQL_CONF.database, //指定要连接的数据库
+});
 // 开启连接
-con.connect( err => {
-    if(err){
-        console.error("数据库连接失败",err)
-        return
-    }else{
-        console.log('数据库连接成功!')
-    }
-})
+con.connect((err) => {
+  if (err) {
+    console.error("数据库连接失败", err);
+    return;
+  } else {
+    console.log("数据库连接成功!");
+  }
+});
 //封装一个基于promise的统一执行sql语句的函数
 //参数sql 调用时传入的sql查询语句
-function exec(sql){
-    return new Promise((resolve,reject) => {
-        con.query(sql,(err,result) => {
-            if(err){
-                reject(err)
-                return
-            }
-            resolve(result)
-        })
-    })
+function exec(sql) {
+  return new Promise((resolve, reject) => {
+    con.query(sql, (err, result) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(result);
+    });
+  });
 }
 // 暴露处理sql函数
 module.exports = {
-    exec
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  exec,
+};
 
 // 引入MySQL模块
 // const mysql = require('mysql')

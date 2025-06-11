@@ -399,12 +399,21 @@ http模块可以说是nodejs最核心的模块、同时也是比较复杂的一�
 
 1. 服务器server:  接收来自客户端(浏览器)的请求、并将客户端请求的地址返回给客户端。
 2. 客户端client:  向服务器发起请求、并将服务器返回的内容打印到控制台。
+   
+
+**常见应用**
+1. 创建 Web 服务器：你可以使用 "http" 模块创建一个 HTTP 服务器，用于提供 Web 应用程序或网站。通过监听特定的端口，服务器可以接收客户端的请求，并生成响应。你可以处理不同的路由、请求方法和参数，实现自定义的业务逻辑。
+2. 构建 RESTful API："http" 模块使得构建 RESTful API 变得简单。你可以使用 HTTP 请求方法（如 GET、POST、PUT、DELETE 等）和路径来定义 API 的不同端点。通过解析请求参数、验证身份和权限，以及生成相应的 JSON 或其他数据格式，你可以构建强大的 API 服务。
+3. 代理服务器："http" 模块还可以用于创建代理服务器，用于转发客户端的请求到其他服务器。代理服务器可以用于负载均衡、缓存、安全过滤或跨域请求等场景。通过在代理服务器上添加逻辑，你可以对请求和响应进行修改、记录或过滤。
+4. 文件服务器："http" 模块可以用于创建一个简单的文件服务器，用于提供静态文件（如 HTML、CSS、JavaScript、图像等）。通过读取文件并将其作为响应发送给客户端，你可以轻松地构建一个基本的文件服务器。
+
 
 **例子**
 
-```javaScript
+```js
 
-const http = require('http');
+// const http = require('http');
+import http from 'http';
 
 // http server 例子-http.Server实例、用来提供服务、处理客户端发起的http请求
 const server = http.createServer(function(serverReq, serverRes){
@@ -421,8 +430,6 @@ const client = http.get('http://127.0.0.1:3000', function(clientRes){
 
 // serverReq/clientRes：其实都是 http.IncomingMessage实例。serverReq 用来获取客户端请求的相关信息，如请求头信息-request header；而clientRes用来获取服务端返回的相关信息，比如响应头信息-response header
 
-
-// serverRes：http.ServerResponse实例
 
 ```
 
@@ -443,7 +450,7 @@ http就是通过使用统一资源表示符(uri)来传输数据和建立连接�
 
 
 > HTTP请求本质上是一个数据流、由请求头（headers）和请求体（body）2部分组成。
-```javaScript
+```js
 HTTP请求信息:  一般用request表示-即客户端发送一个HTTP请求时传递给服务器的信息。
 由以下四部分组成:
    请求行:
@@ -459,7 +466,7 @@ Cache-Control: no-cache
 ```
 
 > HTTP响应本质上也是一个数据流、由响应头（headers）和响应体（body）组成。
-```javaScript
+```js
 HTTP响应信息:  response即服务器端返回给客户端的信息。
 由以下四部分
    响应状态行:
@@ -1085,12 +1092,26 @@ Node.js 以 8KB 为界限来区分是小对象还是大对象
 2. 资源压缩: zlib模块就是利用了缓冲区（Buffer）的功能来操作二进制数据流，提供了压缩或解压功能。
 
 ## 4.10 zlib 资源解压缩模块
-这个模块是用来对资源进行压缩的、提供了使用Gzip、Deflate/ inflation 和 Brotli 实现的压缩功能。
+这个模块是用来对资源进行压缩和解压缩的、提供了多种解压缩方法，使用Gzip、Deflate/ inflation 和 Brotli 实现的压缩功能。使用 zlib 模块进行数据压缩和解压缩可以帮助优化应用程序的性能和资源利用。通过减小数据的大小，可以减少网络传输的时间和带宽消耗，同时减少磁盘上的存储空间。此外，zlib 模块还提供了丰富的选项和方法，使得开发者可以根据具体需求进行灵活的压缩和解压缩操作。
+
+主要作用如下：
+1. 数据压缩：使用 zlib 模块可以将数据以无损压缩算法（如 Deflate、Gzip）进行压缩，减少数据的大小。这在网络传输和磁盘存储中特别有用，可以节省带宽和存储空间。
+2. 数据解压缩：zlib 模块还提供了对压缩数据的解压缩功能，可以还原压缩前的原始数据。
+3. 流压缩：zlib 模块支持使用流（Stream）的方式进行数据的压缩和解压缩。这种方式使得可以对大型文件或网络数据流进行逐步处理，而不需要将整个数据加载到内存中。
+4. 压缩格式支持：zlib 模块支持多种常见的压缩格式，如 Gzip 和 Deflate。这些格式在各种应用场景中广泛使用，例如 HTTP 响应的内容编码、文件压缩和解压缩等。
+
 浏览器通过HTTP请求头部里加上 Accept-Encoding，告诉服务器使用何种方法压缩资源。
 
 `Accept-Encoding:gzip, deflate`
 
-```javaScript
+**gzip 和 deflate 区别**
+1. 压缩算法：Gzip 使用的是 Deflate 压缩算法，该算法结合了 LZ77 算法和哈夫曼编码。LZ77 算法用于数据的重复字符串的替换和引用，而哈夫曼编码用于进一步压缩数据。
+2. 压缩效率：Gzip 压缩通常具有更高的压缩率，因为它使用了哈夫曼编码来进一步压缩数据。哈夫曼编码根据字符的出现频率，将较常见的字符用较短的编码表示，从而减小数据的大小。
+3. 压缩速度：相比于仅使用 Deflate 的方式，Gzip 压缩需要更多的计算和处理时间，因为它还要进行哈夫曼编码的步骤。因此，在压缩速度方面，Deflate 可能比 Gzip 更快。
+4. 应用场景：Gzip 压缩常用于文件压缩、网络传输和 HTTP 响应的内容编码。它广泛应用于 Web 服务器和浏览器之间的数据传输，以减小文件大小和提高网络传输效率。
+
+
+```js
 // 本地gzip压缩
 const fs = require('fs');
 const zlib = require('zlib');
@@ -1111,9 +1132,12 @@ readStream.pipe(gunzip).pipe(writeStream)
 // 首先判断 是否包含 accept-encoding 首部，且值为gzip。
 // 否：返回未压缩的文件。
 // 是：返回gzip压缩后的文件。
-const http = require('http');
-const zlib = require('zlib');
-const fs = require('fs');
+// const http = require('http');
+// const zlib = require('zlib');
+// const fs = require('fs');
+import http from "node:http";
+import zlib from "node:zlib";
+import fs from "node:fs";
 const filepath = './extra/fileForGzip.html';
 const server = http.createServer(function(req, res){
     const acceptEncoding = req.headers['accept-encoding'];
@@ -1303,7 +1327,7 @@ openBrowser("https://www.juejin.cn");
 util 是Node.js内部提供的很多实用或者工具类型的API，方便我们快速开发。
 
 
-# 五、Node.js 常用第三方模块
+# 五、Node.js 扩展
 
 ## 5.1 cross-env 
 cross-env 是跨平台设置和使用环境变量 不论是在Windows系统还是POSIX系统。
@@ -1384,9 +1408,208 @@ Lodash 是一个一致性、模块化、高性能的 JavaScript 实用工具库�
 
 ## 5.7 nodejs操作数据库
 主要学习操作MySQL、mongodb、redis这三种数据库即可。
+
 ### 5.6.1 node操作MySQL数据库
+
+#### 1 基础学习
 通过第三方模块 mysql模块操作MySQL数据库实现数据的增删改查(CRUD)。
 实际上学习的主要是sql语句、因为node连接MySQL数据是很简单的。
+
+SQL（Structured Query Language）是一种用于管理关系型数据库系统的语言。它是一种标准化语言，用于执行各种数据库操作，包括数据查询、插入、更新和删除等。
+
+```js
+// 查询语句
+SELECT xxx FROM yyy;
+// xxx:可以是表的一个列字段名，或者多个列字段名(逗号隔开)，也可以是*表示查询所有列字段
+SELECT `name` FROM `user`;
+SELECT `name`,`id` FROM `user`;
+SELECT * FROM `user`;
+// 别名通过 as 关键字指定
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user`;
+// 排序 ORDER BY [字段名称] desc降序(从大到小) asc 升序(从小到大)
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` ORDER BY `id` DESC;
+// 限制查询结果条数 limit [开始行] [限制条数] 如: LIMIT 0,10 从第0条开始查询10条
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` ORDER BY `id` DESC LIMIT 0,10;
+// 条件查询 需要把搜索条件放在WHERE子句中
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` WHERE `id` = 1;
+// 多个条件联合查询 and 操作符来连接多个搜索条件、or 操作符来连接多个搜索条件
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` WHERE `id` = 1 AND `name` = '张三';
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` WHERE `id` = 1 OR `name` = '张三';
+// 模糊查询 模糊查询使用LIKE关键字，LIKE关键字通常与通配符%一起使用，百分号（%）是用作通配符，表示任意字符（包括零个字符或多个字符）的占位符。
+// "王%"：匹配以"王"开头的字符串，后面可以是任意字符。
+// "%王"：匹配以"王"结尾的字符串，前面可以是任意字符。
+// "%王%"：匹配包含"王"的任意位置的字符串，前后可以是任意字符。
+// 例如：
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` WHERE `name` LIKE '王%';
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` WHERE `name` LIKE '%王';
+SELECT `name` as `user_name`,`id` as `user_id` FROM `user` WHERE `name` LIKE '%王%';
+
+// 增删改
+// 插入数据
+INSERT INTO 表名 (`列字段名1`,`列字段名2`,`列字段名3`) VALUES (列字段名1对应值,列字段名2对应值,列字段名3对应值);
+// 插入一条
+INSERT INTO `user` (`name`,`age`,`sex`) VALUES ('张三',18,'男');
+// 插入多条使用逗号隔开
+INSERT INTO `user` (`name`,`age`,`sex`) VALUES ('张三',18,'男'),('李四',19,'女'),('王五',20,'男');
+
+// 删除数据
+DELETE FROM 表名 WHERE 条件;
+// 删除一条
+DELETE FROM `user` WHERE `id` = 1;
+// 批量删除 使用 IN 操作符
+DELETE FROM `user` WHERE `id` IN (1,2,3);
+
+// 更新数据-更新的字段使用=赋值, where确定更新的数据
+// UPDATE 表名 SET 列字段名1=列字段名1对应值,列字段名2=列字段名2对应值,列字段名3=列字段名3对应值 WHERE 条件;
+// 更新一条
+UPDATE `user` SET `name` = '张三',`age` = 18,`sex` = '男' WHERE `id` = 1;
+// 批量更新 使用 IN 操作符，数据就一样了
+UPDATE `user` SET `name` = '张三',`age` = 18,`sex` = '男' WHERE `id` IN (1,2,3);
+
+// 表达式和函数
+// MySQL表达式是一种在MySQL数据库中使用的计算式或逻辑式。它们可用于查询、更新和过滤数据，以及进行条件判断和计算。
+// 算术表达式：可以执行基本的数学运算，例如加法、减法、乘法和除法。例如：
+SELECT col1 + col2 AS sum FROM table_name;
+// 字符串表达式：可以对字符串进行操作，例如连接、截取和替换。例如：
+SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM table_name;
+// 逻辑表达式：用于执行条件判断，返回布尔值（TRUE或FALSE）。例如
+SELECT * FROM table_name WHERE age > 18 AND gender = 'Male';
+// 条件表达式：用于根据条件返回不同的结果。例如：
+SELECT CASE WHEN age < 18 THEN 'Minor' ELSE 'Adult' END AS age_group FROM table_name;
+// 聚合函数表达式：用于计算数据集的聚合值，例如求和、平均值、最大值和最小值。例如：
+SELECT AVG(salary) AS average_salary FROM table_name;
+// 时间和日期表达式：用于处理时间和日期数据，例如提取年份、月份或计算日期差值。例如：
+SELECT YEAR(date_column) AS year FROM table_name;
+
+// MySQL提供了大量的内置函数，用于在查询和操作数据时进行计算、转换和处理。以下是一些常用的MySQL函数分类及其示例：
+// 字符串函数：
+CONCAT(str1, str2, ...)：将多个字符串连接起来。
+SUBSTRING(str, start, length)：从字符串中提取子字符串。
+UPPER(str)：将字符串转换为大写。
+LOWER(str)：将字符串转换为小写。
+LENGTH(str)：返回字符串的长度。
+
+// 数值函数：
+ABS(x)：返回x的绝对值。
+ROUND(x, d)：将x四舍五入为d位小数。
+CEILING(x)：返回不小于x的最小整数。
+FLOOR(x)：返回不大于x的最大整数。
+RAND()：返回一个随机数。
+
+// 日期和时间函数：
+NOW()：返回当前日期和时间。
+CURDATE()：返回当前日期。
+CURTIME()：返回当前时间。
+DATE_FORMAT(date, format)：将日期格式化为指定的格式。
+DATEDIFF(date1, date2)：计算两个日期之间的天数差。
+
+// 条件函数：
+IF(condition, value_if_true, value_if_false)：根据条件返回不同的值。
+CASE WHEN condition1 THEN result1 WHEN condition2 THEN result2 ELSE result END：根据条件返回不同的结果。
+// 聚合函数：
+COUNT(expr)：计算满足条件的行数。
+SUM(expr)：计算表达式的总和。
+AVG(expr)：计算表达式的平均值。
+MAX(expr)：返回表达式的最大值。
+MIN(expr)：返回表达式的最小值。
+
+// 复杂查询(子查询和连表)
+// 子查询（Subquery），也被称为嵌套查询（Nested Query），是指在一个查询语句中嵌套使用另一个完整的查询语句。子查询可以被视为一个查询的结果集，它可以作为外层查询的一部分，用于进一步筛选、计算或操作数据。
+// 子查询通常出现在主查询的WHERE子句、FROM子句、HAVING子句或SELECT子句中，以提供更复杂的查询逻辑。
+// 子查询通常用于以下几种情况：
+// 1. 过滤数据：通过子查询返回满足特定条件的数据，然后在主查询中使用这些数据进行进一步的筛选或操作。
+select * from user where id in (select id from user where age > 18);
+// 2. 计算聚合值：通过子查询计算出一组数据的聚合值，然后在主查询中使用这些聚合值进行进一步的计算或操作。
+select avg(age) from user where id in (select id from user where age > 18);
+// 3. 连接表：通过子查询连接多个表，然后在主查询中使用这些连接结果进行进一步的查询或操作。
+select * from user where id in (select user_id from user_role where role_id = 1);
+
+// 连表查询
+// Mysql的连表分类
+// 1. 内连接（Inner Join）：只返回两个表中匹配的行。
+select * from user inner join user_role on user.id = user_role.user_id;
+// 2. 左连接（Left Join）：返回左表中的所有行以及右表中匹配的行,右表没有值时为null。
+select * from user left join user_role on user.id = user_role.user_id;
+// 3. 右连接（Right Join）：返回右表中的所有行以及左表中匹配的行,左表没有值时为null。
+select * from user right join user_role on user.id = user_role.user_id;
+
+
+```
+
+#### 2 实战操作
+在nodejs里我们使用 mysql2 用来连接mysql和编写sq语句,js-yaml 用来编写配置文件。dotenv 读取环境变量文件。
+安装：
+```bash
+pnpm i mysql2 js-yaml dotenv
+```
+使用：
+```js
+import mysql from "mysql2/promise";
+import yaml from "js-yaml";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import "dotenv/config";
+
+// 获取当前模块路径 (替代 __filename、__dirname)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const filePath = path.join(__dirname, "../", "config", "dev.yaml");
+
+console.log("filePath", filePath);
+console.log("process", process.env.NODE_ENV);
+
+// 读取YAML配置
+const loadDbConfig = () => {
+  try {
+    const filePath = path.join(__dirname, "../", "config", "dev.yaml");
+    const fileContents = fs.readFileSync(filePath, "utf8");
+    return yaml.load(fileContents)[process.env.NODE_ENV];
+  } catch (e) {
+    console.error("Error loading DB config:", e.message);
+    process.exit(1);
+  }
+};
+
+// 创建数据库连接
+const createConnection = async () => {
+  try {
+    const baseConfig = loadDbConfig();
+    const config = {
+      ...baseConfig,
+      namedPlaceholders: true,
+      supportBigNumbers: true,
+      decimalNumbers: true,
+    };
+    return await mysql.createConnection(config);
+  } catch (err) {
+    console.error("Error connecting to the database:", err.message);
+    throw new Error(`Database connection failed:${err}`);
+  }
+};
+
+// // 导出自定的执行查询函数（每次创建新连接）
+export const query = async (sql, params) => {
+  const connection = await createConnection();
+  try {
+    const [rows, fields] = await connection.execute(sql, params);
+    return rows;
+  } catch (err) {
+    console.error("Database query error:", err);
+    throw new Error(`SQL Error: ${err.sqlMessage}`);
+  } finally {
+    if (connection) {
+      await connection.end(); // 关闭连接
+    }
+  }
+};
+
+// 测试连接
+query("SELECT * FROM sys_user").then((rows) => {
+  console.log("Query result:", rows);
+});
+
+```
 
 ### 5.6.2 node操作Mongodb数据库
 #### 1.概述
@@ -1721,6 +1944,19 @@ JWT和session比较:
 
 
 ## 5.10 静态资源服务器实现
+动静分离是一种在Web服务器架构中常用的优化技术，旨在提高网站的性能和可伸缩性。它基于一个简单的原则：将动态生成的内容（如动态网页、API请求）与静态资源（如HTML、CSS、JavaScript、图像文件）分开处理和分发。
+
+通过将动态内容和静态资源存储在不同的服务器或服务上，并使用不同的处理机制，可以提高网站的处理效率和响应速度。这种分离的好处包括：
+
+1. 性能优化：将静态资源与动态内容分离可以提高网站的加载速度。由于静态资源往往是不变的，可以使用缓存机制将其存储在CDN（内容分发网络）或浏览器缓存中，从而减少网络请求和数据传输的开销。
+2. 负载均衡：通过将动态请求分发到不同的服务器或服务上，可以平衡服务器的负载，提高整个系统的可伸缩性和容错性。
+3. 安全性：将动态请求与静态资源分开处理可以提高系统的安全性。静态资源通常是公开可访问的，而动态请求可能涉及敏感数据或需要特定的身份验证和授权。通过将静态资源与动态内容分离，可以更好地管理访问控制和安全策略。
+
+**实现动静分离的方法**
+
+1. 使用反向代理服务器（如Nginx、Apache）将静态请求和动态请求转发到不同的后端服务器或服务。
+2. 将静态资源部署到CDN上，通过CDN分发静态资源，减轻源服务器的负载。
+3. 使用专门的静态文件服务器（如Amazon S3、Google Cloud Storage）存储和提供静态资源，而将动态请求交给应用服务器处理。
 
 原生node要实现静态资源服务器，本质就是使用fs模块读取文件，然后返回给前端。
 一般配合path、mine两个模块。
@@ -1774,7 +2010,6 @@ const server = http.createServer((req, res) => {
   }
 });
 
-// 
 // 根据文件扩展名获取Content-Type - 可以适合用 mime 这个库来实现。
 function getContentType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
@@ -1799,6 +2034,11 @@ function getContentType(filePath) {
       return 'application/octet-stream';
   }
 }
+import mime from 'mime' // 导入mime模块
+function getContentType(filePath) {
+  const mimeType = mime.getType(filePath);// 获取文件的MIME类型
+  return mimeType;
+}
 
 // 启动服务器
 server.listen(3000, () => {
@@ -1808,9 +2048,14 @@ server.listen(3000, () => {
 
 
 ## 5.11 邮件服务
+邮件服务在我们工作中邮件服务充当着一个重要的角色
+1. 任务分配与跟踪：邮件服务可以用于分配任务、指派工作和跟踪项目进展。通过邮件，可以发送任务清单、工作说明和进度更新，确保团队成员了解其责任和任务要求，并监控工作的完成情况。
+2. 错误报告和故障排除：当程序出现错误或异常时，程序员可以通过邮件将错误报告发送给团队成员或相关方。这样可以帮助团队了解问题的性质、复现步骤和相关环境，从而更好地进行故障排除和修复。邮件中可以提供详细的错误消息、堆栈跟踪和其他相关信息，以便其他团队成员能够更好地理解问题并提供解决方案。
+3. 自动化构建和持续集成：在持续集成和自动化构建过程中，邮件服务可以用于通知团队成员构建状态、单元测试结果和代码覆盖率等信息。如果构建失败或出现警告，系统可以自动发送邮件通知相关人员，以便及时采取相应措施。
 
+**需要用到库**
 ```bash
-$ npm install js-yaml # 解析yaml文件
+$ npm install js-yaml # 解析yaml文件 邮件的账号（密码| 授权码）不可能明文写到代码里面一般存放在yaml文件或者环境变量里面
 $ npm install nodemailer # 发送邮件
 ```
 
@@ -1855,6 +2100,25 @@ http.createServer((req, res) => {
 
 
 ```
+
+## 5.12 http-proxy-middleware 反向代理模块（Reverse Proxy）
+反向代理（Reverse Proxy）是一种网络通信模式，它充当服务器和客户端之间的中介，将客户端的请求转发到一个或多个后端服务器，并将后端服务器的响应返回给客户端。
+
+1. 负载均衡：反向代理可以根据预先定义的算法将请求分发到多个后端服务器，以实现负载均衡。这样可以避免某个后端服务器过载，提高整体性能和可用性。
+2. 高可用性：通过反向代理，可以将请求转发到多个后端服务器，以提供冗余和故障转移。如果一个后端服务器出现故障，代理服务器可以将请求转发到其他可用的服务器，从而实现高可用性。
+3. 缓存和性能优化：反向代理可以缓存静态资源或经常访问的动态内容，以减轻后端服务器的负载并提高响应速度。它还可以通过压缩、合并和优化资源等技术来优化网络性能。
+4.  安全性：反向代理可以作为防火墙，保护后端服务器免受恶意请求和攻击。它可以过滤恶意请求、检测和阻止攻击，并提供安全认证和访问控制。
+5. 域名和路径重写：反向代理可以根据特定的规则重写请求的域名和路径，以实现 URL 路由和重定向。这对于系统架构的灵活性和可维护性非常有用。
+
+**proxy.config.js**
+```js
+
+```
+
+
+## 5.13 防盗链 Hotlinking
+
+
 
 # 六、Node.js 进阶
 深入原理底层知识
