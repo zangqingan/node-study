@@ -14,7 +14,7 @@ console.log("filePath", filePath);
 console.log("process", process.env.NODE_ENV);
 
 // 读取YAML配置
-const loadDbConfig = () => {
+export const loadDbConfig = () => {
   try {
     const filePath = path.join(__dirname, "../", "config", "dev.yaml");
     const fileContents = fs.readFileSync(filePath, "utf8");
@@ -59,6 +59,6 @@ export const query = async (sql, params) => {
 };
 
 // 测试连接
-query("SELECT * FROM sys_user").then((rows) => {
-  console.log("Query result:", rows);
-});
+// query("SELECT * FROM sys_user").then((rows) => {
+//   console.log("Query result:", rows);
+// });

@@ -1611,6 +1611,9 @@ query("SELECT * FROM sys_user").then((rows) => {
 
 ```
 
+
+
+
 ### 5.6.2 node操作Mongodb数据库
 #### 1.概述
 使用 mongoose模块、它是一个MongoDB对象建模工具、设计用于异步环境支持promise和回调函数两个形式。
@@ -2117,6 +2120,16 @@ http.createServer((req, res) => {
 
 
 ## 5.13 防盗链 Hotlinking
+
+## 5.14 knex SQL查询生成器
+在我们学习如何使用nodejs操作数据库时是直接书写sql语句这是非常麻烦且不方便的。而Knex是一个基于JavaScript的查询生成器，它允许你使用JavaScript代码来生成和执行SQL查询语句。它提供了一种简单和直观的方式来与关系型数据库进行交互，而无需直接编写SQL语句。你可以使用Knex定义表结构、执行查询、插入、更新和删除数据等操作。
+**安装**`pnpm i knex`,
+
+它支持多种数据库，需要那种就安装那种即可
+
+```js
+
+```
 
 
 
