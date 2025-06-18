@@ -1775,6 +1775,82 @@ await User.deleteOne({username:'我是第一个找到的'})
 
 ### 5.6.3 node操作redis数据库
 
+#### 1 概述
+Redis（Remote Dictionary Server）是一个开源的内存数据结构存储系统，它提供了一个高效的键值存储解决方案，并支持多种数据结构，如字符串（Strings）、哈希（Hashes）、列表（Lists）、集合（Sets）和有序集合（Sorted Sets）等。它被广泛应用于缓存、消息队列、实时统计等场景。
+
+**关键特性和用途介绍**
+1. 内存存储：Redis主要将数据存储在内存中，因此具有快速的读写性能。它可以持久化数据到磁盘，以便在重新启动后恢复数据。
+2. 多种数据结构：Redis不仅仅是一个简单的键值存储，它支持多种数据结构，如字符串、哈希、列表、集合和有序集合。这些数据结构使得Redis能够更灵活地存储和操作数据。
+3. 发布/订阅：Redis支持发布/订阅模式，允许多个客户端订阅一个或多个频道，以接收实时发布的消息。这使得Redis可以用作实时消息系统。
+4. 事务支持：Redis支持事务，可以将多个命令打包成一个原子操作执行，确保这些命令要么全部执行成功，要么全部失败。
+5. 持久化：Redis提供了两种持久化数据的方式：RDB（Redis Database）和AOF（Append Only File）。RDB是将数据以快照形式保存到磁盘，而AOF是将每个写操作追加到文件中。这些机制可以确保数据在意外宕机或重启后的持久性。
+6. 高可用性：Redis支持主从复制和Sentinel哨兵机制。通过主从复制，可以创建多个Redis实例的副本，以提高读取性能和容错能力。Sentinel是一个用于监控和自动故障转移的系统，它可以在主节点宕机时自动将从节点提升为主节点。
+7. 缓存：由于Redis具有快速的读写性能和灵活的数据结构，它被广泛用作缓存层。它可以将常用的数据存储在内存中，以加快数据访问速度，减轻后端数据库的负载。
+8. 实时统计：Redis的计数器和有序集合等数据结构使其非常适合实时统计场景。它可以存储和更新计数器，并对有序集合进行排名和范围查询，用于统计和排行榜功能
+
+#### 2 基本使用
+redis主要涉及下面集中操作
+
+**string-字符串的操作**
+设置值：
+`SET key value [NX|XX] [EX seconds] [PX milliseconds] [GET]`
+key：要设置的键名。
+value：要设置的值。
+NX：可选参数，表示只在键不存在时才设置值。
+XX：可选参数，表示只在键已经存在时才设置值。
+EX seconds：可选参数，将键的过期时间设置为指定的秒数。
+PX milliseconds：可选参数，将键的过期时间设置为指定的毫秒数。
+GET：可选参数，返回键的旧值。
+比如：
+设置键名为 "name" 的值为 "John"：`SET name "xiaoman"`
+设置键名为 "counter" 的值为 10，并设置过期时间为 60 秒：`SET counter 10 EX 60`
+
+删除值:`DEL name`
+
+
+**list-列表的操作**
+列表（List）是一种有序、可变且可重复的数据结构。在许多编程语言和数据存储系统中，列表是一种常见的数据结构类型，用于存储一组元素.
+
+
+**set-集合的操作**
+集合（Set）是一种无序且不重复的数据结构，用于存储一组独立的元素。集合中的元素之间没有明确的顺序关系，每个元素在集合中只能出现一次
+添加成员到集合：
+SADD fruits "apple"
+SADD fruits "banana"
+SADD fruits "orange"
+获取集合中的所有成员：SMEMBERS fruits
+检查成员是否存在于集合中：SISMEMBER fruits "apple"
+从集合中移除成员：SREM fruits "banana"
+获取集合中的成员数量：SCARD fruits
+求多个集合的并集：SUNION fruits vegetables
+求多个集合的交集：SINTER fruits vegetables
+
+**hash-哈希表的操作**
+哈希表（Hash）是一种数据结构，也称为字典、关联数组或映射，用于存储键值对集合。在哈希表中，键和值都是存储的数据项，并通过哈希函数将键映射到特定的存储位置，从而实现快速的数据访问和查找。
+设置哈希表中的字段值：
+HSET obj name "John"
+HSET obj age 25
+HSET obj email "john@example.com"
+获取哈希表中的字段值：HGET obj name
+获取哈希表中所有字段和值：HGETALL obj
+删除哈希表中的字段：HDEL obj age email
+检查哈希表中是否存在指定字段：HEXISTS obj name
+
+#### 3 ioredis
+ioredis 是一个强大且流行的 Node.js 库，用于与 Redis 进行交互。Redis 是一个开源的内存数据结构存储系统。ioredis 提供了一个简单高效的 API，供 Node.js 应用程序与 Redis 服务器进行通信。
+以下是 ioredis 的一些主要特点：
+1. 高性能：ioredis 设计为快速高效。它支持管道操作，可以在一次往返中发送多个 Redis 命令，从而减少网络延迟。它还支持连接池，并且可以在连接丢失时自动重新连接到 Redis 服务器。
+2. Promises 和 async/await 支持：ioredis 使用 promises，并支持 async/await 语法，使得编写异步代码和处理 Redis 命令更加可读。
+3. 集群和 sentinel 支持：ioredis 内置支持 Redis 集群和 Redis Sentinel，这是 Redis 的高级功能，用于分布式设置和高可用性。它提供了直观的 API，用于处理 Redis 集群和故障转移场景。
+4. Lua 脚本：ioredis 允许你使用 eval 和 evalsha 命令在 Redis 服务器上执行 Lua 脚本。这个功能使得你可以在服务器端执行复杂操作，减少客户端与服务器之间的往返次数。
+5. 发布/订阅和阻塞命令：ioredis 支持 Redis 的发布/订阅机制，允许你创建实时消息系统和事件驱动架构。它还提供了对 BRPOP 和 BLPOP 等阻塞命令的支持，允许你等待项目被推送到列表中并原子地弹出它们。
+6. 流和管道：ioredis 支持 Redis 的流数据类型，允许你消费和生成数据流。它还提供了一种方便的方式将多个命令进行管道化，减少与服务器之间的往返次数。
+
+**安装**
+pnpm i ioredis
+
+
+
 ## 5.8 node认证与授权
 
 **用户的认证和授权问题是指**
@@ -1896,7 +1972,6 @@ session在计算机中，尤其是在网络应用中，称为“会话控制”�
 3. 基于cookie的机制很容易被CSRF攻击
 
 ### 5.7.3 JWT
-
 JWT是json web token的缩写，它是RFC(网络请求意见稿)的一个开放标准RFC7519。
 它定义了一种紧凑且独立的方式，用来将各方之间的信息作为JSON对象进行安全传输。
 该信息是可以被验证和信任的，因为这个信息是经过数字签名的。
@@ -1909,16 +1984,13 @@ JWT构成：头部(header)+有效载荷(payload)+签名(signature)，它们之�
  - alg(algorithm):使用何种hash算法加密，如RSA，SHA256等
 类似：{"typ":"JWT","alg":"HS256"} base64 编码后就变成了一堆字符串如下：'eyjhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
 
-2. 有效载荷(payload)：本质也是一个json，字段是真实存储需要传递的信息，如用户id，用户名等。
-还有一个元数据信息，如过期时间，发布人等等。与header不同，除了base64编码外有效载荷还可以再次进行加密。
-类似：{"user_id":"zhangsan"} base64url 编码后如下： 'eyJ1c2VyX2lkIjoiemhhbmdzYM4ifQ'
+2. 有效载荷(payload)：本质也是一个json，字段是真实存储需要传递的信息，如用户id，用户名等身份验证和授权信息。还有一个元数据信息，如过期时间，发布人等等。与header不同，除了base64编码外有效载荷还可以再次进行加密。类似：{"user_id":"zhangsan"} base64url 编码后如下： 'eyJ1c2VyX2lkIjoiemhhbmdzYM4ifQ'
 
-3. 签名(signature)：对头部和有效载荷这两部分进行签名(即使用密钥再加密一次)，目的是保证token在传输的过程中没有被篡改或者损坏。
-而且在签名之后还要再进行一次base64编码。
+3. 签名(signature)：对头部和有效载荷这两部分进行签名(即使用指定的密钥再加密一次)，目的是保证token在传输的过程中没有被篡改或者损坏。而且在签名之后还要再进行一次base64编码。
 完整的签名算法是：signature = HMACSHA256(base64UrlEncode(header) + '.' + base64UrlEncode(payload),secret密钥)
 
-JWT工作流程：
-1. 首先客户端向服务器发送请求时会携带有效载荷，服务器端接收到后进行验证，验证成功就将需要返回的信息加入到有效载荷中，再对有效载荷和jwt头部一起进行base64编码。
+**JWT工作流程：**
+1. 首先用户在客户端向服务器发送请求时会携带有效载荷，服务器端接收到后进行验证，验证成功就将需要返回的信息加入到有效载荷中，再对有效载荷和jwt头部一起进行base64编码。
 2. 然后使用密钥对编码之后的有效载荷和jwt头部进行签名，签名完成之后再进行一次base64编码就形成一个token(令牌本质就是一串字符串)返回给客户端。返回格式是自己设定的如: {token:'xxxx'}
 3. 最后客户端将token保存在localStorage或者sessionStorage中，在下次请求时在请求头中的 authorization 字段带上这个 token 就可以验证用户信息了。
 4. 而退出只需要将token删除即可，也就是将localStorage或者sessionStorage中的token删除、而前端对localStorage或者sessionStorage的操作都是有浏览器提供的api接口的。
@@ -2135,6 +2207,7 @@ http.createServer((req, res) => {
 
 # 六、Node.js 进阶
 深入原理底层知识
+## 6.1 
 ## 6.1 EventLoop 事件轮询
 ## 6.2 I/O 模型
 ## 6.3 Memory 内存管理
