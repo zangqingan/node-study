@@ -1278,7 +1278,30 @@ node实例是单线程作业的。在服务端编程中，通常会创建多个n
   - 优点：通常只占用一个端口减少了端口的资源浪费，通信相对简单，转发策略更灵活。
   - 缺点：实现相对复杂，对主进程的稳定性要求较高。
 
+```js
+// index.js
+import cluster from 'node:cluster'
+import http from 'node:http'
+import os from 'node:os'
+const cpus = os.cpus().length
 
+// 主进程
+if (cluster.isPrimary) {
+    for (let i = 0; i < cpus; i++) {
+        cluster.fork() // 创建子进程
+    }
+}
+// 子进程
+else {
+   http.createServer((req, res) => {
+        res.writeHead(200)
+        res.end('cluster is running')
+    }).listen(3000,()=>{
+        console.log('http://127.0.0.1:3000')
+    })
+}
+// 使用 ps node 查询进程
+```
 
 ## 4.13 os 操作系统模块
 os 模块可以跟操作系统进行交互，提供了一些常用的方法，比如获取操作系统的信息、获取CPU信息、获取内存信息、获取磁盘信息、获取网络信息等。
@@ -1359,13 +1382,24 @@ cross-env 是跨平台设置和使用环境变量 不论是在Windows系统还�
 ```
 
 ## 5.3 pm2
-PM2 是一个守护进程管理工具，帮助您管理和守护您的应用程序。生产环境使用是用来替代nodemon的。更多功能可上[官网](https://pm2.keymetrics.io/)查看。
+PM2 是一个守护进程管理工具，帮助您管理和守护您的应用程序。生产环境使用是用来替代nodemon，用来部署nodejs项目的。更多功能可上[官网](https://pm2.keymetrics.io/)查看。
+作用：
+1. 进程管理：PM2 可以轻松地启动、停止、重启和删除 Node.js 应用程序进程。它支持启动多个进程以利用多核 CPU，提高应用的性能和稳定性。
+2. 负载均衡：通过集群模式，PM2 可以创建多个应用实例并自动进行负载均衡，确保应用在高并发情况下仍能稳定运行。
+3. 自动重启：当应用程序崩溃或出现错误时，PM2 能自动重启应用，确保服务的高可用性。
+4. 日志管理：PM2 提供了全面的日志管理功能，可以方便地查看、合并和分析应用程序的日志信息。
+5. 监控和性能分析：PM2 内置监控功能，可以实时查看应用程序的性能指标（如 CPU 和内存使用情况）。此外，PM2 还集成了 Keymetrics，这是一个专门用于 Node.js 应用的性能监控和管理平台。
+6. 配置文件支持：PM2 支持通过 JSON 文件或 JavaScript 文件进行配置，便于管理多个应用和环境配置。
+7. 热重载：在不停止服务的情况下，PM2 可以重新加载应用代码，从而减少停机时间。
+8. 容器支持：PM2 可以与 Docker 等容器技术很好地集成，方便在容器化环境中管理 Node.js 应用。
+
+
 全局安装:
 
 `$npm install pm2@latest -g`
 
 **使用**
-```javaScript
+```js
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "cross-env NODE_ENV=dev nodemon ./src/test.js",
@@ -1373,22 +1407,49 @@ PM2 是一个守护进程管理工具，帮助您管理和守护您的应用程�
   },
 
 ```
+
 它常用命令如下:
-```javaScript
-$ pm2 start app.js 启动、守护和监控应用程序
-$ pm2 restart app_name 重启
-$ pm2 reload app_name 重载
-$ pm2 stop app_name 停止
-$ pm2 delete app_name 删除当前任务进程
+```js
+$ pm2 start app.js b.js 启动、守护和监控一个或多个应用程序
+$ pm2 restart app_name/process_id 重启服务
+$ pm2 reload app_name/process_id 重载
+$ pm2 stop app_name/process_id 停止一个node进程
+$ pm2 delete app_name/process_id 删除当前任务进程
 
-pm2 stop 0             # 停止指定进程id
-pm2 restart 0          # 重启指定进程id
-pm2 delete 0           # 将进程从pm2列表中删除
+pm2 stop 0             # 停止指定进程id 0 
+pm2 restart 0          # 重启指定进程id 0
+pm2 delete 0           # 将进程0从pm2列表中删除 
 
-$ pm2 list/ls 查看所有进程
+$ pm2 list/ls 查看当前正在运行的node进程
 $ pm2 logs 查看日志、 --lines 100 可以指定行数
 $ pm2 monit 查看监控信息
+可以实时监控所有由 PM2 管理的进程。这个监控面板提供了丰富的实时数据，包括 CPU 使用率、内存使用情况、重启次数、日志输出等信息
+
 $ pm2 startup 设置开机自启动
+// 单独生成配置文件 ecosystem.config.js 或者手动创建也可以
+pm2 init simple
+// ecosystem.config.js
+apps: [{ 
+    name: "my-app", 
+    script: "./app.js", 
+    instances: 4, 
+    exec_mode: "cluster", 
+    watch: true, max_memory_restart: "200M", 
+    env: { NODE_ENV: "development", PORT: 3000 }, 
+    env_production:{ NODE_ENV: "production", PORT: 8080 } 
+}]
+apps：一个包含应用程序配置对象的数组，每个对象代表一个应用程序。
+name：应用程序名称，用于在 PM2 中标识。
+script：要启动的脚本文件路径。
+instances：实例数量，可以是具体数字或者 max，以利用所有可用的 CPU 核心。
+exec_mode：执行模式，常用值有 fork（默认）和 cluster。
+watch：启用文件监视，如果文件有变化，应用会自动重启。
+max_memory_restart：当内存使用超过指定值时自动重启应用。
+env：普通环境变量配置。
+env_production：生产环境变量配置，使用 pm2 start ecosystem.config.js --env production 命令启动时生效。
+
+
+
 ```
 
 ## 5.4 inflection模块
@@ -2258,22 +2319,8 @@ http.createServer((req, res) => {
 0 0 * * * *：每小时的0分0秒执行，即每小时整点执行一次任务。
 0 0 0 * * *	每天的0点0分0秒执行，即每天午夜一次任务。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 六、Node.js 进阶
-深入原理底层知识
+
 ## 6.1 EventLoop 事件轮询
 ## 6.2 I/O 模型
 ## 6.3 Memory 内存管理
@@ -2284,13 +2331,485 @@ http.createServer((req, res) => {
 ## 6.8 V8 虚拟机
 ## 6.9 Testing 单元测试
 ## 6.10 性能优化
-## 6.11 微服务
-## 6.12 线上部署
+
+## 6.11 微服务 micro servers
+### 1. 概述
+微服务指的就是，将应用程序拆分成为一系列小型、独立的服务，每个服务都是专注于执行特定的业务，比如文章的服务就执行，文章的逻辑，用户的服务，就执行用户的逻辑，这些服务可以独立开发，测试，部署以及扩展，并且可以通讯。
+
+单体架构vs微服务架构
+1. 单体架构适合小型项目，并发量不高的项目(5-10w)，其实也就是所有的功能放在一个项目里面
+2. 微服务架构适合大型项目，并发量高的情况，也就是把每一个模块单独拆分成一个小项目这样可以独立部署
+
+
+微服务的优势
+1. 独立部署：每个微服务都可以独立地进行部署。这意味着当需要对某个服务进行更新或修复时，只需重新部署该服务，而不需要重新部署整个应用程序
+
+2. 技术多样性：微服务架构允许不同的微服务使用不同的技术栈和编程语言。这样可以根据具体需求选择最适合的技术，提高开发效率和灵活性
+
+3. 弹性扩展：由于每个微服务都是独立的，可以根据实际需求对每个服务进行独立的扩展。这使得系统可以更好地应对流量高峰和负载增加的情况，提高了系统的可伸缩性和可用性
+
+### 2 MQ
+RabbitMQ
+1. RabbitMQ是一个开源的，在AMQP基础上完整的，可复用的企业消息系统。
+2. 主流的操作系统，Linux、Windows、MacOS等
+3. 开发语言支持，Java、Python、Ruby、.NET、PHP、C/C++、javaScript等
+
+RabbitMQ核心概念
+1. 消息：在RabbitMQ中，消息是传递的基本单元。它由消息体和可选的属性组成
+2. 生产者Producer：生产者是消息的发送方，它将消息发送到RabbitMQ的交换器（Exchange）中
+3. 交换器Exchange：交换器接收从生产者发送的消息，并根据特定的规则将消息路由到一个或多个队列中
+4. 队列Queue：队列是消息的接收方，它存储了待处理的消息。消费者可以从队列中获取消息并进行处理
+5. 消费者Consumer：消费者是消息的接收方，它从队列中获取消息并进行处理
+
+**安装**
+
+
+
+
+
+## 6.12 Nacos注册中心
+Nacos是阿里开源的一个项目，他可以致力于帮助您发现、配置和管理微服务。Nacos 提供了一组简单易用的特性集，帮助您快速实现动态服务发现、服务配置、服务元数据及流量管理解决方案。
+
+1. 服务注册：应用程序可以将自己的服务实例注册到Nacos注册中心，包括服务的唯一标识、网络地址和元数据等。通过注册，服务提供者可以告知Nacos它们的存在和可用性。
+2. 服务发现：应用程序可以查询Nacos注册中心以发现可用的服务。服务消费者可以通过查询注册中心来获取服务提供者的信息，如IP地址和端口等，以便与之建立通信。
+3. 服务健康检查：Nacos注册中心可以周期性地检查已注册的服务实例的健康状态。它可以通过向服务实例发送心跳检查请求，并根据响应状态确定服务是否可用。
+4. 负载均衡：通过注册中心，服务消费者可以获取多个可用的服务实例，并使用负载均衡算法选择其中之一进行请求处理。这样可以提高系统的可用性和性能。
+5. 动态配置管理：Nacos注册中心还提供了动态配置管理的功能。应用程序可以将配置信息注册到Nacos中，并且可以在运行时进行动态修改和刷新。这样可以避免应用程序重新启动或重新部署来更新配置。
+
+
+
+## 6.13 线上部署
 
 
 # 七、其它知识
-后续  to do list
-## 7.1 Http深入
+
+## 7.1 短链接
+短链接是一种缩短长网址的方法，将原始的长网址转换为更短的形式。它通常由一系列的字母、数字和特殊字符组成，比起原始的长网址，短链接更加简洁、易于记忆和分享。
+短链接的主要用途之一是在社交媒体平台进行链接分享。由于这些平台对字符数量有限制，长网址可能会占用大量的空间，因此使用短链接可以节省字符数，并且更方便在推特、短信等限制字数的场景下使用。
+另外，短链接还可以用于跟踪和统计链接的点击量。通过在短链接中嵌入跟踪代码，网站管理员可以获得关于点击链接的详细统计数据，包括访问量、来源、地理位置等信息。这对于营销活动、广告推广或分析链接的效果非常有用。
+
+实现原理大致就是生成一个唯一的短码，利用重定向，定到原来的长连接地址。
+
+**安装**
+`pnpm install nanoid`
+
+**实现**
+```js
+import { nanoid } from 'nanoid'
+const short_id = nanoid()//=> "V1StGXR8_Z5jdHi6B-myT" 
+const obj = {
+  short_id: "https://example.com/",
+}
+//重定向
+app.get('/:shortUrl', async (req, res) => {
+    const short_id = req.params.shortUrl
+    if (obj[short_id]) {
+        res.redirect(obj[short_id])
+    } else {
+        res.send('Url not found')
+    }
+})
+
+```
+
+## 7.2 Http深入
+### 1 http 缓存
+HTTP 缓存主要分为两大类：强缓存和协商缓存。这两种缓存都通过 HTTP 响应头来控制，目的是提高网站性能。
+强缓存：
+强缓存之后则不需要向服务器发送请求，而是从浏览器缓存读取分为（内存缓存）| （硬盘缓存）
+1. memory cache(内存缓存) 内存缓存存储在浏览器内存当中，一般刷新网页的时候会发现很多内存缓存
+2. disk cache(硬盘缓存) 硬盘缓存是存储在计算机硬盘中，空间大，但是读取效率比内存缓存慢
+
+Expires: 该字段指定响应的到期时间，即资源不再被视为有效的日期和时间。它是一个 HTTP 1.0 的头部字段，但仍然被一些客户端和服务器使用。
+Expires 的判断机制是：当客户端请求资源时，会获取本地时间戳，然后拿本地时间戳与 Expires 设置的时间做对比，如果对比成功，走强缓存，对比失败，则对服务器发起请求。即没过期之前使用缓存的值，过期之后从服务器读取。
+```js
+res.setHeader('Expires', new Date('2024-3-30 23:17:00').toUTCString()) //设置过期时间
+```
+Cache-Control: 该字段指定缓存控制指令，如 max-age 表示缓存的过期时间，no-cache 表示每次请求都从服务器获取数据。
+
+1. max-age：浏览器资源缓存的时长(秒)。注意：如果 max-age 和 Expires 同时出现 max-age 优先级高。
+2. no-cache：不走强缓存，走协商缓存。
+3. no-store：禁止任何缓存策略。
+4. public：资源即可以被浏览器缓存也可以被代理服务器缓存(CDN)。
+5. private：资源只能被客户端缓存。
+
+```js
+res.setHeader('Cache-Control', 'max-age=60');
+res.setHeader('Cache-Control', 'public, max-age=20') //20秒:
+
+```
+
+协商缓存:当涉及到缓存机制时，强缓存优先于协商缓存。当资源的强缓存生效时，客户端可以直接从本地缓存中获取资源，而无需与服务器进行通信。强缓存的判断是通过缓存头部字段来完成的，例如设置了合适的Cache-Control和Expires字段。
+如果强缓存未命中（例如max-age过期），或者服务器响应中设置了Cache-Control: no-cache，则客户端会发起协商缓存的请求。在协商缓存中，客户端会发送带有缓存数据标识的请求头部字段，以向服务器验证资源的有效性。
+
+服务器会根据客户端发送的协商缓存字段（如If-Modified-Since和If-None-Match）来判断资源是否发生变化。如果资源未发生修改，服务器会返回状态码 304（Not Modified），通知客户端可以使用缓存的版本。如果资源已经发生变化，服务器将返回最新的资源，状态码为 200。
+
+协商缓存(Last-Modified)Last-Modified 和 If-Modified-Since：服务器通过 Last-Modified 响应头告知客户端资源的最后修改时间。客户端在后续请求中通过 If-Modified-Since 请求头携带该时间，服务器判断资源是否有更新。如果没有更新，返回 304 状态码。
+
+协商缓存(ETag)ETag 和 If-None-Match：服务器通过 ETag 响应头给资源生成一个唯一标识符。客户端在后续请求中通过 If-None-Match 请求头携带该标识符，服务器根据标识符判断资源是否有更新。如果没有更新，返回 304 状态码。ETag 优先级比 Last-Modified 高
+
+### 2 http2
+HTTP/2（HTTP2）是超文本传输协议（HTTP）的下一个主要版本，它是对 HTTP/1.1 协议的重大改进。HTTP/2 的目标是改善性能、效率和安全性，以提供更快、更高效的网络通信
+
+```js
+import http2 from 'node:http2'
+import fs from 'node:fs'
+
+const server = http2.createSecureServer({
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.crt')
+})
+
+server.on('stream', (stream, headers) => {
+    stream.respond({
+        'content-type': 'text/html; charset=utf-8',
+        ':status': 200
+    })
+    stream.on('error', (err) => {
+        console.log(err)
+    })
+    stream.end(`
+      <h1>http2</h1>
+    `)
+})
+
+
+
+server.listen(80, () => {
+    console.log('server is running on port 80')
+})
+
+```
+
+
+
+
+## 7.3 串口技术
+串口技术是一种用于在计算机和外部设备之间进行数据传输的通信技术。它通过串行传输方式将数据逐位地发送和接收。常见的串口设备有，扫描仪，打印机，传感器，控制器，采集器，电子秤等。也就是nodejs也可以通过某种技术实现和这些设备的通信。
+
+SerialPort 是一个流行的 Node.js 模块，用于在计算机中通过串口与外部设备进行通信。它提供了一组功能强大的 API，用于打开、读取、写入和关闭串口连接，并支持多种操作系统和串口设备。
+
+SerialPort 模块的主要功能包括：
+1. 打开串口连接：使用 SerialPort 模块，可以轻松打开串口连接，并指定串口名称、波特率、数据位、停止位、校验位等参数。
+2. 读取和写入数据：通过 SerialPort 模块，可以从串口读取数据流，并将数据流写入串口。可以使用事件处理程序或回调函数来处理读取和写入操作。
+3. 配置串口参数：SerialPort 支持配置串口的各种参数，如波特率、数据位、停止位、校验位等。可以根据需求进行定制。
+4. 控制流控制：SerialPort 允许在串口通信中应用硬件流控制或软件流控制，以控制数据的传输速率和流程。
+5. 事件处理：SerialPort 模块可以监听串口连接的各种事件，如打开、关闭、错误等，以便及时处理和响应。
+
+
+**安装使用**
+```js
+pnpm install serialport
+
+import { SerialPort } from "serialport";
+
+// Create a port
+const serialPort = new SerialPort({
+    path: 'COM4', //单片机串口
+    baudRate: 9600 //波特率
+})
+
+serialPort.on('data',(data)=>{
+    console.log('data',data) //监听单片机的消息
+})
+
+serialPort.write('main screen turn on', function(err) {
+  if (err) {
+    return console.log('Error on write: ', err.message)
+  }
+  console.log('message written')
+})
+
+// Open errors will be emitted as an error event
+serialPort.on('error', function(err) {
+  console.log('Error: ', err.message)
+})
+
+```
+
+## 7.4 SSO单点登录
+单点登录（Single Sign-On，简称SSO）是一种身份认证和访问控制的机制，允许用户使用一组凭据（如用户名和密码）登录到多个应用程序或系统，而无需为每个应用程序单独提供凭据。只需要在任意一个应用登录过，其他应用便是免登录的一个效果，如果过期了，在重新登录。
+
+SSO的主要优点包括：
+1. 用户友好性：用户只需登录一次，即可访问多个应用程序，提供了更好的用户体验和便利性。
+2. 提高安全性：通过集中的身份验证，可以减少密码泄露和密码管理问题。此外，SSO还可以与其他身份验证机制（如多因素身份验证）结合使用，提供更强的安全性。
+3. 简化管理：SSO可以减少管理员的工作量，因为他们不需要为每个应用程序单独管理用户凭据和权限。
+
+## 7.5 SDL单设备登录
+SDL（Single Device Login）是一种单设备登录的机制，它允许用户在同一时间只能在一个设备上登录，当用户在其他设备上登录时，之前登录的设备会被挤下线。
+应用场景
+1. 视频影音，防止一个账号共享，防止一些账号贩子
+2. 社交媒体平台：社交媒体平台通常有多种安全措施来保护用户账户，其中之一就是单设备登录。这样可以防止他人在未经授权的情况下访问用户的账户，并保护用户的个人信息和隐私
+3. 对于在线购物和电子支付平台，用户的支付信息和订单详情是敏感的。通过单设备登录，可以在用户进行支付操作时增加额外的安全层级，确保只有授权设备可以进行支付操作
+4. 对于电子邮箱和通讯应用，用户的个人和机密信息都存储在其中。通过单设备登录机制，可以确保用户的电子邮箱或通讯应用只能在一个设备上登录，避免账户被他人恶意使用
+
+
+**实现思路**
+1. 第一次登录的时候记录用户id，并且记录socket信息，和浏览器指纹
+2. 当有别的设备登录的时候发现之前已经连接过了，便使用旧的socket发送下线通知，并且关闭旧的socket，更新socket替换成当前新设备的ws连接
+
+设计数据结构
+```js
+{
+ id:{
+    socket:ws实例
+    fingerprint:浏览器指纹
+  }
+}
+```
+
+浏览器指纹:指纹技术有很多种，这里采用canvas指纹技术,网站将这些颜色数值传递给一个算法，算法会对这些数据进行复杂的计算，生成一个唯一的标识。由于用户使用的操作系统、浏览器、GPU、驱动程序会有差异，在绘制图形的时候会产生差异，这些细微的差异也就导致了生成的标识（哈希值）不一样。因此，每一个用户都可以生成一个唯一的Canvas指纹
+```js
+import express from 'express'
+import { WebSocketServer } from 'ws'
+import cors from 'cors'
+const app = express()
+app.use(cors())
+app.use(express.json())
+//存放数据结构
+const connection = {}
+
+const server = app.listen(3000)
+const wss = new WebSocketServer({ server })
+
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        const data = JSON.parse(message)
+        if (data.action === 'login') {
+            if (connection[data.id] && connection[data.id].fingerprint) {
+                console.log('账号在别处登录')
+                //提示旧设备
+                connection[data.id].socket.send(JSON.stringify({
+                    action:'logout',
+                    message:`你于${new Date().toLocaleString()}账号在别处登录` 
+                }))
+                connection[data.id].socket.close() //断开旧设备连接
+                connection[data.id].socket = ws //更新ws
+            } else {
+                console.log('首次登录')
+                connection[data.id] = {
+                    socket: ws, //记录ws
+                    fingerprint: data.fingerprint //记录指纹
+                }
+            }
+        }
+    })
+})
+
+```
+
+前端
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>SDL</h1>
+    <script src="./md5.js"></script>
+    <script>
+       //浏览器指纹
+        const createBrowserFingerprint = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            ctx.fillStyle = 'red'
+            ctx.fillRect(0, 0, 1, 1)
+            return md5(canvas.toDataURL())
+        }
+        //谷歌abf12f62e03d160f7f24144ef1778396
+        //火狐80bea69bfc7cad5832d12e41714cf677
+        //Edge abf12f62e03d160f7f24144ef1778396
+
+        const ws = new WebSocket('ws://192.168.120.145:3000') //socket本地IP+端口
+        ws.addEventListener('open', () => {
+            ws.send(JSON.stringify({
+                action: 'login', //动作登录
+                id: 1, //用户ID
+                fingerprint: createBrowserFingerprint() //浏览器指纹
+            }))
+        })
+        ws.addEventListener('message', (message) => {
+            const data = JSON.parse(message.data)
+            if (data.action === 'logout') {
+                alert(data.message) //监听到挤下线操作提示弹框
+            }
+        })
+
+    </script>
+</body>
+
+</html>
+
+```
+
+## 7.6 SCL扫码登录
+SCL (Scan Code Login) 是一种扫码登录的技术，它允许用户通过扫描二维码来进行登录操作。这种登录方式在许多应用和网站中得到广泛应用，因为它简单、方便且安全。
+
+SCL 扫码登录的优点包括：
+1. 方便快捷：用户只需打开扫码应用程序并扫描二维码即可完成登录，无需手动输入用户名和密码。
+2. 安全性高：扫码登录采用了加密技术，用户的登录信息在传输过程中得到保护，降低了密码被盗取或泄露的风险。
+3. 避免键盘记录：由于用户无需在登录过程中输入敏感信息，如用户名和密码，因此不会受到键盘记录软件的威胁。
+4. 适用性广泛：SCL 扫码登录可以与不同的应用和网站集成，提供统一的登录方式，使用户无需记住多个账户的用户名和密码。
+
+登录逻辑
+1. 需要一个页面调用接口获取qrcode也就是二维码去展示，然后顺便展示一下状态，默认0 未授权
+2. 在这个页面轮询接口检查状态是否是已授权，如果是已授权或者超时就停止轮询。
+3. 扫码之后会打开授权页面，在授权页面点击确认按钮进行授权分配token
+
+```js
+import express from 'express'
+import qrcode from 'qrcode'
+import jwt from 'jsonwebtoken'
+
+let user = {
+
+}
+let userId = 1 //模拟一个用户
+const app = express()
+app.use(express.json())
+app.use('/static', express.static('public')) //初始化静态目录
+//初始化数据结构 记录用户和创建二维码的时间
+//并且生成二维码的时候使用的是授权的那个页面并且把用户id带过去
+app.get('/qrcode', async (req, res) => {
+    user[userId] = {
+        token: null,
+        time: Date.now()
+    }
+    const code = await qrcode.toDataURL(`http://192.168.120.145:3000/static/mandate.html?userId=${userId}`)
+    res.json({
+        code,
+        userId
+    })
+})
+//授权确认接口 陈功授权之后生成token
+app.post('/login/:userId', (req, res) => {
+    const token = jwt.sign(req.params.userId, 'secret')
+    user[req.params.userId].token = token
+    user[req.params.userId].time = Date.now()
+    res.json({
+        token
+    })
+})
+//检查接口 这个接口要被轮询调用检查状态，0未授权 1已授权 2超时
+app.get('/check/:userId', (req, res) => {
+    //判断超时时间
+    if (Date.now() - user[userId].time > 1000 * 60 * 1) {
+        return res.json({
+            status: 2
+        })
+    }
+    //如果有token那就是验证成功
+    else if (user[1].token) {
+        return res.json({
+            status: 1
+        })
+    } else {
+        return res.json({
+            status: 0
+        })
+    }
+})
+
+app.listen(3000, () => {
+    console.log('http://localhost:3000')
+})
+
+// qrcode.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <img id="qrcode" src="" alt="">
+    <div id="status-div"></div>
+    <script>
+        const status = {
+            0: '未授权',
+            1: '已授权',
+            2: '超时'
+        }
+        const qrcode = document.getElementById('qrcode')
+        const statusDiv = document.getElementById('status-div')
+        let userId = null
+        statusDiv.innerText = status[0]
+        fetch('/qrcode').then(res => res.json()).then(res => {
+            qrcode.src = res.code //获取二维码
+            userId = res.userId //获取用户id
+            let timer = setInterval(() => {
+               //轮询调用检查接口
+                fetch(`/check/${userId}`).then(res => res.json()).then(res => {
+                    statusDiv.innerText = status[res.status]
+                    //如果返回的状态是 超时 或者是已授权 就停止轮训
+                    if (res.status != 0) {
+                        clearInterval(timer)
+                    }
+                })
+            }, 1000)
+        })
+
+    </script>
+</body>
+
+</html>
+
+// mandate.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div> <button id="btn" style="width: 100%;height: 50px;">同意授权</button></div>
+    <div> <button style="width: 100%;height: 50px;margin-top: 20px;">拒绝授权</button></div>
+    <script>
+        const btn = document.getElementById('btn')
+        let userId = location.search.slice(1).split('=')[1]
+        btn.onclick = () => {
+            //点击授权按钮
+            fetch(`/login/${userId}`, {
+                method: 'POST',
+            }).then(res => res.json()).then(res => {
+                alert(`授权成功`)
+            }).catch(err => {
+                alert(err)
+            })
+        }
+    </script>
+</body>
+
+</html>
+
+```
+
+## 7.7 网关层(gateway)
+网关层是位于客户端和后端服务之间的中间层，用于处理和转发请求。它充当了请求的入口点，并负责将请求路由到适当的后端服务，并将后端服务的响应返回给客户端。网关层在分布式系统和微服务架构中起到了关键的作用。
+
+以下是一些网关层的主要功能和优势：
+1. 路由：网关层可以根据请求的URL路径或其他条件将请求转发到不同的后端服务。它可以根据特定的路由规则来决定请求应该被发送到哪个服务处理。
+2. 负载均衡：当有多个后端服务提供相同的功能时，网关层可以通过负载均衡算法将请求分发到这些服务中，以达到分散负载、提高系统性能和可用性的目的。
+3. 缓存和性能优化：网关层可以缓存一些经常请求的数据或响应，以减少后端服务的负载和提高响应速度。通过缓存静态内容或频繁请求的数据，可以减少对后端服务的请求，从而提升整体性能。
+4. 信道加密：网关层可以提供对请求和响应数据的加密和解密功能，以确保数据在传输过程中的安全性和保密性。通过使用加密算法和安全证书，网关层可以保护敏感数据免受未经授权的访问和窃听。
+5. 熔断技术：当后端服务出现故障或异常时，网关层可以使用熔断技术来防止请求继续发送到出现问题的服务上。通过监控后端服务的状态和性能指标，网关层可以自动切换到备用服务或返回错误响应，以提高系统的容错性和可靠性。
+6. 限流：网关层可以实施请求限制策略，以防止对后端服务的过度请求造成的负载过载。通过限制每个客户端的请求速率或总请求数量，网关层可以保护后端服务免受滥用或恶意攻击。
+
+熔断技术  `pnpm install opossum #熔断技术`
+
+
+
 ## 7.2 DevOps
 PM2生产环境部署,Docker,Jenkins持续集成
 ## 7.3 数据结构
